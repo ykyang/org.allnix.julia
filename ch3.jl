@@ -19,3 +19,10 @@ cubes = map(x->x^3, [1,2,3,5])
 println("$cubes")
 
 println("$([1:3])")
+
+a = split("A,B,C,D",",")
+println("typeof(a): $(typeof(a))")
+println("a: $(a)")
+
+str::String = "This is a string"
+println(str)
