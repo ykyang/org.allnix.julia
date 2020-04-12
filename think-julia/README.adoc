@@ -1,0 +1,11 @@
+# Think Julia
+
+Exercises for
+
+`https://benlauwens.github.io/ThinkJulia.jl/latest/book.html`
+
+Enter Pkg mode by `]`
+
+```
+pkg> add https://github.com/BenLauwens/ThinkJulia.jl
+```
