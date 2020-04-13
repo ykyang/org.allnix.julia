@@ -85,8 +85,12 @@ end
     # Exercise 4-6
     circle(T, 30)
 
+    # Exercise 4-7
     arc(T, 120, 270)
 end
 
+# TODO
+# Exercise 4-8
+# Exercise 4-12
 
 println("DONE")
