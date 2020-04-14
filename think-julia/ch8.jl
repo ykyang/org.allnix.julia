@@ -24,12 +24,20 @@ module ch8
 z = 1
 i = 1
 while i < 3
-    global i = i + 1
-    global z = 5
+    global i
+    i += 1
 end
 
-@show(z)
-@show(i)
+#@show(z)
+
+# Exercise 8-1
+function printbackward(word)
+    wordLength = length(word)
+    for i in wordLength:-1:1
+        println(word[i])
+    end
 end
 
-@show(i)
+printbackward("ABC")
+
+end
