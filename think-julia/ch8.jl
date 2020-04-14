@@ -1,5 +1,5 @@
 # Chapter 8. Strings
-
+module ch8
 'x'
 🍌 = 5 # \:banana:
 🐷 = "Yi-Kun Yang" # \:pig:
@@ -20,7 +20,7 @@ fruits[9]
 
 i = 13
 
-module ch8
+
 z = 1
 i = 1
 while i < 3
@@ -29,6 +29,21 @@ while i < 3
 end
 
 #@show(z)
+
+# Traversal
+# Use the one below which is way easier
+index = firstindex(fruits)
+while index <= sizeof(fruits)
+    letter = fruits[index]
+    println(letter)
+    global index = nextind(fruits, index)
+end
+
+# Way easier
+for letter in fruits
+    println(letter)
+end
+
 
 # Exercise 8-1
 function printbackward(word)
@@ -39,5 +54,24 @@ function printbackward(word)
 end
 
 printbackward("ABC")
+
+# Exercise 8-2
+
+# String Slices
+str = "Julius Caesar"
+
+str[1:6]
+str[:]
+#fruits[1:5]
+
+# Strings are immutable
+
+# String Interpolation
+greet = "Hello"
+whom = "World"
+"$greet, $(whom)"
+"1 + 2 = $(1 +2)"
+
+# Searching
 
 end
