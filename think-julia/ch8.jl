@@ -1,4 +1,5 @@
 # Chapter 8. Strings
+# https://benlauwens.github.io/ThinkJulia.jl/latest/book.html#chap08
 module ch8
 'x'
 🍌 = 5 # \:banana:
@@ -118,5 +119,30 @@ ind = findfirst("na", "banana")
 ind.start
 ind.stop
 
-# the ϵ Operator
+# The ∈ Operator (\in)
+# https://benlauwens.github.io/ThinkJulia.jl/latest/book.html#_the_operator
+# The IN Operator
+@show(∈)
+#@show(ϵ)
+
+'a' ∈ "banana"
+
+function inboth(word1, word2)
+    for char in word1
+        if char ∈ word2
+            print(char, " ")
+        end
+    end
 end
+
+inboth("apple", "orange")
+
+# String Comparison
+# https://benlauwens.github.io/ThinkJulia.jl/latest/book.html#_string_comparison
+
+# ==
+
+# Debugging
+# Exercise 8-6
+
+end # module ch8
