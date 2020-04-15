@@ -73,5 +73,50 @@ whom = "World"
 "1 + 2 = $(1 +2)"
 
 # Searching
+# Exercise 8-4
+function find(word, letter, index = 1)::Int64
+    if !(letter isa Char)
+        println("letter must be a Char")
+        return -1
+    end
 
+    #index = firstindex(word)
+
+    while index <= sizeof(word)
+        if word[index] == letter
+            return index
+        end
+        index = nextind(word, index)
+    end
+    -1
+end
+
+find("abc", 'a', 2)
+
+function count(word, char)::Int64
+    if !(char isa Char)
+        println("char must be a Char")
+        return -1
+    end
+    count = 0
+    for letter in word
+        if letter == char
+            count += 1
+        end
+    end
+
+    return count
+end
+count("banana", 'a')
+
+# String Library
+uppercase("Hello, World!")
+ind = findfirst("a", "banana")
+ind.start
+ind.stop
+ind = findfirst("na", "banana")
+ind.start
+ind.stop
+
+# the ϵ Operator
 end
