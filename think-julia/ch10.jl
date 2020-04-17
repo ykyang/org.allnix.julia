@@ -33,3 +33,17 @@ end
 for i in eachindex(cheeses)
     println(cheeses[i])
 end
+
+# Array Slices
+t = ['a', 'b', 'c', 'd', 'e', 'f']
+print(t[1:3])
+print(t[3:end])
+
+t[2:3] = ['x', 'y']
+println(t)
+
+# Array Library
+# push!
+t = ['a', 'b', 'c']
+push!(t, 'd')
+println(t)
