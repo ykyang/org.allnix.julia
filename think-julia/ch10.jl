@@ -64,7 +64,10 @@ println(tsorted) # ['a', 'b', 'c', 'd', 'e']
 sort!(t)
 println(t) # ['a', 'b', 'c', 'd', 'e']
 
+# ----------------------
 # Map, Filter and Reduce
+# https://benlauwens.github.io/ThinkJulia.jl/latest/book.html#_map_filter_and_reduce
+# ----------------------
 
 # Reduce: An operation like this that combines a sequence of elements into
 #         a single value is sometimes called a reduce operation.
@@ -117,7 +120,10 @@ end
 line = onlyupper(['a', 'B', 'C'])
 println(line) # Any['B', 'C']
 
+# ----------
 # Dot Syntax
+# https://benlauwens.github.io/ThinkJulia.jl/latest/book.html#_dot_syntax
+# ----------
 
 # use on operator
 t = [1, 2, 3]
@@ -127,7 +133,10 @@ println(t.^2) # [1, 4, 9]
 t = uppercase.(["abc", "def", "ghi"])
 println(t) # ["ABC", "DEF", "GHI"]
 
+# -----------------------------
 # Deleting (Inserting) Elements
+# https://benlauwens.github.io/ThinkJulia.jl/latest/book.html#_deleting_inserting_elements
+# -----------------------------
 
 # splice!
 t = ['a', 'b', 'c']
@@ -145,6 +154,34 @@ popfirst!(t)
 println(t) # ['b', 'c']
 
 # push!
+t = ['a', 'b']
+push!(t, 'd')
+println(t) # ['a', 'b', 'd']
+
 # pushfirst!
+t = ['a', 'b']
+pushfirst!(t, 'X')
+println(t) # ['X', 'a', 'b']
+
 # deleteat!
+t = ['a', 'b']
+deleteat!(t, 2)
+println(t) # ['a']
+
 # insert!
+t = ['a', 'b', 'c']
+insert!(t, 2, 'X')
+println(t) # ['a', 'X', 'b', 'c']
+
+# ---------------
+# Array Arguments
+# https://benlauwens.github.io/ThinkJulia.jl/latest/book.html#_array_arguments
+# ---------------
+
+# vcat
+t = vcat(1,2)
+println(t)
+
+c = ([1 2 3], [4 5 6])
+t = vcat(c...) # splat operator, see help for ...
+println(t)
