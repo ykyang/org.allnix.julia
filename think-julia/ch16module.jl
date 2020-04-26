@@ -17,6 +17,8 @@ mutable struct MyTime
     hour::Int64
     minute::Int64
     second::Int64
+    # Inner constructor
+    
 end
 
 # Exercise 16-1
