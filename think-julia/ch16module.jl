@@ -1,7 +1,7 @@
 # Structs and Functions
 # https://benlauwens.github.io/ThinkJulia.jl/latest/book.html#chap16
 #include("ch15module.jl")
-module AllnixThinkJulia
+
 
 using Printf
 
@@ -13,10 +13,10 @@ hour:
 minute:
 second:
 """
-struct MyTime
-    hour
-    minute
-    second
+mutable struct MyTime
+    hour::Int64
+    minute::Int64
+    second::Int64
 end
 
 # Exercise 16-1
@@ -61,18 +61,18 @@ end
 
 # Modifiers
 # https://benlauwens.github.io/ThinkJulia.jl/latest/book.html#modifiers
-"""
-Represents the time of day.
-
-hour:
-minute:
-second:
-"""
-mutable struct MMyTime
-    hour
-    minute
-    second
-end
+# """
+# Represents the time of day.
+#
+# hour:
+# minute:
+# second:
+# """
+# mutable struct MMyTime
+#     hour::Int64
+#     minute::Int64
+#     second::Int64
+# end
 
 # Modifier version
 function increment!DEAD(time, seconds)
@@ -134,9 +134,9 @@ function timetosecond(time)
     seconds = time.hour*3600 + time.minute*60 + time.second
 end
 
+
 function secondtotime(totalsecond)
     (minute, second) = divrem(totalsecond, 60)
     (hour, minute) = divrem(minute, 60)
     return MyTime(hour, minute, second)
-end
 end

@@ -1,7 +1,7 @@
 # Structs and Functions
 # https://benlauwens.github.io/ThinkJulia.jl/latest/book.html#chap16
 #include("ch15module.jl")
-include("ch16module.jl")
+include("AllnixThinkJulia.jl")
 import .AllnixThinkJulia
 ns = AllnixThinkJulia
 
@@ -34,7 +34,7 @@ ns.printtime(done)
 # Function that modifies its parameter
 
 # Exercise 16-3: See ch16module.jl
-time = ns.MMyTime(9, 45, 0)
+time = ns.MyTime(9, 45, 0)
 ns.increment!(time, 130)
 ns.printtime(time)
 
