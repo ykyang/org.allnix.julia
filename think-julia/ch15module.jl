@@ -1,11 +1,16 @@
 # Chapter 15. Structs and Objects
-module AllnixThinkJulia
+
 # export Point
 
 # Composite Types
 struct Point
     x
     y
+end
+
+# Exercise 17-2
+function Point(x::Float64=0, y::Float64=0)
+    Point(x,y)
 end
 
 # Mutable Structs
@@ -61,5 +66,4 @@ function findcenter(rect)
     Point(
     rect.corner.x + rect.width/2.,
     rect.corner.y + rect.height/2.)
-end
 end

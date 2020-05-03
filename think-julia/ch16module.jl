@@ -18,7 +18,10 @@ mutable struct MyTime
     minute::Int64
     second::Int64
     # Inner constructor
-    
+    function MyTime(hour::Int64=0, minute::Int64=0,
+        second::Int64=0)
+        new(hour, minute, second)
+    end
 end
 
 # Exercise 16-1
@@ -106,7 +109,17 @@ end
 
 
 # Exercise 16-4: Pure version
-function increment(time, addsecond)
+"""
+    increment
+
+Add seconds to the time.
+
+```
+time:
+addsecond:
+```
+"""
+function increment(time::MyTime, addsecond::Int64)
     second = time.second + addsecond
     minute = time.minute
     hour = time.hour

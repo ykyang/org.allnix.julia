@@ -6,7 +6,7 @@ using Printf
 
 # Methods
 # https://benlauwens.github.io/ThinkJulia.jl/latest/book.html#_methods
-function printtime(mytime::AllnixThinkJulia.MyTime)
+function printtime(mytime::MyTime)
     @printf("%02d:%02d:%02d\n", mytime.hour, mytime.minute, mytime.second)
 end
 
@@ -26,4 +26,14 @@ end
 # https://benlauwens.github.io/ThinkJulia.jl/latest/book.html#constructor
 function MyTime(mytime::MyTime)
     MyTime(mytime.hour, mytime.minute, mytime.second)
+end
+
+function Base.show(io::IO, time::MyTime)
+    @printf(io, "%02d:%02d:%02d", time.hour, time.minute, time.second)
+end
+
+import Base.+
+function +(t1::MyTime, t2::MyTime)
+    seconds = timetosecond(t1) + timetosecond(t2)
+    secondtotime(seconds)
 end
