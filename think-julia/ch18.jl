@@ -43,3 +43,20 @@ sort!(deck)
 
 # Abstract Types and Subtyping
 # https://benlauwens.github.io/ThinkJulia.jl/latest/book.html#_abstract_types_and_subtyping
+
+# Subtyping: Group related concrete types <- Abstract Type
+deck = ns.Deck()
+deck isa ns.CardSet
+
+hand = ns.Hand("new hand")
+
+# Abstract Types and Functions
+# https://benlauwens.github.io/ThinkJulia.jl/latest/book.html#_abstract_types_and_functions
+deck = ns.Deck()
+shuffle!(deck)
+card = pop!(deck)
+push!(hand, card)
+
+ns.move!(deck, hand, 4)
+@which ns.move!(deck, hand, 4)
+supertype(ns.Deck) 

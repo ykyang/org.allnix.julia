@@ -26,8 +26,14 @@ function <(c1::Card, c2::Card)
     (c1.suit, c1.rank) < (c2.suit, c2.rank)
 end
 
-struct Deck
-    cards::Array{Card, 1} # 1-D array of Card
+
+# Abstract Types and Subtyping
+# https://benlauwens.github.io/ThinkJulia.jl/latest/book.html#_abstract_types_and_subtyping
+abstract type CardSet # <: inheritance
+end
+
+struct Deck <: CardSet
+    cards :: Array{Card, 1} # 1-D array of Card
 end
 
 function Deck()
@@ -41,20 +47,20 @@ function Deck()
     deck
 end
 
-function Base.show(io::IO, deck::Deck)
-    for card in deck.cards
+function Base.show(io::IO, cs::CardSet)
+    for card in cs.cards
         print(io, card, " ")
     end
     println()
 end
 
-function Base.pop!(v::Deck)
-    pop!(v.cards)
+function Base.pop!(cs::CardSet)
+    pop!(cs.cards)
 end
 
-function Base.push!(deck::Deck, card::Card)
-    push!(deck.cards, card)
-    deck
+function Base.push!(cs::CardSet, card::Card)
+    push!(cs.cards, card)
+    nothing
 end
 
 import Random: shuffle!
@@ -71,4 +77,33 @@ end
 function Base.sort!(deck::Deck)
     sort!(deck.cards)
     deck
+end
+
+# Abstract Types and Subtyping
+# https://benlauwens.github.io/ThinkJulia.jl/latest/book.html#_abstract_types_and_subtyping
+struct Hand <: CardSet
+    cards :: Array{Card, 1}
+    label :: String
+end
+
+function Hand(label::String="")
+    Hand(Card[], label)
+end
+
+# Abstract Types and Functions
+# https://benlauwens.github.io/ThinkJulia.jl/latest/book.html#_abstract_types_and_functions
+"""
+    move!(source::CardSet, target::CardSet, n::Int)
+
+Move `n` number of cards from `source` to `target`.
+"""
+function move!(source::CardSet, target::CardSet, n::Int)
+    @assert 1<= n <= length(source.cards)
+
+    for i = 1:n
+        card = pop!(source)
+        push!(target, card)
+    end
+
+    nothing
 end
