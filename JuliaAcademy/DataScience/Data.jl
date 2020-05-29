@@ -7,3 +7,9 @@ using XLSX
 
 P = download("https://raw.githubusercontent.com/nassarhuda/easy_data/master/programming_languages.csv",
     "programminglanguages.csv")
+
+# P: body, H: header
+P,H = readdlm("programminglanguages.csv", ','; header=true)
+
+# To write to a text file, you can:
+writedlm("programminglanguages_dlm.txt", P, '-')
