@@ -15,5 +15,6 @@ function addpackage()
     Pkg.add("NPZ")
     Pkg.add("RData")
     Pkg.add("MAT")
+    Pkg.add("Images")
 end
 addpackage() # Do this only once
