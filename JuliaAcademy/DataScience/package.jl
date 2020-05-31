@@ -11,5 +11,9 @@ function addpackage()
     Pkg.add("BenchmarkTools") # adds DataFrames and DelimitedFiles
     Pkg.add("CSV")
     Pkg.add("XLSX")
+    Pkg.add("JLD")
+    Pkg.add("NPZ")
+    Pkg.add("RData")
+    Pkg.add("MAT")
 end
 addpackage() # Do this only once
