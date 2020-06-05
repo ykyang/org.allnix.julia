@@ -17,5 +17,8 @@ function addpackage()
     Pkg.add("MAT")
     Pkg.add("Images")
     Pkg.add("ImageMagick")
+    # Statistics
+    Pkg.add("RDatasets")
+    Pkg.add("Plots")
 end
 addpackage() # Do this only once

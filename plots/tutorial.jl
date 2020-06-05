@@ -22,7 +22,7 @@ plot!(p, x, z)
 # -----------
 p = plot(x, y, linewidth = 5, label = ["L1" "L2"], title="Two Lines")
 xlabel!(p, "X")
-attribute!(p, linewidth = 1)
+#attribute!(p, linewidth = 1)
 
 # plotattr()
 # plotattr(:Axis)
