@@ -28,6 +28,11 @@ function fx(x, w, b, alpha)
     return y
 end
 
+"""
+    glf(x, A, K, B, mu, Q, C, M)
+
+Generalized logistic function
+"""
 function glf(x, A, K, B, mu, Q, C, M)
     Y = A + (K-A)/(C + Q*exp(-B*(x-M)))^(1/mu)
 end
