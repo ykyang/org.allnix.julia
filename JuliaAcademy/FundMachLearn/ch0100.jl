@@ -25,12 +25,17 @@ banana = Images.load("data/104_100.jpg")
 #' ![array](data/array2d_s.png)
 #'
 
-@show typeof(apple)
-@show size(apple)
+typeof(apple)
+#'
+size(apple)
+#'
 
 apple
+#'
 dump(apple[40,60])
+#'
 x = apple[40,60]
+#'
 apple[18:20,29:31]
 Float64(Images.red(x))
 
@@ -42,12 +47,14 @@ imgs = [apple, banana]
 A = [ STAT.mean(float.( f.(img) )) for f = funcs, img = imgs ]
 
 import Plots
-Plots.gr()
+import Plotly
+#Plots.gr()
+Plots.plotly()
 v = float.(Images.green.(apple[:]))
 pt = Plots.histogram(v, color="red", label="apple", normalize=true, nbins=25)
 v = float.(Images.green.(banana[:]))
 Plots.histogram!(pt, v, color="yellow", label="banana", normalize=true, nbins=25)
-
+#'
 pixel = apple[40,60]
 
 red = Float64(Images.red(pixel))
@@ -64,9 +71,12 @@ println("The RGB values are ($red, $green, $blue)")
 
 R_of_apple = Float64.(Images.red.(apple))
 STAT.mean(R_of_apple)
+#'
 
 R_of_banana = Float64.(Images.red.(banana))
 STAT.mean(R_of_banana)
+#'
 
 G_of_banana = Float64.(Images.green.(banana))
 STAT.mean(G_of_banana)
+#'
