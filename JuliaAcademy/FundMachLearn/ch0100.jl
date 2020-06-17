@@ -28,8 +28,7 @@ banana = Images.load("data/104_100.jpg")
 typeof(apple)
 #'
 size(apple)
-#'
-
+#' We can grab the datum stored in the box at row `i` and column `j` by *indexing* using square brackets: `[i, j]`. For example, let's get the pixel (piece of the image) in box $(40, 60)$, i.e. in the 40th row and 60th column of the image:
 apple
 #'
 dump(apple[40,60])
@@ -37,7 +36,18 @@ dump(apple[40,60])
 x = apple[40,60]
 #'
 apple[18:20,29:31]
+
+#' We see that Julia displays a coloured box! Julia, via the `Colors.jl` package, is clever enough t'o display colours in a way that is useful to us humans!
+#'
+#' So, in fact, an image is a 2D array, in which each element of the array is an object (a collection of numbers) describing a coloured pixel.
+
+#' ## Colors as numbers
+#'
+#' How, then, are these colors actually stored? Computers store colors in RGB format, that is they s'tore a value between 0 and 1 for each of three "channels": red, green, and blue. Here, 0 means n'one of that color and 1 means the brightest form of that color. The overall color is a c'ombination of those three colors.
+#'
+#' For example, we can pull out the `red` value using the function `red` applied to the color. Since internally the actual value is stored in a special format, we choose to convert it to a standard floating-point number using the `Float64` function:
 Float64(Images.red(x))
+#'
 
 import Statistics
 STAT = Statistics
@@ -45,6 +55,7 @@ STAT = Statistics
 funcs = [Images.red, Images.green, Images.blue]
 imgs = [apple, banana]
 A = [ STAT.mean(float.( f.(img) )) for f = funcs, img = imgs ]
+#'
 
 import Plots
 import Plotly
