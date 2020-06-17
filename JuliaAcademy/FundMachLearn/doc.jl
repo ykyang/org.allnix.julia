@@ -1,6 +1,6 @@
 import Weave
 import Images
-
+import Glob
 
 img = Images.load("data/array2d.png")
 img = Images.imresize(img, ratio=0.15)
@@ -23,3 +23,7 @@ Images.save("data/without_arrays_s.png", img)
 Weave.weave(filepath; doctype = "md2html", out_path = :pwd)
 
 # Remove tmp folder
+tmpfiles = Glob.glob("jl_??????")
+for f in tmpfiles
+    rm(f, force=true, recursive=true)
+end
