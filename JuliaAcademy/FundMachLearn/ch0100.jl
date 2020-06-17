@@ -90,4 +90,28 @@ STAT.mean(R_of_banana)
 
 G_of_banana = Float64.(Images.green.(banana))
 STAT.mean(G_of_banana)
+
+Ans = Plots.histogram(R_of_apple[:],color=:red,label="redness in the apple")
+
+#' Julia's [mathematical standard library](https://docs.julialang.org/en/stable/stdlib/math/#Mathematics-1) has many mathematical functions built in. One of them is the `mean` function, which computes the average value. If we apply this to our apple:
+
+STAT.mean(R_of_apple)
+
+#' ## A quick riddle
+#' Here's a quick riddle. Let's check the average value of red in the image of the banana.
+R_of_banana = Float64.(Images.red.(banana))
+STAT.mean(R_of_banana)
+#' Oh no, that's more red than our apple? This isn't a mistake and is actually true! Before you move onto the next exercise, examine the images of the apple and the banana very carefully and see if you can explain why this is expected.
+
+#' #### Exercise 1
 #'
+#' What is the average value of blue in the banana?
+B_of_banana = Float64.(Images.blue.(banana))
+STAT.mean(B_of_banana)
+
+#' #### Exercise 2
+#'
+#' Does the banana have more blue or more green?
+G_of_banana = Float64.(Images.green.(banana))
+STAT.mean(G_of_banana)
+#' which gives approximately `0.88`. The banana has more green on average.
