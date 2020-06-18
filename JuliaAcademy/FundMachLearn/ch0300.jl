@@ -46,3 +46,55 @@ banana[60,60]
 #' ```
 #'
 #' `$apple_red_amount` is a placeholder for the value stored in the variable `apple_red_amount`. Julia knows that we want to use the value bound to the variable `apple_red_amount` and *not* the word "apple_red_amount" because of the dollar sign, `$`, that comes before `apple_red_amount`.
+
+#' #### Exercise 1
+#'
+#' Execute the following code to see what the dollar sign does:
+#'
+mypi = 3.14159
+println("I have a variable called mypi that has a value of $mypi.")
+
+#' #### Exercise 2
+#'
+#' Alter and execute the code that creates `mystring` below
+#'
+apple_blue_amount = S.mean(Float64.(Images.blue.(apple)))
+mystring = "The average amount of blue in the apple is $apple_blue_amount"
+
+#'
+#' so that `println(mystring)` prints a string that reports the mean value of blue coloration in our image of an apple.
+
+#' ## Take some time to think about the data
+#'
+#' Apples and bananas are very different, but how could we use the array of RGB values (which is how the images are represented in the computer, as we saw in notebook 1) to tell the difference between the two? Here are some quick ideas:
+#'
+#' - We could use the shape of the object in the image. But how can we encode ideas about shape from an array?
+#' - We could use the size of the object in the image. But how do we calculate that size?
+#' - We could use another color, or combinations of colors, from the image. Which colors?
+#'
+#' Let's go with the last route. The banana is yellow, which is a combination of red and green, while the apple is red. This means that the color that clearly differentiates between the two is not red, but green!
+
+apple_green_amount = S.mean(Float64.(Images.green.(apple)))
+banana_green_amount = S.mean(Float64.(Images.green.(banana)));
+
+"The average value of green in the apple is $apple_green_amount, " *
+"while the average value of green in the banana is $banana_green_amount."
+
+#' The processes that we just went through are assigned fancy names: feature selection and data munging.
+#'
+#' **Feature selection** is the process of subsetting the data to a more relevant and informative set. We took the full image data and decided to select out the green channel.
+#'
+#' **Data munging** is transforming the data into a format more suitable for modeling. Here, instead of keeping the full green channel, we transformed it down to a single data point: the average amount of green.
+
+#' ## Building a model
+#'
+#' We want to model the connection between "the average amount of green" and "is an apple or banana".
+#' ![Drawing](data/data_flow.png)
+#'
+#' This model is a mathematical function which takes in our data and spits out a number that we will interpret as "is an apple" or "is a banana".
+#' ![Drawing](data/what_is_model.png)
+#'
+#'
+#' We will interpret the output of the function as "is an apple" if the output is close to 0, and "is a banana" if it's close to 1. Anything in the middle is something we are unsure about. Here we're using a mathematical function to perform a **classification**.
+#'
+#' Knowing how to declare and work with functions will allow us to model our data in the coming sections, so this is the subject of the next notebook!
