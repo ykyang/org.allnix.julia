@@ -8,6 +8,8 @@
 #' For example, we might have a function `g` that takes a number as an input and returns the square of that number as an output. How can we define this function `g` on a computer? Julia gives us a few different ways to do this.
 #' ### Defining functions
 #' Firstly, we could write `g` as follows:
+
+
 g(x) = x^2
 #'
 g(2), g(3.5) # This is a tuple.
@@ -57,12 +59,16 @@ g2(3.5), g2("I ♡ Julia ") # Use \heartsuit + TAB to get the ♡ character
 #' To do so, type `\sigma<TAB>` in the code cell.
 
 #' #### Solution
+# Short form
 σ(x) = 1/(1 + exp(-x))
 σ(1)
-
+#+ results="hidden"
+# Long form
 function sigma(x)
     1/(1 + exp(-x))
 end
+#+
+
 
 #' ## Plotting functions
 
@@ -75,10 +81,10 @@ end
 #' In addition, it allows us to use different "backends", which are the other
 #' libraries that actually carry out the plotting following the instructions
 #' from `Plots.jl`.
-
 using Plots
 #gr()
-plotly()
+plotly() # plotly interfere mathjax
+
 pl = plot(sigma, -5, 5, legend=(0.1,0.9), label="σ")
 # add horizontal lines at 0 and 1, with dashed style and linewidth 3
 hline!(pl, [0,1], ls=:dash, lw=3, label=false)
