@@ -107,7 +107,98 @@ function heaviside(x)
 end
 #+
 
-#' try manipulating the value of `w` between 0 to :
+#' Try manipulating the value of `w` between 0 to :
 w = 10.0
 plot(x->sigma(w*x), -5, 5, label="σ", lw=2, legend=(0.1,0.9))
 plot!(heaviside, ls=:dash, label="step")
+# This particular function takes any real number as input, and gives an output
+# between $0$ and $1$. It is continuous and smooth.
+#' Try a smaller $w$.
+w = 1.0
+plot(x->sigma(w*x), -5, 5, label="σ", lw=2, legend=(0.1,0.9))
+plot!(heaviside, ls=:dash, label="step")
+#' #### Exercise 2
+#' Declare the sigmoid function above as an anonymous function with a different
+#' name.
+σx = x -> 1/(1+exp(-x))
+σx(1)
+#' ### Mutating functions: `...!`
+#' To generate our plot of σ above, we used some functions that end with `!`.
+#'  What does a `!` at the end of a function name mean in Julia?
+#'
+#' Functions that change or modify their inputs are called
+#' **mutating functions**. But wait, don't all functions do that?
+#' No, actually. Functions typically take *inputs* and use those *inputs* to
+#' generate *outputs*, but the inputs themselves usually don't actually get
+#' changed by a function. For example, copy and execute the following code:
+v1 = [9, 4, 7, 11]
+v2 = sort(v1)
+#' `v2` is a sorted version of `v1`, but after calling `sort`, `v1` is still
+#' unsorted.
+v1
+#+ results="hidden"
+sort!(v1)
+#' Look at the values in `v1` now!
+v1
+#' This time, the original vector itself was changed (mutated), and is now
+#' sorted. Unlike `sort`, `sort!` is a mutating function. Did the `!` make
+#' `sort!` mutating? Well, no, not really. In Julia, `!` indicates mutating
+#' functions by convention. When the author of `sort!` wrote `sort!`, they added
+#' a `!` to let you to know that `sort!` is mutating, but the `!` isn't what
+#' makes a function mutating or non-mutating in the first place.
+
+#' #### Exercise
+#' Some of our plotting commands end with `!`. Copy and execute the following code:
+r = -5:0.1:5
+g(x) = x^2
+h(x) = x^3
+plot(r, g, label="g")
+plot!(r, h, label="h")
+#' Then change the code slightly to remove the `!` after `plot!(r, h)`.
+#' How does this change your output? What do you think it means to add `!`
+#' after plotting commands?
+#' #### Solution
+r = -5:0.1:5
+g(x) = x^2
+h(x) = x^3
+p1 = plot(r, g, label="g")
+#'
+p2 = plot(r, h, label="h")
+#' ```julia
+#' plot(r, g)
+#' plot!(r, h)
+#' ```
+#' creates an overlay of `g` and `h`, whereas
+#'
+#' ```julia
+#' plot(r, g)
+#' plot(r, h)
+#' ```
+#'
+#' creates one plot for `g` and one for `h`.
+#'
+#' When we add a `!` after a plotting command, we are mutating or updating an
+#' *existing* plot.
+
+#' ## Pointwise application of functions, `f.(x, y)` and `x .+ y` - broadcasting
+#' We saw in a previous notebook that we needed to add `.` after the names of
+#' some functions, as in
+#'
+#' ```julia
+#' green_amount = mean(Float64.(green.(apple)))
+#' ```
+#'
+#' What are those extra `.`s really doing?
+#'
+#' When we add a `.` after a function's name, we are telling Julia that we want
+#' to "**broadcast**" that function over the inputs passed to the function.
+#' This means that we want to apply that function *element-wise* over the
+#' inputs; in other words, it will apply the function to each element of the
+#' input, and return an array with the newly-calculated values.
+
+#' For example, copy and execute the following code:
+g.(r)
+#' Since the function `g` squares it's input, this squares all the elements of
+#' the range `r`.
+#' What happens if instead we just call `g` on `r` via
+g(r)
