@@ -27,6 +27,7 @@ Weave.weave(filepath; doctype = "md2html", out_path = :pwd)
 filepath = "ch0300.jl"
 Weave.weave(filepath; doctype = "md2html", out_path = :pwd)
 
+# Use modified tpl to fix a Plotly bug
 filepath = "ch0300quiz.jl"
 Weave.weave(filepath; doctype = "md2html", out_path = :pwd,
     template="templates/julia_html.tpl",

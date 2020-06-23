@@ -9,16 +9,19 @@
 #' ### Defining functions
 #' Firstly, we could write `g` as follows:
 
-
+#+ results="hidden"
 g(x) = x^2
+#+
 #'
 g(2), g(3.5) # This is a tuple.
 #'
 g(3.0)
 #' Alternatively, we could declare this function using the `function` and `end` keywords:
+#+ results="hidden"
 function g1(x)
     x^2
 end
+#+
 g1(2), g1(3.5)
 #' The third way we could have declared this function is as an "anonymous" or
 #' "lambda" function. "Anonymous" functions are functions that truly don't need
@@ -68,6 +71,7 @@ function sigma(x)
     1/(1 + exp(-x))
 end
 #+
+sigma(1)
 
 
 #' ## Plotting functions
@@ -83,7 +87,9 @@ end
 #' from `Plots.jl`.
 using Plots
 #gr()
-plotly() # plotly interfere mathjax
+# plotly interferes mathjax, tpl file needs to be fixed
+# see templates/julia_html.tpl
+plotly()
 
 pl = plot(sigma, -5, 5, legend=(0.1,0.9), label="σ")
 # add horizontal lines at 0 and 1, with dashed style and linewidth 3
@@ -95,7 +101,7 @@ vline!(pl, [0], ls=:dash, lw=3, label=false)
 #' (often called a "Heaviside" function). To see this, let's modify the
 #' steepness of the jump in $\sigma$ and compare it to the Heaviside function;
 #' we'll see how all this works in more detail later:
-#+ term=true
+#+ results="hidden"
 function heaviside(x)
     x < 0 ? 0.0 : 1.0
 end
