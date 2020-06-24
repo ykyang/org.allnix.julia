@@ -201,4 +201,92 @@ g.(r)
 #' Since the function `g` squares it's input, this squares all the elements of
 #' the range `r`.
 #' What happens if instead we just call `g` on `r` via
-g(r)
+# g(r)
+
+#' You should see an error message after calling `g(r)`, which says that Julia
+#' cannot multiply two vectors. When we call `g(r)`, we ask Julia to multiply
+#' `r` by `r`. When we call `g.(r)`, we ask Julia to multiply *each element*
+#' in `r` by itself.
+
+#' Try this and see what happens.
+x = [1 2 3; 4 5 6]
+f(t) = sqrt(t) + 5
+f.(x)
+
+#' #### Exercise 3
+#'
+#' Copy and execute the following code to get the type of the object
+#' `numbers = [1, 2, "three", 4.0]`:
+#+ results="hidden"
+numbers = [1, 2, "three", 4.0]
+#' What is the type of `numbers`?
+typeof(numbers)
+#' Its type is `Array{Any,1}`. This means that `numbers` is a
+#' 1-dimensional array that has elements of abstract type `Any`. We can think
+#' of the `Any` type as a classification that includes *all* concrete types,
+#' for example, `Float64`, `Int32`, `Bool`, `String`, `Char`, etc.
+
+#' #### Exercise 4
+#'
+#' Broadcast `typeof` over `numbers` to see what the types of the elements
+#' stored inside `numbers` are.
+typeof.(numbers)
+
+#' Note: Alternatively, we could have looked at the `typeof` each element in
+#' the array `numbers` using a `for` loop:
+for n in numbers
+    println(typeof(n))
+end
+
+#' #### Exercise 5
+#'
+#' Write a `for` loop that applies `g` to each of the elements of `r` and
+#' prints the results. Verify that the numbers printed by this `for` loop are
+#' equal to the entries of the output of `g.(r)`.
+r = -5:0.1:5
+for x in r
+    #println(g(x)) # uncomment to print
+end
+
+#' We can check this via
+broadcasted_g = g.(r)
+for (x, bg) = zip(r, broadcasted_g)
+    # println(g(x) == bg) # uncomment to print
+end
+
+#' A better way
+answers_match = true
+for (x, bg) = zip(r, broadcasted_g)
+    if (g(x) != bg)
+        answers_match = false
+    end
+end
+answers_match ? println("Our `for` loop worked!") : println("Our `for` loop does not work")
+
+#' #### Exercise 6
+#'
+#' Define a range `xs` between -5 and 5 with steps of 0.5.
+#' Apply the $\sigma$ function pointwise to this range and define `ys` as the
+#' result.
+#' What does the result look like? Plot these as points and join them with
+#' lines.
+#'
+#' Make the plot interactive where you can vary the step size. Fix the range of
+#' the plot in the `x` and `y` directions using the functions `xlims!` and
+#' `ylims!`.
+#'
+#' Learn about plot optinos by `plotattr(:Series)` and `plotattr("markershape")`
+xs = -5:0.5:5
+ys = sigma.(xs)
+pl = plot(xs, ys; legend=(0.1,0.9), markershape=:circle)
+
+#' Try manipulating `stepsize` between 0 and 1:
+stepsize = 0.5
+xs = -5.0:stepsize:5.0
+ys = σ.(xs)
+
+scatter(xs, ys)
+plot!(xs, ys)
+
+xlims!(-5, 5)
+ylims!(0, 1)
