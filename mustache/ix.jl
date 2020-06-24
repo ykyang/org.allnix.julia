@@ -1,5 +1,5 @@
 using Mustache
-
+using DataFrames
 tpl = read("grid.tpl", String)
 dic = Dict()
 dic["offset"] = 1
@@ -19,5 +19,22 @@ open("grid.ixf", "w") do io
     render(io, tpl, vview)
 end
 
-tpl = "{{#:vec}}{{.}}{{^.[end]}}, {{/.[end]}}{{/:vec}}"
-Ans = render(tpl, vec = ["A1", "B2", "C3"])  # "A1, B2, C3"
+#tpl = "{{#:vec}}{{.}}{{^.[end]}}, {{/.[end]}}{{/:vec}}"
+#Ans = render(tpl, vec = ["A1", "B2", "C3"])  # "A1, B2, C3"
+
+I1 = [1, 1, 1]
+I2 = [9, 9, 9]
+J1 = [80, 22, 51]
+df = DataFrame(I1 = Int64[], I2=Int64[])
+push!(df, [1, 2])
+df = DataFrame([Int64, Int64, Int64, Int64, Int64, Int64, String, String, Int64],
+["I1", "I2", "J1", "J2", "K1", "K2", "Grid", "Property", "Expression"])
+push!(df, [1, 9, 1, 80, 1, 5, "CoarseGrid", "SAT_TAB", 1])
+push!(df, [1, 9, 1, 22, 1, 5, "CoarseGrid", "SAT_TAB", 2])
+
+dic = Dict();
+dic["rock_region"] = df
+tpl = read("rock.tpl", String)
+open("rock.ixf", "w") do io
+    render(io, tpl, dic)
+end
