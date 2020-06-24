@@ -11,7 +11,9 @@ StraightPillarGrid "CoarseGrid" {
     Units = "ECLIPSE_FIELD"
     DeltaX = {{dxv}}
     DeltaY = {{dyv}}
-    DeltaZ = {{dzv}}
+    {{! another way to display array}}
+    {{! . means current element, ^ means invert}}
+    DeltaZ = [{{#dzv}}{{.}}{{^.[end]}} {{/.[end]}}{{/dzv}}]
     OriginX = 0
     OriginY = 0
     OriginZ = {{tops}}
