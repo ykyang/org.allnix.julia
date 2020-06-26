@@ -33,6 +33,8 @@
 
 using Images, Statistics
 
+# apple = load("C:\\Users\\Yi-Kun.Yang\\work\\org.allnix.julia\\JuliaAcademy\\FundMachLearn/data/10_100.jpg")
+# banana = load("C:\\Users\\Yi-Kun.Yang\\work\\org.allnix.julia\\JuliaAcademy\\FundMachLearn/data/104_100.jpg")
 apple = load("data/10_100.jpg")
 banana = load("data/104_100.jpg")
 
@@ -59,8 +61,8 @@ println("Average green for banana = $banana_green_amount")
 # We can understand how our choice of `w` and `b` affects our model by seeing how our values for `w` and `b` change the plot of the $\sigma$ function.
 
 using Plots;
-gr()   # GR works better for interactive manipulations
-#plotly()
+#gr()   # GR works better for interactive manipulations
+plotly()
 #' Run the code in the next cell. You should see two "sliders" appear, one for
 #' `w` and one for `b`.
 
@@ -74,25 +76,36 @@ b = 10.0 # try manipulating b between 0 and 20
 
 using Interact
 
-pt = plot()
-scatter!(pt, [apple_green_amount],  [0.0], label="apple", ms=5)   # marker size = 5
-scatter!(pt, [banana_green_amount], [1.0], label="banana", ms=5)
-plot!(pt, x -> σ(x, w, b), xlim=(-0,1), ylim=(-0.1,1.1), label="model",
-legend=:topleft, lw=3)
-# Interact must be the last plot command
+# Function for Interact
 function myplot(w,b)
       pt = plot()
       scatter!(pt, [apple_green_amount],  [0.0], label="apple", ms=5)   # marker size = 5
       scatter!(pt, [banana_green_amount], [1.0], label="banana", ms=5)
-      plot!(pt, x -> σ(x, w, b), xlim=(-0,1), ylim=(-0.1,1.1), label="model", legend=:topleft, lw=3)
+      plot!(pt, x -> σ(x, w, b), xlim=(-0,1), ylim=(-0.1,1.1), label="model", legend=(0.1,0.9), lw=3)
 end
-# pw = widget(-10:1:30, label="w")
-# pb = widget(0:1:20, label="b")
-# ipl = map(pt, pw, pb)
-# vbox(pw, pb, ipl)
+
+#' Notice that the two parameters do two very different things. The **weight**,
+#' `w`, determines *how fast* the transition between 0 and 1 occurs. It encodes
+#' how trustworthy we think our data  actually is, and in what range we should
+#' be putting points between 0 and 1 and thus calling them "unsure". The
+#' **bias**, `b`, encodes *where* on the $x$-axis the switch should take place.
+#' It can be seen as shifting the function left-right. We'll come to understand
+#' these *parameters* more in notebook 6.
+
+#' Here are some parameter choices that work well:
+
+w = 25.58 #20.8
+b = 15.6 #12.4
+myplot(w,b)
+
+#+ results="hidden"
 @manipulate for w=-10:0.2:30,b = 0:0.2:20
      vbox(w,b,myplot(w,b))
 end
+
+
+
+
 
 
 #'

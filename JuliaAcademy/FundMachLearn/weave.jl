@@ -2,6 +2,7 @@ import Weave
 import Images
 import Glob
 
+weaving = true
 # filepath = "ch0100.jl"
 # img = Images.load("data/array2d.png")
 # img = Images.imresize(img, ratio=0.15)
