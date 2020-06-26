@@ -36,7 +36,9 @@ using Images, Statistics
 # apple = load("C:\\Users\\Yi-Kun.Yang\\work\\org.allnix.julia\\JuliaAcademy\\FundMachLearn/data/10_100.jpg")
 # banana = load("C:\\Users\\Yi-Kun.Yang\\work\\org.allnix.julia\\JuliaAcademy\\FundMachLearn/data/104_100.jpg")
 apple = load("data/10_100.jpg")
+#'
 banana = load("data/104_100.jpg")
+#'
 
 apple_green_amount = mean(Float64.(green.(apple)))
 banana_green_amount = mean(Float64.(green.(banana)))
@@ -79,9 +81,11 @@ using Interact
 # Function for Interact
 function myplot(w,b)
       pt = plot()
+      plot!(pt, x -> σ(x, w, b), xlim=(-0,1), ylim=(-0.1,1.1), label="model", legend=(0.1,0.9), lw=3)
       scatter!(pt, [apple_green_amount],  [0.0], label="apple", ms=5)   # marker size = 5
       scatter!(pt, [banana_green_amount], [1.0], label="banana", ms=5)
-      plot!(pt, x -> σ(x, w, b), xlim=(-0,1), ylim=(-0.1,1.1), label="model", legend=(0.1,0.9), lw=3)
+
+      return pt
 end
 
 #' Notice that the two parameters do two very different things. The **weight**,
@@ -96,16 +100,48 @@ end
 
 w = 25.58 #20.8
 b = 15.6 #12.4
-myplot(w,b)
+pt = myplot(w,b)
 
 #+ results="hidden"
-@manipulate for w=-10:0.2:30,b = 0:0.2:20
-     vbox(w,b,myplot(w,b))
-end
+# Run this in Juno or Jupyter to get interative plot
+# @manipulate for w=-10:0.2:30,b = 0:0.2:20
+#      vbox(hbox(w,b),myplot(w,b))
+# end
+#+
 
-
-
-
-
-
+#' (Note that in this problem there are many combinations of `w` and `b` that
+#' fit the data well.)
+apple2 = load("data/107_100.jpg")
 #'
+green_amount = mean(Float64.(green.(apple2)))
+@show green_amount
+scatter!(pt, [green_amount], [0.0], label="new apple")
+
+#' Our model successfully says that our new image is an apple! Pat yourself on
+#' the back: you've actually just trained your first neural network!
+
+#' #### Exercise 1
+
+#' Load the image of a banana in `data/8_100.jpg` as `mybanana`. Edit the code
+#' below to calculate the amount of green in `mybanana` and to overlay data for
+#' this image with the existing model and data points.
+mybanana = load("data/8_100.jpg")
+green_amount = mean(Float64.(green.(mybanana)))
+@show green_amount
+scatter!(pt, [green_amount], [1.0], label="new banana")
+#' ## Closing remarks: bigger models, more data, more accuracy
+
+#' That last apple should start making you think: not all apples are red; some
+#' are yellow. "Redness" is one attribute of being an apple, but isn't the
+#' whole thing. What we need to do is incorporate more ideas into our model by
+#' allowing more inputs. However, more inputs would mean more parameters to
+#' play with. Also, we would like to have the computer start "learning" on its
+#' own, instead of modifying the parameters ourselves until we think it "looks
+#' right". How do we take the next step?
+
+#' The first thing to think about is, if you wanted to incorporate more data
+#' into the model, how would you change the sigmoid function? Play around with
+#' some ideas. But also, start thinking about how you chose parameters. What
+#' process did you do to finally end up at good parameters? These two problems
+#' (working with models with more data and automatically choosing parameters)
+#' are the last remaining step to understanding deep learning.
