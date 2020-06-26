@@ -17,5 +17,6 @@ d = d + Dates.Day(3)
 
 # Output
 d = Date(2020, 12, 29)
+typeof(d)
 # 21-Feb-2019
-str = Dates.format(d, "d-u-Y")
+str = Dates.format(d, "d-u-Y") # Why format(d, ...) does not work?

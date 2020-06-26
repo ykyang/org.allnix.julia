@@ -27,12 +27,16 @@ import Glob
 # filepath = "ch0300.jl"
 # Weave.weave(filepath; doctype = "md2html", out_path = :pwd)
 
-# Use modified tpl to fix a Plotly bug
-filepath = "ch0300quiz.jl"
+# # Use modified tpl to fix a Plotly bug
+# filepath = "ch0300quiz.jl"
+# Weave.weave(filepath; doctype = "md2html", out_path = :pwd,
+#     template="templates/julia_html.tpl",
+#     css="templates/skeleton_css.css")
+
+filepath = "ch0500.jl"
 Weave.weave(filepath; doctype = "md2html", out_path = :pwd,
     template="templates/julia_html.tpl",
     css="templates/skeleton_css.css")
-
 
 # Remove tmp folder
 tmpfiles = Glob.glob("jl_??????")
