@@ -13,5 +13,16 @@ Pkg.add("GR")
 Pkg.add("Plotly")
 Pkg.add("Glob")
 Pkg.add("WebIO")
-import WebIO
-WebIO.install_jupyter_nbextension()
+Pkg.add("Conda")
+Pkg.add("PyCall")
+Pkg.add("PyPlot")
+Pkg.add("Revise")
+
+# Force PyCall to use Conda.jl
+#ENV["PYTHON"] = ""
+#Pkg.build("PyCall")
+
+# Interact
+#import WebIO
+#WebIO.install_jupyter_nbextension()
+

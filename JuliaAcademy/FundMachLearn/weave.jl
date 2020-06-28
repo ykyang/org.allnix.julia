@@ -34,15 +34,15 @@ weaving = true
 #     template="templates/julia_html.tpl",
 #     css="templates/skeleton_css.css")
 
-filepath = "ch0500.jl"
+# filepath = "ch0500.jl"
+# Weave.weave(filepath; doctype = "md2html", out_path = :pwd,
+#     template="templates/julia_html.tpl",
+#     css="templates/skeleton_css.css")
+
+filepath = "ch0500quiz.jl"
 Weave.weave(filepath; doctype = "md2html", out_path = :pwd,
     template="templates/julia_html.tpl",
     css="templates/skeleton_css.css")
-
-    filepath = "ch0500.jl"
-    Weave.weave(filepath; doctype = "md2html", out_path = :pwd,
-        template="templates/julia_html.tpl",
-        css="templates/skeleton_css.css")
 
 # Remove tmp folder
 tmpfiles = Glob.glob("jl_??????")

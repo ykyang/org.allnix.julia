@@ -62,9 +62,11 @@ println("Average green for banana = $banana_green_amount")
 
 # We can understand how our choice of `w` and `b` affects our model by seeing how our values for `w` and `b` change the plot of the $\sigma$ function.
 
-using Plots;
-#gr()   # GR works better for interactive manipulations
-plotly()
+using Plots
+gr()   # GR works better for interactive manipulations
+#plotly()
+#pyplot()
+
 #' Run the code in the next cell. You should see two "sliders" appear, one for
 #' `w` and one for `b`.
 
