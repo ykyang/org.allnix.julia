@@ -163,5 +163,79 @@ plot(L, -2, 2, xlabel="w", ylabel="L(w)", ylims=(0, 1.2))
 #' parameter, a shift or **bias**:
 #'
 #' $$g(x; w, b) := \sigma(w \, x + b).$$
-
+#+ results="hidden"
 g(x, w, b) = sigma(w*x + b)
+#+
+
+xs = [2, -3]
+ys = [0.8, 0.3]
+
+L2D(w, b) = sum( (ys .- g.(xs, w, b)) .^ 2)
+w = 0.45 # Try manipulating w between -2 and 2
+b = 0.5 # Try manipulating b between -2 and 2
+plot(x -> g(x, w, b), -5, 5, ylims=(0, 1), lw=3)
+
+scatter!(xs, ys)
+
+for i in 1:2
+    plot!([xs[i], xs[i]], [ys[i], g(xs[i], w, b)])
+end
+
+title!("L2D(w, b) = $(L2D(w, b))")
+
+#' You should be able to convince yourself that we can now make the curve pass
+#' through both points simultaneously.
+
+#' #### Exercise 9
+#'
+#' For what values of `w` and `b` does the line pass through both points?
+
+w = 0.45
+b = 0.48
+plot(x -> g(x, w, b), -5, 5, ylims=(0, 1), lw=3)
+
+scatter!(xs, ys)
+
+for i in 1:2
+    plot!([xs[i], xs[i]], [ys[i], g(xs[i], w, b)])
+end
+
+
+title!("L2D(w, b) = $(L2D(w, b))")
+#' ## Fitting both data points: a loss function
+#' Following the procedure that we used when we had a single parameter,
+#' we can think of the fitting procedure once again as minimizing a suitable
+#' *loss function*. The expression for the loss function is almost the same,
+#' except that now $f$ has two parameters $w$ and $b$, so the loss function
+#' $L_2$ is itself a function of $w$ *and* $b$:
+#'
+#' $$L_2(w, b) = \sum_i [y_i - f(x_i; w, b)]^2.$$
+#'
+#' So we want to minimize this loss function over *both* of the parameters
+#' $w$ and $b$! Let's plot it.
+
+#' #### Exercise 10
+#'
+#' Define the function `L2` in Julia.
+
+
+#' #### Solution
+
+L2(w, b) = sum( (ys .- g.(xs, w, b)) .^ 2 )
+
+#' To plot the loss as a function of *two* variables (the weights *and* the bias),
+#' we will make use of the `surface` function.  To get a nice interactive
+# 3D plot, we will use the PlotlyJS "backend" (plotting engine):
+
+gr()  # load the backend
+
+#-
+
+ws = -2:0.05:2
+bs = -2:0.05:2
+
+contour(ws, bs, L2, levels=0.001:0.025:1.25, xlabel="value of w", ylabel="value of b")
+
+#' We can see that indeed there is a unique point $(w^*, b^*)$ where the
+#' function $L_2$ attains its minimum. You can try different ranges for the
+#' $x$, $y$ and $z$ coordinates to get a better view.
