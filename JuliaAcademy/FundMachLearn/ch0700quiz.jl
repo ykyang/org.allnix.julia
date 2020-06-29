@@ -239,3 +239,19 @@ contour(ws, bs, L2, levels=0.001:0.025:1.25, xlabel="value of w", ylabel="value 
 #' We can see that indeed there is a unique point $(w^*, b^*)$ where the
 #' function $L_2$ attains its minimum. You can try different ranges for the
 #' $x$, $y$ and $z$ coordinates to get a better view.
+
+#' ## More data
+
+#' If we add more data, however, we will again not be able to fit all of the
+#' data; we will only be able to attain a "best fit".
+#
+# Let's create `xs` and `ys` with some more data:
+
+xs = [2, -3, -1, 1]
+ys = [0.8, 0.3, 0.4, 0.4]
+
+# #### Exercise 11
+#
+# a) Make an interactive visualization of the function $f$ and the data. Try to find the values of $w$ and $b$ that give the best fit.
+#
+# b) Define the loss function and plot it.
