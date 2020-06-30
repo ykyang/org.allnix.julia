@@ -244,14 +244,65 @@ contour(ws, bs, L2, levels=0.001:0.025:1.25, xlabel="value of w", ylabel="value 
 
 #' If we add more data, however, we will again not be able to fit all of the
 #' data; we will only be able to attain a "best fit".
-#
-# Let's create `xs` and `ys` with some more data:
+#'
+#' Let's create `xs` and `ys` with some more data:
 
 xs = [2, -3, -1, 1]
 ys = [0.8, 0.3, 0.4, 0.4]
 
-# #### Exercise 11
+#' #### Exercise 11
+#'
+#' a) Make an interactive visualization of the function $f$ and the data. Try
+#' to find the values of $w$ and $b$ that give the best fit.
+#'
+#' b) Define the loss function and plot it.
+#' 
+#' ```julia
+#' sigma(x) = 1 / (1 + exp(-x))
+#' f(x, w) = sigma(w * x)
+#' g(x, w, b) = sigma(w*x + b)
+#' ```
+L2(w, b) = sum( (ys .- g.(xs, w, b)) .^ 2 )
+
+w = 0.4 # Try manipulating w between -2 and 2
+b = -0.1 # Try manipulating b between -2 and 2
+plot(x->g(x, w, b), -5, 5, ylims=(-0.2, 1))
+
+scatter!(xs, ys)
+
+for i in 1:length(xs)
+    plot!([xs[i], xs[i]], [ys[i], g(xs[i], w, b)])
+end
+
+title!("L2(w, b) = $(round(L2(w, b); sigdigits = 5))")
+
+#' Let's define the loss function that we're using above so that we can plot
+#' it as a function of the parameters `w` and `b`.
+#' #### Exercise 12
+#'
+#' We've seen the loss function, $$L_{2D}(w, b) = \sum_i[\mathrm{ys}_i - g(\mathrm{xs}_i, w, b)]^2,$$ written in Julia as
 #
-# a) Make an interactive visualization of the function $f$ and the data. Try to find the values of $w$ and $b$ that give the best fit.
+# ```julia
+# L2(w, b) = sum( (ys .- g.(xs, w, b)) .^ 2 )
+# ```
 #
-# b) Define the loss function and plot it.
+# a few times now. To ensure you understand what this function is doing, implement your own loss function using the commented code below. Do this without using `sum`, `abs2`, or broadcasting dot syntax (for example, `.-`). Hint: you'll want to use a `for` loop to do this.
+
+function myL2(w, b)
+    loss = 0.0
+    for (x, y) in zip(xs, ys)
+        loss += (y - g(x, w, b))^2
+    end
+    return loss
+end
+
+#' Now that you've defined `L2`, we can plot it using either `surface` or
+#' `contour` to see how the loss changes as `w` and `b` change!
+
+#' ## plotlyjs() # Use Plotly for 3d surface plots (if possible)
+
+ws = -2:0.05:2
+bs = -2:0.05:2
+
+#' ## surface(ws, bs, L2, alpha=0.8, zlims=(0,3))  # alpha gives transparency
+contour(ws, bs, L2, levels=0.055:0.05:1.5, xlabel="value of w", ylabel="value of b")
