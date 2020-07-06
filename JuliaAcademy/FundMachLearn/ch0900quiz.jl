@@ -395,7 +395,9 @@ surface!(pl, -2:0.02:2, -2:0.02:2, L2, alpha=0.6, xlabel="w",
         ylabel="b", zlabel="L2(w,b)",
         size=(600,600))
 #'
-if !(@isdefined WEAVE_ARGS)
+
+#+ echo=false
+if !@isdefined WEAVE_ARGS # exe when not from Weave
     gui(pl)
 end
 
@@ -414,11 +416,54 @@ end
 #' of $2$ numbers if there are $2$ parameters 
 #'[or, in general, $n$ numbers if there are $n$ parameters].
 #'
-#' The numbers that form the gradient $\nabla L_2(w, b)$ are called the **partial derivatives** of $L_2$ with respect to $w$ and $b$,  written as
+#' The numbers that form the gradient $\nabla L_2(w, b)$ are called the
+#' **partial derivatives** of $L_2$ with respect to $w$ and $b$,  written as
 #'
 #' $$\frac{\partial L_2}{\partial w} \quad \text{and} \quad \frac{\partial L_2}{\partial b}.$$
 #'
-#' Although this notation might look complicated, all it means is that we calculate derivatives just like we did before, except that we fix the value of the other variable.
-#' For example, to calculate $\frac{\partial L_2}{\partial w}$, the partial derivative of $L_2$ with respect to $w$, we fix the value of $b$ and think of the resulting function as a function of the single variable $w$; then we use the formula for derivatives of functions of a single variable.
+#' Although this notation might look complicated, all it means is that we
+#' calculate derivatives just like we did before, except that we fix the value
+#' of the other variable.
+#' For example, to calculate $\frac{\partial L_2}{\partial w}$,
+#' the partial derivative of $L_2$ with respect to $w$, we fix the value of
+#' $b$ and think of the resulting function as a function of the single
+#' variable $w$; then we use the formula for derivatives of functions of a
+#' single variable.
 #'
 #' [Note that $\frac{\partial L_2}{\partial w}$ is itself a function of $w$ and $b$; we could write $\frac{\partial L_2}{\partial w}(w, b)$.]
+
+#' #### Exercise 11
+#'
+#' Write functions that will allow you to calculate the partial derivatives of
+#' a function $f$ of two variables.
+#'
+#' In particular, declare functions called `partial_w` and `partial_b`.
+#' Each should take four inputs - a function $f$ of two variables, the first
+#' input argument to $f$, the second input argument to $f$, and a step size
+#' `h` with default value `0.001`. `partial_w` should return the partial
+#' derivative of $f$ with respect to its first input argument and `partial_b`
+#' should return the partial derivative of $f$ with respect to its second
+#' input argument.
+
+#' #### Solution
+#'
+#' The partial derivatives are
+partial_w(f, w, b, h=0.001) = (f(w+h,b) - f(w,b))/h
+partial_b(f, w, b, h=0.001) = (f(w,b+h) - f(w,b))/h
+
+#' **Test**
+partial_x = partial_w
+partial_y = partial_b
+fn(x,y) = 3*x*y
+#' Test default step
+@assert isapprox(partial_x(fn, 0.3, 0.3), 0.9; atol=1.e-6)
+@assert isapprox(partial_y(fn, 0.3, 0.3), 0.9; atol=1.e-6)
+#' Test custom step
+fn(x,y) = 3 * x^2 * y^3
+@assert isapprox(partial_x(fn, 2.3, 10.2, 1), 17828.2944; atol=1.e-2)
+@assert isapprox(partial_y(fn, 2.3, 10.2, 1), 5454.84; atol=1.e-2)
+
+
+# #### Exercise 12
+#
+# Use `partial_b` from the last exercise to find the partial derivative of $L_2$ with respect to $w$ at b = 0.3, $\frac{\partial L_2}{\partial w}|_{b = 0.3}$ for `w = -2:0.01:1`
