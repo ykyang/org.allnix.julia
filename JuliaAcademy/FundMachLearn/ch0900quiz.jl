@@ -464,6 +464,94 @@ fn(x,y) = 3 * x^2 * y^3
 @assert isapprox(partial_y(fn, 2.3, 10.2, 1), 5454.84; atol=1.e-2)
 
 
-# #### Exercise 12
-#
-# Use `partial_b` from the last exercise to find the partial derivative of $L_2$ with respect to $w$ at b = 0.3, $\frac{\partial L_2}{\partial w}|_{b = 0.3}$ for `w = -2:0.01:1`
+#' #### Exercise 12
+#'
+#' Use `partial_b` from the last exercise to find the partial derivative of
+#' $L_2$ with respect to $w$ at b = 0.3,
+#' $\frac{\partial L_2}{\partial w}|_{b = 0.3}$ for `w = -2:0.01:1`
+
+wrange = -2:0.01:1
+partialw = partial_w.(L2, wrange, 0.3)
+
+#' #### Exercise 13
+#'
+#' Plot the cross section of the surface of $L_2(w, b)$ at $b = 0.3$.
+#' Make this plot interactive to show that the function `partial_w` gives
+#' the slope of the tangent to this cross section for any point `w` in
+#' the range `-2:0.01:1`.
+#'
+#' For what value of $w$ in this range is the slope of the cross section
+#' closest to -1?
+
+L2_b(w) = L2(w, 0.3) # b = 0.3
+
+w = 0.0 # Change me
+pl = plot(L2_b, wrange) #plot(wrange, L2_b)
+scatter!([w], [L2_b(w)])
+
+slope = partial_w(L2, w, 0.3)
+wrange_value = slope .* wrange .- slope*w .+ L2.(w,0.3)
+plot!(pl, wrange, wrange_value)
+ylims!(0.3, 2.0)
+title!("Slope = $slope @ $(w)")
+#'
+#' ## **Optional**: Functions with $n$ inputs
+#' If a function $f$ takes $n$ input arguments, we can write them as
+#' $p_1, \ldots, p_n$, where $p_i$ means the "$i$th parameter".
+#' In Julia, we can wrap them up into a single **vector**. Now we can
+#' calculate the partial derivative $\frac{\partial L_2}{\partial p_i}$ with
+#' respect to the $i$th variable.
+
+#' #### Exercise 14
+#'
+#' For the next exercise, you will need to use the splat command, `...`. You can use this command to "open up" a collection and pass all the elements of that collection as inputs to a function.
+#'
+#' For example, say you have an array, `numbers`,
+#'
+#' ```julia
+#' numbers = [4, 3, 2]
+#' ```
+#'
+#' and you want to use `numbers` to create a $4\times3\times3$ randomly populated array via `rand`. `rand(numbers)` will not do what you want. You could index into `numbers` to grab the values you want and pass them to `rand`, as in
+#'
+#' ```julia
+#' rand(numbers[1], numbers[2], numbers[3])
+#' ```
+#'
+#' or you could use a splat:
+#'
+#' ```julia
+#' rand(numbers...)
+#' ```
+#'
+#' Use `...` to pass the contents of `inputs`
+#'
+#' ```julia
+#' inputs = [30, 12, "cats"]
+#' ```
+#'
+#' to the function `dreams`
+#'
+#' ```julia
+#' dreams(i, j, perfect_mammal) = "I wish I had $(i + j) $perfect_mammal."
+#' ```
+
+inputs = [30, 12, "cats"]
+dreams(i, j, perfect_mammal) = "I wish I had $(i + j) $perfect_mammal."
+dreams(inputs...)
+
+# **Tests**
+
+@assert dreams(inputs...) == "I wish I had 42 cats."
+
+#' #### Exercise 15:
+#'
+#' Write a function, `partial`, to calculate the $i$th partial derivative of a
+#' function. This function should have four inputs
+#'
+#' * a function, $f$, for which you want to compute the partial derivative
+#' * an array, *p*, specifying the values of all input arguments to $f$ at the point where you want $\frac{\partial f}{\partial p_i}$ computed
+#' * the index, $i$, of the variable with respect to which you want to calculate the partial derivative of $f$
+#' * a step size with default value 0.001
+#'
+#' Hint: you will need to `copy` and modify `p` within `partial`.
