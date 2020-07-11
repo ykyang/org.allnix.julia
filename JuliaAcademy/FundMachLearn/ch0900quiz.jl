@@ -550,8 +550,40 @@ dreams(inputs...)
 #' function. This function should have four inputs
 #'
 #' * a function, $f$, for which you want to compute the partial derivative
-#' * an array, *p*, specifying the values of all input arguments to $f$ at the point where you want $\frac{\partial f}{\partial p_i}$ computed
+#' * an array, *p*, specifying the values of all input arguments to $f$ at
+#'   the point where you want $\frac{\partial f}{\partial p_i}$ computed
 #' * the index, $i$, of the variable with respect to which you want to calculate the partial derivative of $f$
 #' * a step size with default value 0.001
 #'
 #' Hint: you will need to `copy` and modify `p` within `partial`.
+
+function partial(fn, p, i, h=0.001)
+    p = copy(p)
+    a = fn(p...)
+    p[i] += 1*h
+    b = fn(p...)
+    Ans = (b - a)/(1*h)
+
+    return Ans
+end
+
+fn1(x,y,z) = x^2 * y * z
+fn1(xyz) = fn1(xyz...)
+pfn1px(x,y,z)  = 2*x*y*z
+pfn1py(x,y,z) = x^2*1*z
+pfn1pz(x,y,z) = x^2*y*1
+xyz = [1.0, 2.0, 1.0]
+a = partial(fn1, xyz, 1, 1.e-6)
+b = pfn1px(xyz...)
+@assert isapprox(a,b; atol=1.e-4)
+
+using FiniteDifferences
+# what the?  Why do I have to use 2nd order central difference for
+# first derivate?
+central_fdm(2,1)(x->fn1(x,2.0,1.0), 1.0) 
+forward_fdm(2,1)(x->fn1(x,2.0,1.0), 1.0)
+
+using FiniteDiff
+# This is right
+FiniteDiff.finite_difference_derivative(x->fn1(x,2.0,1.0), 1.0)
+FiniteDiff.finite_difference_gradient(fn1, xyz)
