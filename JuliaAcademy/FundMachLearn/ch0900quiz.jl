@@ -569,21 +569,55 @@ end
 
 fn1(x,y,z) = x^2 * y * z
 fn1(xyz) = fn1(xyz...)
-pfn1px(x,y,z)  = 2*x*y*z
-pfn1py(x,y,z) = x^2*1*z
-pfn1pz(x,y,z) = x^2*y*1
-xyz = [1.0, 2.0, 1.0]
-a = partial(fn1, xyz, 1, 1.e-6)
-b = pfn1px(xyz...)
-@assert isapprox(a,b; atol=1.e-4)
+#' $\frac{\partial fn_1}{\partial x}$
+fn1px(x,y,z)  = 2*x*y*z
+fn1py(x,y,z) = x^2*1*z
+fn1pz(x,y,z) = x^2*y*1
+
+
+
+x = 1.0
+y = 2.0
+z = 1.0
+xyz = [x, y, z]
+
+actual = partial(fn1, xyz, 1, 1.e-6)
+expected = fn1px(xyz...)
+@assert isapprox(actual, expected; atol=1.e-4)
+
 
 using FiniteDifferences
 # what the?  Why do I have to use 2nd order central difference for
 # first derivate?
-central_fdm(2,1)(x->fn1(x,2.0,1.0), 1.0) 
-forward_fdm(2,1)(x->fn1(x,2.0,1.0), 1.0)
+actual = central_fdm(2,1)(x->fn1(x,y,z), 1.0) 
+@assert isapprox(actual, expected; atol=1.e-6)
+actual = forward_fdm(2,1)(x->fn1(x,y,z), 1.0)
+@assert isapprox(actual, expected; atol=1.e-6)
 
 using FiniteDiff
 # This is right
-FiniteDiff.finite_difference_derivative(x->fn1(x,2.0,1.0), 1.0)
+actual = FiniteDiff.finite_difference_derivative(x->fn1(x,y,z), 1.0)
+@assert isapprox(actual, expected; atol=1.e-6)
+
+# Gradient
 FiniteDiff.finite_difference_gradient(fn1, xyz)
+
+w = 1.1
+x = 2.2
+y = 3.3
+z = 4.4
+fn2(w,x,y,z) = w * x^2 * y^3 * z^4
+fn2pw(w,x,y,z) = x^2 * y^3 * z^4
+fn2px = w * 2 * x * y^3 * z^4
+fn2py = w * x^2 * 3 * y^2 * z^4
+fn2pz = w * x^2 * y^3 * 4 * z^3
+
+# Test partial()
+expected = fn2pw(w,x,y,z)
+
+actual = partial(fn2, [w,x,y,z], 1, 1.e-6)
+@assert isapprox(actual, expected; rtol=1.e-6)
+
+actual = FiniteDiff.finite_difference_derivative(
+            w->fn2(w,x,y,z), w)
+@assert isapprox(actual, expected; rtol=1.e-9)
