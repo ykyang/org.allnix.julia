@@ -599,8 +599,8 @@ using FiniteDiff
 actual = FiniteDiff.finite_difference_derivative(x->fn1(x,y,z), 1.0)
 @assert isapprox(actual, expected; atol=1.e-6)
 
-# Gradient
-FiniteDiff.finite_difference_gradient(fn1, xyz)
+# GradientFiniteDiff.finite_difference_gradient(fn1, xyz)
+(gx,gy,gz) = 
 
 w = 1.1
 x = 2.2
@@ -664,3 +664,71 @@ actual = FiniteDiff.finite_difference_derivative(
 #' How many steps were taken by gradient descent?
 #'
 #' Hint: Do not count your starting coordinates `[-2.0, -2.0]` as a step.
+
+function gradient_descent(fn, wrange, brange; tol=0.001, eta=0.01)
+    w = wrange[1]
+    b = brange[1]
+
+    w_steps = []
+    b_steps = []
+    f_steps = []
+
+    while true
+        (gfw,gfb) = FiniteDiff.finite_difference_gradient(fn, [w,b])
+        w = w - eta * gfw
+        b = b - eta * gfb
+        f = fn(w,b)
+
+        push!(w_steps, w)
+        push!(b_steps, b)
+        push!(f_steps, f)
+
+        if abs(eta*gfw + eta*gfb) < tol
+            return (w_steps,b_steps,f_steps)
+        end
+        
+    end
+
+    #return (w_steps, b_steps, f_steps)
+end
+
+xs = [2, -3, -1, 1]
+ys = [0.8, 0.3, 0.4, 0.4]
+
+sigma(x) = 1/(1 + exp(-x))
+g(x,w,b) = sigma(w*x) + b
+
+L2(w,b) = sum(abs2, ys .- g.(xs,w,b))
+L2(xb) = L2(xb...)
+wrange = -2.0:0.02:2.0
+brange = -2.0:0.02:2.0
+(w,b,f) = gradient_descent(L2, wrange, brange)
+
+#' #### Exercise 17
+#'
+#' Use the `surface` and `scatter!` commands to illustrate the path taken by
+#' `gradient_descent` from [-2.0, -2.0] to wherever the algorithm terminates.
+#'
+#' Where do the scattered points representing the steps of gradient descent
+#' appear the most dense?
+#'
+#' A) Near the starting point at [-2.0, -2.0]<br>
+#' B) Near the point [-1.8, 0] where $C_2$ appears nearly flat<br>
+#' C) Near the minimum of $C_2$
+
+#' #### Solution
+#'
+#' B) The following code will plot the function `C2` with an overlay of the
+#' steps taken in gradient descent
+#'
+#' You can change the frequency with which steps are plotted by changing the
+#' iterator in the `for` loop from `1:length(values)` to
+#' `1:n:length(values)` for varying values of `n`. This will allow you to
+#' see more clearly where steps are densely or sparsely packed.
+
+fig = surface(-2:0.02:2, -2:0.02:2, L2, alpha=0.6, xlabel = "w",
+             ylabel = "b", zlabel = "C2(w, b)", size=(800,800))
+for i in 1:10:length(f)
+   scatter!(fig, [w[i]], [b[i]], [f[i]], markersize=1)
+end 
+gui(fig) 
