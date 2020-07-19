@@ -600,7 +600,7 @@ actual = FiniteDiff.finite_difference_derivative(x->fn1(x,y,z), 1.0)
 @assert isapprox(actual, expected; atol=1.e-6)
 
 # GradientFiniteDiff.finite_difference_gradient(fn1, xyz)
-(gx,gy,gz) = 
+(gx,gy,gz) = FiniteDiff.finite_difference_gradient(fn1, xyz)
 
 w = 1.1
 x = 2.2
@@ -702,7 +702,7 @@ L2(w,b) = sum(abs2, ys .- g.(xs,w,b))
 L2(xb) = L2(xb...)
 wrange = -2.0:0.02:2.0
 brange = -2.0:0.02:2.0
-(w,b,f) = gradient_descent(L2, wrange, brange)
+(w,b,fv) = gradient_descent(L2, wrange, brange)
 
 #' #### Exercise 17
 #'
@@ -728,7 +728,7 @@ brange = -2.0:0.02:2.0
 
 fig = surface(-2:0.02:2, -2:0.02:2, L2, alpha=0.6, xlabel = "w",
              ylabel = "b", zlabel = "C2(w, b)", size=(800,800))
-for i in 1:10:length(f)
-   scatter!(fig, [w[i]], [b[i]], [f[i]], markersize=1)
+for i in 1:10:length(fv)
+   scatter!(fig, [w[i]], [b[i]], [fv[i]], markersize=1)
 end 
-gui(fig) 
+fig
