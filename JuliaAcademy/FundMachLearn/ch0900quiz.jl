@@ -621,3 +621,46 @@ actual = partial(fn2, [w,x,y,z], 1, 1.e-6)
 actual = FiniteDiff.finite_difference_derivative(
             w->fn2(w,x,y,z), w)
 @assert isapprox(actual, expected; rtol=1.e-9)
+
+#' ## Gradient descent in 2 dimensions
+#' It turns out that the gradient vector of the function $L_2(w, b)$ gives the
+#' direction in the plane $(w, b)$ in which the function $L_2$
+#' **increases fastest**.
+#'
+#' In other words, if you start at the position $(w_0, b_0)$ and take a small
+#' step of length $\eta$ to new values $(w', b')$, the value of the function
+#' will change to a new value $L_2(w', b')$. How do we get to the minimum of
+#' $L_2(w, b)$ as fast as possible? We want to step in the direction where
+#' $L_2$ decreases fastest!
+#'
+#' In multivariable calculus courses, it is shown that $L_2$ will *increase*
+#' fastest if you take a step **in the direction of the gradient
+#' $\nabla L_2(w, b)$**! To decrease $L_2$ the fastest, we should take a step
+#' in the *opposite* direction, $-\nabla L_2(w, b)$.
+#'
+#' Let's now generalize the gradient descent algorithm that we wrote previously
+#' to work our 2-dimensional function.
+
+#' #### Exercise 16
+#'
+#' Extend your 1D implementation of `gradient_descent` so that it will minimize the function $L_2$.
+#'
+#' Requirements:
+#'
+#' * Your new method for `gradient_descent` will take four input arguments: the function $f$ for which you seek the minimum, the range of values for $f$'s first input argument that you will consider, the range of values for $f$'s second input argument that you will consider, and a tolerance that will specify the maximum allowable step size, $\sum_i \eta \frac{\partial f}{\partial p_i}$
+#'
+#' * Use $\eta = .01$. For example, for a function $f(w, b)$, update $w$ such that $w_{n+1} = w_n - 0.01 * \frac{\partial f}{\partial w_n}$
+#'
+#' * Seed `gradient_descent` with the starting coordinates [-2.0, -2.0], i.e. $w_0 = -2.0$ and $b_0 = -2.0$.
+#'
+#' * Return all steps (their coordinates) taken during gradient descent and the values of the loss function at these coordinates.
+#'
+#' Once you have done this, execute
+#'
+#' ```julia
+#' gradient_descent(L2, -2:0.02:2, -2:0.02:2, .001)
+#' ```
+#'
+#' How many steps were taken by gradient descent?
+#'
+#' Hint: Do not count your starting coordinates `[-2.0, -2.0]` as a step.
