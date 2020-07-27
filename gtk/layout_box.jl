@@ -1,4 +1,4 @@
-# https://juliagraphics.github.io/Gtk.jl/latest/manual/layout/
+# https://juliagraphics.github.io/Gtk.jl/latest/manual/layout/#Box-1
 
 using Gtk
 
