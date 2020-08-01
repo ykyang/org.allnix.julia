@@ -86,3 +86,42 @@ for (i,c) in enumerate([c1, c2, c3])
     # gtk_tree_view_column_set_reorderable 
     GAccessor.reorderable(c, true)
 end
+
+# Selection
+# Usually the interesting bit of a list will be the entry being selected. This
+# is done using an additional GtkTreeSelection object that can be retrieved by
+
+selection = GAccessor.selection(tv)
+
+# One either have single selection or multiple selections. We toggle this by
+# calling
+
+
+#selection = GAccessor.mode(selection,Gtk.GConstants.GtkSelectionMode.MULTIPLE) # not supported yet
+# selected_rows(selection) crashes
+selection = GAccessor.mode(selection,Gtk.GConstants.GtkSelectionMode.SINGLE)
+
+# We will stick with single selection for now and want to know the index of the selected item
+
+@show ls[selected(selection),1]
+
+#"Pete"
+# Since it can happen that no item has been selected at all, it is a good idea
+# to put this into an if statement
+
+if hasselection(selection)
+  # do something with selected(selection)
+end
+# Sometimes you want to invoke an action of an item is selected. This can be done by
+
+signal_connect(selection, "changed") do widget
+  if hasselection(selection)
+    currentIt = selected(selection)
+
+    # now you can to something with the selected item
+    println("Name: ", ls[currentIt,1], " Age: ", ls[currentIt,1])
+  end
+end
+# Another useful signal is "row-activated" that will be triggered by a double click of the user.
+
+# Note: getting multiple selections still not implemented
