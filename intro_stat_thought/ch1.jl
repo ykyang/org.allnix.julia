@@ -190,12 +190,15 @@ Ans = 1 - Dist.cdf(dist,0)
 println("Example 1.3, Ans = $Ans")
 
 # 1.3.2 The Poisson Distribution
-x = range(0,20,length=21)
-d = Dist.Poisson(4.5)
-scat = scatter(x=x,y=Dist.pdf.(d,x), mode="lines"
+x = range(0,100,length=101)
+d = Dist.Poisson(60)
+scat = scatter(x=x,y=Dist.pdf.(d,x), mode="lines")
+cdf = scatter(x=x,y=Dist.cdf.(d,x), mode="lines", yaxis="y2")
+layout = Layout(title="lambda=3",
+    yaxis=attr(title="PDF"),
+    yaxis2=attr(side="right", overlaying="y")
 )
-layout = Layout(title="lambda=3")
-pt = plot(scat, layout)
+pt = plot([scat,cdf], layout)
 display(pt)
 end
 nothing #suppress printing of Main...
