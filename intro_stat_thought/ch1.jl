@@ -189,7 +189,13 @@ dist = Dist.Binomial(4,2/9)
 Ans = 1 - Dist.cdf(dist,0)
 println("Example 1.3, Ans = $Ans")
 
-# 1.3.2 The Poisson Distribution
+# The R way
+using RCall
+R"x <- 1 - dbinom(0,4,2/9)"
+Ans = @rget x
+println("Example 1.3, the R-way, Ans=$Ans")
+
+# 1.3.2 The Poisson Distribution, page 17
 x = range(0,100,length=101)
 d = Dist.Poisson(60)
 scat = scatter(x=x,y=Dist.pdf.(d,x), mode="lines")
@@ -200,5 +206,12 @@ layout = Layout(title="lambda=3",
 )
 pt = plot([scat,cdf], layout)
 display(pt)
+
+# Page 19
+# Need to run from terminal to pop R-plot
+R"lam <- seq(0, 10, length=50)"
+R"y <- dpois(3, lam)"
+R"plot(lam, y, xlab=\"lambda\", ylab=\"P[x=3]\", type=\"l\")"
+
 end
 nothing #suppress printing of Main...
