@@ -7,8 +7,12 @@ mutable struct Well
     Well() = (
         me = new(); # new Well object
         # Assign default values
+        #me.well_name = nothing;
+
         me # return the new object
     )
+
+    well_name::String
 end
 
 mutable struct Simulation
