@@ -49,4 +49,12 @@ d3[Date(2020, 12, 22)] = Dict("C"=>3)
 d3[Date(2020, 12, 23)]["D"] = 4
 @info d3
 
+@info "Values are in order: $(values(d3))"
+
+@info in(Date(2020, 12, 23), keys(d3))
+@info in(Date(2019, 1, 1), keys(d3))
+@info haskey(d3, Date(2020, 12, 23))
+@info haskey(d3, Date(2019, 1, 1))
+
+
 nothing # suppress printing the last line
