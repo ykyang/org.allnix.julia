@@ -169,11 +169,11 @@ end
 
 begin
     prt_file = joinpath(pwd(), "Pad-2_16_158.PRT")
-    start_date = find_start_date(prt_file)
+    start_datetime = od.find_prt_start_date(prt_file)
     @info "Start Date: $start_date"
-    start_datetime = Dates.DateTime(start_date, Dates.dateformat"d-u-Y")
-    @info "Start DateTime: $start_datetime"
-    c_datetime = od.add_day(start_datetime, 12.5)
+    #start_datetime = Dates.DateTime(start_date, Dates.dateformat"d-u-Y")
+    #@info "Start DateTime: $start_datetime"
+    end_datetime = od.add_day(start_datetime, 12.5)
     @info "End DateTime: $c_datetime"
 end
 
