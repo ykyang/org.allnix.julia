@@ -1,5 +1,15 @@
 # Purposely not using "using"
+using Revise
+
 import Dates
+import OilData    # purposely not using "using"
+
+od = OilData
+
+using Logging
+logger = SimpleLogger(stdout, Logging.Info)
+global_logger(logger)
+
 
 function find_start_date(io::IOStream)
     for line in eachline(io)
@@ -7,7 +17,8 @@ function find_start_date(io::IOStream)
             continue
         end
         line = strip(line)
-        tokens = split(line, x -> x in [' ', '.'], keepempty=false)
+        #tokens = split(line, x -> x in [' ', '.'], keepempty=false)
+        tokens = split(line, [' ', '.'], keepempty=false)
         
         start_date = tokens[6] # "01-Feb-2019"
 
@@ -22,10 +33,6 @@ function find_start_date(path::String)
     end
 end
 
-function add_day(datetime::Dates.DateTime, days::AbstractFloat)
-    d = datetime + Dates.Millisecond(Int(days*86400*1000)) # convert days to ms
-    return d
-end
 
 function count_row(io::IOStream)
     # 1
@@ -48,7 +55,7 @@ function count_row(io::IOStream)
     # start counting
     row_count = 0
     for line in eachline(io)
-        if length(line) == 1
+        if length(line) == 1 # line has only 1 char "1"
             return row_count
         end
         if !isempty(line)
@@ -56,7 +63,6 @@ function count_row(io::IOStream)
         end
     end
     
-
     return row_count
 end
 function read_section(io::IOStream, row_count)
@@ -76,55 +82,63 @@ function read_section(io::IOStream, row_count)
     # 1st ID
     line = readline(io)
     line = line[2:end] # remove 1st char (space)
-    col_count = length(line) ÷ col_width # 1st col always empty
+    col_count = length(line) ÷ col_width
     
     ids = Vector{String}(undef, col_count)
     values = ids
     for col = 1:col_count
-        token = line[(col-1)*15+1:col*15]
+        start_ind = (col-1)*col_width + 1
+        end_ind   = col*col_width
+        token = line[start_ind:end_ind]
         values[col] = strip(token)
     end
-    @show ids
+    #@show ids
     # Unit
     line = readline(io)
     line = line[2:end] # remove 1st char (space)
     values = units = Vector{String}(undef, col_count)
     for col = 1:col_count
-        token = line[(col-1)*15+1:col*15]
+        start_ind = (col-1)*col_width + 1
+        end_ind   = col*col_width
+        token = line[start_ind:end_ind]
         values[col] = strip(token)
     end
-    @show units
+    #@show units
     # FIELD/Well
     line = readline(io)
     line = line[2:end] # remove 1st char (space)
     values = id2s = Vector{String}(undef, col_count)
     for col = 1:col_count
-        token = line[(col-1)*15+1:col*15]
+        start_ind = (col-1)*col_width + 1
+        end_ind   = col*col_width
+        token = line[start_ind:end_ind]
         values[col] = strip(token)
     end
-    @show id2s
+    #@show id2s
     # Reservoir?
     line = readline(io)
     line = line[2:end] # remove 1st char (space)
     values = id3s = Vector{String}(undef, col_count)
     for col = 1:col_count
-        token = line[(col-1)*15+1:col*15]
+        start_ind = (col-1)*col_width + 1
+        end_ind   = col*col_width
+        token = line[start_ind:end_ind]
         values[col] = strip(token)
     end
-    @show id3s
+    #@show id3s
     # 3rd dash line
     line = readline(io)
     table = Array{Float64}(undef, row_count, col_count)
     # Read values
     for rind = 1:row_count
         line = readline(io)
-        tokens = split(line)
+        tokens = split(line, keepempty=false)
         for (cind,token) = enumerate(tokens)
             value = parse(Float64, token)
             table[rind,cind] = value
         end
     end
-    #@show table
+    # @show table
 end
 function read_rsm(io::IOStream, row_count)
     # count number of rows
@@ -155,12 +169,12 @@ end
 
 begin
     prt_file = joinpath(pwd(), "Pad-2_16_158.PRT")
-    start_date = find_start_date(prt_file)
-    println("Start Date: $start_date")
-    start_datetime = Dates.DateTime(start_date, Dates.dateformat"d-u-Y")
-    println("Start DateTime: $start_datetime")
-    c_datetime = add_day(start_datetime, 12.5)
-    println("End DateTime: $c_datetime")
+    start_datetime = od.find_prt_start_date(prt_file)
+    @info "Start Date: $start_date"
+    #start_datetime = Dates.DateTime(start_date, Dates.dateformat"d-u-Y")
+    #@info "Start DateTime: $start_datetime"
+    end_datetime = od.add_day(start_datetime, 12.5)
+    @info "End DateTime: $c_datetime"
 end
 
 begin
