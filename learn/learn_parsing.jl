@@ -104,7 +104,7 @@ function read_section(io::IOStream, row_count)
         values[col] = strip(token)
     end
     #@show units
-    # FIELD/Well
+    # FIELD/Well Name
     line = readline(io)
     line = line[2:end] # remove 1st char (space)
     values = id2s = Vector{String}(undef, col_count)
@@ -115,7 +115,8 @@ function read_section(io::IOStream, row_count)
         values[col] = strip(token)
     end
     #@show id2s
-    # Reservoir?
+    # Reservoir ID?
+    # Block ID: 23 12 11
     line = readline(io)
     line = line[2:end] # remove 1st char (space)
     values = id3s = Vector{String}(undef, col_count)
@@ -128,6 +129,7 @@ function read_section(io::IOStream, row_count)
     #@show id3s
     # 3rd dash line
     line = readline(io)
+
     table = Array{Float64}(undef, row_count, col_count)
     # Read values
     for rind = 1:row_count
@@ -138,7 +140,7 @@ function read_section(io::IOStream, row_count)
             table[rind,cind] = value
         end
     end
-    # @show table
+    #@show table
 end
 function read_rsm(io::IOStream, row_count)
     # count number of rows
