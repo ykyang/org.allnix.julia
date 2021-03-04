@@ -1,4 +1,11 @@
+# Use version 1.5.3 and run in command line
 # julia --project=@. learn_Dash.jl
+# this will enable hot loading, meaning the server refresh the page if learn_Dash.jl
+# was updated.
+# 
+# Run in interactive mode is fine by
+# include("learn_Dash.jl")
+# but needs to shutdown and restart the server every time the file updated.
 
 # https://dash-julia.plotly.com
 # add Dash DashCoreComponents DashHtmlComponents DashTable
@@ -29,7 +36,8 @@ function hello_dash()
             )
         )
         
-        return (h1, d,dcc)
+        return (h1, d, dcc)
+        #return (d, dcc)
     end
 
     run_server(app, "0.0.0.0", debug=true)
