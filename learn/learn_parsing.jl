@@ -168,17 +168,17 @@ function read_rsm(io::IOStream, row_count)
 end
 
 begin
-    prt_file = joinpath(pwd(), "Pad-2_16_158.PRT")
+    prt_file = joinpath(pwd(), "Project-2_16_158.PRT")
     start_datetime = od.find_prt_start_date(prt_file)
-    @info "Start Date: $start_date"
+    @info "Start Date: $start_datetime"
     #start_datetime = Dates.DateTime(start_date, Dates.dateformat"d-u-Y")
     #@info "Start DateTime: $start_datetime"
     end_datetime = od.add_day(start_datetime, 12.5)
-    @info "End DateTime: $c_datetime"
+    @info "End DateTime: $end_datetime"
 end
 
 begin
-    rsm_file = joinpath(pwd(), "Pad-2_16_158.RSM")
+    rsm_file = joinpath(pwd(), "Project-2_16_158.RSM")
     row_count = 0
     open(rsm_file, "r") do io
         global row_count = count_row(io)
