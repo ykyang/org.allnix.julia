@@ -366,7 +366,7 @@ function scatter_3d()
 
     plot([trace1, trace2], layout)
 end
-display(scatter_3d())
+#display(scatter_3d())
 
 function trisurf()
     facecolor = repeat([
