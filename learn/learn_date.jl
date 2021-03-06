@@ -20,6 +20,12 @@ df = dateformat"mm/dd/yyyy"
 d = Date(2020, 12, 29)
 d = d + Dates.Day(3)
 
+delta_day = Date(2020,10,31) - Date(2020, 10,20) 
+@info "Delta days = $delta_day"
+@info @show typeof(delta_day)
+@info @show typeof(delta_day.value)
+
+
 d = DateTime(2020, 12, 25)
 d = d + Dates.Millisecond(86400*1000)
 @info d
@@ -30,6 +36,13 @@ d = Date(2020, 12, 29)
 # 21-Feb-2019
 str = Dates.format(d, "d-u-Y") # Why format(d, ...) does not work?
 
-
+# generate a list of date
+d = Date(2019, 03, 20)
+for ind in 1:730
+    global d
+    str = Dates.format(d, "d-u-Y")
+    println("DATE \"$str\"")
+    d += Day(1)
+end
 
 nothing # suppress last line printout
