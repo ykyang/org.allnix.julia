@@ -1,16 +1,33 @@
 # http://juliaplots.org/PlotlyJS.jl/stable/
 
-using PlotlyJS
+using PlotlyJS, HTTP, CSV
 import JSON
 import DataFrames
-import RDatasets
+#import RDatasets
 import WebIO
 #import UUIDs
 import DefaultApplication
 
+"""
+    dataset(dir, name)
+
+Replace the dataset function from RDatasets.  It stopped working.
+"""
+function dataset(dir, name)
+    url = "https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/$(dir)/$(name).csv"
+    body = HTTP.get(url).body
+    csv = CSV.File(body)
+    df = DataFrames.DataFrame(csv)
+end
+
 #
 # Building Blocks
 #
+
+"""
+
+http://juliaplots.org/PlotlyJS.jl/stable/building_traces_layouts/
+"""
 function sec_Traces()
     # http://juliaplots.org/PlotlyJS.jl/stable/building_traces_layouts/
     t = PlotlyJS.scatter(
@@ -77,16 +94,23 @@ end
 #
 # Putting it Together
 #
+
+"""
+
+http://juliaplots.org/PlotlyJS.jl/stable/syncplots/#Plot
+"""
 function sec_Plot()
-    iris = RDatasets.dataset("datasets", "iris")
-    l = Layout(title="Iris", width=800, height=600)
-    p = Plot(iris, x=:SepalLength, y=:SepalWidth, l,
+    iris = dataset("datasets", "iris")
+    layout = Layout(title="Iris", width=800, height=600)
+    plot = Plot(iris, x=Symbol("Sepal.Length"), y=Symbol("Sepal.Width"), layout,
         mode="markers", marker_size=8,
         group=:Species
     )
+    @info typeof(plot)
 
-    return p
+    return plot
 end
+#display(sec_Plot())
 
 function sec_SyncPlots1()
     p = sec_Plot()
@@ -163,7 +187,7 @@ end
 #
 # 3D
 # 
-using PlotlyJS, DataFrames, RDatasets, Colors, Distributions, LinearAlgebra
+using PlotlyJS, DataFrames, Colors, Distributions, LinearAlgebra
 
 function random_line()
     n = 400

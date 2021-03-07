@@ -89,31 +89,50 @@ function dash_table()
     run_server(app, "0.0.0.0", debug=true)
 end
 
-function dash_plotly()
-    #iris = dataset("datasets", "iris")
-    url = "https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/iris.csv"
-    body = HTTP.get(url).body
-    @info typeof(body)
-    csv = CSV.File(body)
-    @info typeof(csv)
-    iris = DataFrame(csv)
-    #@show iris
-    pl = Plot(
-        iris, x=Symbol("Sepal.Length"), y=Symbol("Sepal.Width"), mode="markers",
-        marker_size=8, group=:Species
-    )
+"""
+    dataset(dir, name)
 
+Replace the dataset function from RDatasets.  It stopped working.
+"""
+function dataset(dir, name)
+    url = "https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/$(dir)/$(name).csv"
+    body = HTTP.get(url).body
+    csv = CSV.File(body)
+    df = DataFrame(csv)
+end
+
+"""
+    dash_plotly()
+
+Demonstrate simple Plotly plot in Dash.  Use `Layout` to specify figure size.
+Use my own `dataset` function to retrieve iris data from R.
+
+[More About Visualization](https://dash-julia.plotly.com/getting-started)
+"""
+function dash_plotly()
+    iris = dataset("datasets", "iris")
+    layout = Layout(title="Iris", width=800, height=600)
+    
+    plt = Plot(
+        iris, layout, 
+        x=Symbol("Sepal.Length"), y=Symbol("Sepal.Width"), mode="markers",
+        marker_size=8, group=:Species, 
+    )
+    @info typeof(plt)
+    @info typeof(plt.layout)
     app = dash(external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"])
 
     app.layout = html_div() do
         html_h4("Iris Sepal Length vs Sepal Width"),
         dcc_graph(
             id = "example-graph-3",
-            figure = pl,
+            figure = plt,
         )
     end
 
     run_server(app, "0.0.0.0", debug=true)
+
+    return plt
 end
 
 function dash_markdown()
@@ -176,6 +195,6 @@ end
 # https://dash-julia.plotly.com/getting-started
 #hello_dash()
 #dash_table()
-dash_plotly() # RDatasets does not work
+#dash_plotly() # RDatasets does not work
 #dash_markdown()
 #dash_core()
