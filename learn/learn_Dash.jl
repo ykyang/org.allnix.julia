@@ -18,7 +18,7 @@
 # https://dash-julia.plotly.com/getting-started
 using Dash, DashHtmlComponents, DashCoreComponents
 using DataFrames, CSV, HTTP
-using PlotlyJS, RDatasets
+using PlotlyJS #, RDatasets
 
 
 # https://dash-julia.plotly.com/getting-started
@@ -90,9 +90,16 @@ function dash_table()
 end
 
 function dash_plotly()
-    iris = dataset("datasets", "iris")
+    #iris = dataset("datasets", "iris")
+    url = "https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/datasets/iris.csv"
+    body = HTTP.get(url).body
+    @info typeof(body)
+    csv = CSV.File(body)
+    @info typeof(csv)
+    iris = DataFrame(csv)
+    #@show iris
     pl = Plot(
-        iris, x=:SepalLength, y=:SepalWidth, mode="markers",
+        iris, x=Symbol("Sepal.Length"), y=Symbol("Sepal.Width"), mode="markers",
         marker_size=8, group=:Species
     )
 
@@ -169,6 +176,6 @@ end
 # https://dash-julia.plotly.com/getting-started
 #hello_dash()
 #dash_table()
-#dash_plotly() # RDatasets does not work
-dash_markdown()
+dash_plotly() # RDatasets does not work
+#dash_markdown()
 #dash_core()
