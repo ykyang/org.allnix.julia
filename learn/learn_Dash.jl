@@ -23,6 +23,24 @@ using PlotlyJS #, RDatasets
 
 # https://dash-julia.plotly.com/getting-started
 
+"""
+    dataset(dir, name)
+
+Replace the dataset function from RDatasets.  It stopped working.
+"""
+function dataset(dir, name)
+    url = "https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/$(dir)/$(name).csv"
+    body = HTTP.get(url).body
+    csv = CSV.File(body)
+    df = DataFrame(csv)
+end
+
+function urldownload(url)
+    body = HTTP.get(url).body
+    csv = CSV.File(body)
+    df = DataFrame(csv)
+end
+
 function hello_dash()
     app = dash(external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"])
 
@@ -89,17 +107,7 @@ function dash_table()
     run_server(app, "0.0.0.0", debug=true)
 end
 
-"""
-    dataset(dir, name)
 
-Replace the dataset function from RDatasets.  It stopped working.
-"""
-function dataset(dir, name)
-    url = "https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/$(dir)/$(name).csv"
-    body = HTTP.get(url).body
-    csv = CSV.File(body)
-    df = DataFrame(csv)
-end
 
 """
     dash_plotly()
@@ -191,6 +199,43 @@ function dash_core()
     run_server(app, "0.0.0.0", debug = true)
 end
 
+"""
+    dash_basic_callback()
+
+
+[Basic Dash Callback](https://dash-julia.plotly.com/basic-callbacks)
+"""
+function dash_basic_callback()
+    app = dash(external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"])
+
+    app.layout = html_div() do
+        dcc_input(id = "input-3", value = "initial value",
+            type = "text",
+        ),
+        html_div(id="output-1")
+    end
+    
+    callback!(
+        app, 
+        Output("output-1", "children"), 
+        Input("input-3", "value")) do input_value
+        "You have entered $(input_value)"
+    end
+    
+    run_server(app, "0.0.0.0", debug = true)
+end
+
+"""
+
+[Dash App Layout With Figure and Slider](https://dash-julia.plotly.com/basic-callbacks)
+"""
+function dash_layout_figure_slider()
+    df1 = DataFrame(urldownload("https://raw.githubusercontent.com/plotly/datasets/master/gapminderDataFiveYear.csv"))
+    years = unique(df1[!,"year"])
+    
+    app = dash(external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"])
+
+end
 
 # https://dash-julia.plotly.com/getting-started
 #hello_dash()
@@ -198,3 +243,5 @@ end
 #dash_plotly() # RDatasets does not work
 #dash_markdown()
 #dash_core()
+#dash_basic_callback()
+dash_layout_figure_slider()
