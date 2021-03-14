@@ -208,7 +208,8 @@ function random_line()
                     margin=attr(l=0, r=0, b=0, t=65))
     plot([trace1, trace2, trace3], layout)
 end
-#display(random_line())
+display(random_line())
+
 function topo_surface()
     z = Vector[[27.80985, 49.61936, 83.08067, 116.6632, 130.414, 150.7206, 220.1871,
                 156.1536, 148.6416, 203.7845, 206.0386, 107.1618, 68.36975, 45.3359,
