@@ -240,8 +240,8 @@ end
 # https://dash-julia.plotly.com/getting-started
 #hello_dash()
 #dash_table()
-#dash_plotly() # RDatasets does not work
+dash_plotly() # RDatasets does not work
 #dash_markdown()
 #dash_core()
 #dash_basic_callback()
-dash_layout_figure_slider()
+#dash_layout_figure_slider()
