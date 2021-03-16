@@ -231,17 +231,57 @@ end
 """
 function dash_layout_figure_slider()
     df1 = DataFrame(urldownload("https://raw.githubusercontent.com/plotly/datasets/master/gapminderDataFiveYear.csv"))
-    years = unique(df1[!,"year"])
-    
+    years = unique(df1[!, :year])
+    @show years
     app = dash(external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"])
+    app.layout = html_div() do
+        dcc_graph(id = "graph-1"),
+        dcc_slider(
+            id = "year-slider-1",
+            min = minimum(years),
+            max = maximum(years),
+            marks = Dict([Symbol(v) => Symbol(v) for v in years]),
+            value = minimum(years),
+            step = nothing,
+        )
+    end
 
+    callback!(
+        app,
+        Output("graph-1", "figure"),
+        Input("year-slider-1", "value") ) do selected_year
+        pt = Plot(
+            df1[df1.year .== selected_year, :],
+            Layout(
+                xaxis_type = "log",
+                xaxis_title = "GDP Per Capita",
+                yaxis_title = "Life Expectancy",
+                legend_x = 0,
+                legend_y = 1,
+                hovermode = "closest",
+                transition_duration = 500
+            ),
+            x = :gdpPercap,
+            y = :lifeExp,
+            text = :country,
+            group = :continent,
+            mode = "markers",
+            marker_size = 15,
+            marker_line_color = "white"
+        )
+
+        return pt
+    end
+
+    
+    run_server(app, "0.0.0.0", debug=true)
 end
 
 # https://dash-julia.plotly.com/getting-started
 #hello_dash()
 #dash_table()
-dash_plotly() # RDatasets does not work
+#dash_plotly() # RDatasets does not work
 #dash_markdown()
 #dash_core()
 #dash_basic_callback()
-#dash_layout_figure_slider()
+dash_layout_figure_slider()
