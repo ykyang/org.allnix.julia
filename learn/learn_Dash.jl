@@ -248,8 +248,9 @@ function dash_layout_figure_slider()
 
     callback!(
         app,
-        Output("graph-1", "figure"),
-        Input("year-slider-1", "value") ) do selected_year
+        Output("graph-1", "figure"),    # figure is an attribute of graph-1 
+        Input("year-slider-1", "value") # value is an attribut of year-slider-1
+        ) do selected_year
         pt = Plot(
             df1[df1.year .== selected_year, :],
             Layout(
@@ -277,6 +278,116 @@ function dash_layout_figure_slider()
     run_server(app, "0.0.0.0", debug=true)
 end
 
+"""
+
+[Dash App With Multiple Inputs](https://dash-julia.plotly.com/basic-callbacks)
+"""
+function dash_app_multiple_inputs()
+    df = DataFrame(urldownload("https://raw.githubusercontent.com/plotly/datasets/master/country_indicators.csv"))
+    #@show size(df)
+    #@show names(df)
+    dropmissing!(df)
+    #display(df)
+
+    # [!, ] returns a reference rather than a copy
+    # https://stackoverflow.com/questions/60900001/what-is-the-meaning-of-the-exclamation-mark-in-indexing-a-julia-dataframe
+    available_indicators = unique(df[!, "Indicator Name"])
+    years = unique(df[!, "Year"])
+
+    app = dash(external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"])
+
+    app.layout = html_div() do
+        div_1 = html_div(
+            children = [
+                dcc_dropdown(
+                    id = "xaxis-column",
+                    options = [(label=i, value=i) for i in available_indicators],
+                    value = available_indicators[3] #"Fertility rate, total (births per woman)"
+                ),
+                dcc_radioitems(
+                    id = "xaxis-type",
+                    options = [(label=v, value=v) for v in ["linear", "log"]],
+                    value = "linear"
+                )
+            ],
+            style = (width="48%", display="inline-block")
+        )
+        div_2 = html_div(
+            children=[
+                dcc_dropdown(
+                    id = "yaxis-column",
+                    options = [(label=v, value=v) for v in available_indicators],
+                    value = available_indicators[4]
+                ),
+                dcc_radioitems(
+                    id = "yaxis-type",
+                    options = [(label = v, value = v) for v in ["linear", "log"]],
+                    value = "linear",
+                )
+            ],
+            style = (width="48%", display="inline-block", float = "right")
+
+        )
+        graph = dcc_graph(id = "indicator-graphic")
+        slider = dcc_slider(
+            id = "year-slider-2",
+            min = minimum(years), max = maximum(years),
+            marks = Dict([Symbol(v) => Symbol(v) for v in years]),
+            value = minimum(years),
+            step = nothing,
+        )
+
+        return div_1,div_2, graph, slider
+    end
+
+    callback!(
+        app,
+        Output("indicator-graphic", "figure"),
+        Input("xaxis-column", "value"),
+        Input("yaxis-column", "value"),
+        Input("xaxis-type", "value"),
+        Input("yaxis-type", "value"),
+        Input("year-slider-2", "value"),
+    ) do xaxis_column_name, yaxis_column_name, xaxis_type, yaxis_type, year_value
+        dff = df[df.Year .== year_value, :]
+
+        pt = Plot(
+            dff[dff[!, Symbol("Indicator Name")] .== xaxis_column_name, :Value],
+            dff[dff[!, Symbol("Indicator Name")] .== yaxis_column_name, :Value],
+            Layout(
+                xaxis_type = xaxis_type == "linear" ? "linear" : "log",
+                xaxis_title = xaxis_column_name,
+                yaxis_type = yaxis_type == "linear" ? "linear" : "log",
+                yaxis_title = yaxis_column_name,
+                hovermode = "closest",
+            ),
+            kind = "scatter",
+            text = dff[
+                dff[!, Symbol("Indicator Name")] .== yaxis_column_name,
+                Symbol("Country Name")
+            ],
+            mode = "markers",
+            marker_size = 15,
+            marker_opacity = 0.5,
+            marker_line_width = 1,
+            marker_line_color = "white"
+        )
+
+        return pt
+    end
+
+    run_server(app, "0.0.0.0", debug=true)
+end
+
+function dash_app_multiple_outputs()
+    app = dash(external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"])
+
+    app.layout = html_div() do
+    end    
+
+    run_server(app, "0.0.0.0", debug=true)
+end
+
 # https://dash-julia.plotly.com/getting-started
 #hello_dash()
 #dash_table()
@@ -284,4 +395,6 @@ end
 #dash_markdown()
 #dash_core()
 #dash_basic_callback()
-dash_layout_figure_slider()
+#dash_layout_figure_slider()
+#Ans = dash_app_multiple_inputs()
+Ans = dash_app_multiple_outputs()
