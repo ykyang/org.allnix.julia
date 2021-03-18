@@ -378,7 +378,10 @@ function dash_app_multiple_inputs()
 
     run_server(app, "0.0.0.0", debug=true)
 end
+"""
 
+[Dash App With Multiple Outputs](https://dash-julia.plotly.com/basic-callbacks)
+"""
 function dash_app_multiple_outputs()
     app = dash(external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"])
 
@@ -417,6 +420,70 @@ function dash_app_multiple_outputs()
     run_server(app, "0.0.0.0", debug=true)
 end
 
+function dash_app_chained_callbacks()
+    app = dash(external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"])
+
+    all_options = Dict(
+        "America" => ["New York City", "San Francisco", "Cincinnati"],
+        "Canada"  => ["Montreal", "Toronto", "Ottawa"],
+    )
+    app.layout = html_div() do
+        html_div(
+            children = [
+                dcc_radioitems(
+                    id = "countries-radio",
+                    options = [(label = x, value = x) for x in keys(all_options)],
+                    value = "America", # keys(all_options)[1]
+                ),
+                html_hr(),
+                dcc_radioitems(id = "cities-radio"),
+                html_hr(),
+                html_div(id = "display-selected-values"),
+            ],
+        )
+    end
+
+    callback!(
+        app,
+        Output("cities-radio", "options"),
+        Input("countries-radio", "value")
+    ) do selected_country
+        cities = all_options[selected_country]
+        Ans = [(label = x, value = x) for x in cities]
+
+        return Ans
+    end
+    callback!(
+        app,
+        Output("cities-radio", "value"),
+        Input("cities-radio", "options")
+    ) do available_options
+        #@show available_options
+        #return available_options[1].value
+        return available_options[1][:value]
+    end
+
+    callback!(
+        app,
+        Output("display-selected-values", "children"),
+        Input("countries-radio", "value"),
+        Input("cities-radio", "value"),
+    ) do selected_country, selected_city
+        if isnothing(selected_city)
+            return "No city selected"
+        else
+            return "$(selected_city) is a city in $(selected_country)"
+        end
+    end
+
+    run_server(app, "0.0.0.0", debug=true)
+end
+
+function dash_app_state()
+    app = dash(external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"])
+    
+    run_server(app, "0.0.0.0", debug=true)
+end
 # https://dash-julia.plotly.com/getting-started
 #hello_dash()
 #dash_table()
@@ -426,4 +493,5 @@ end
 #dash_basic_callback()
 #dash_layout_figure_slider()
 #Ans = dash_app_multiple_inputs()
-Ans = dash_app_multiple_outputs()
+#Ans = dash_app_multiple_outputs()
+Ans = dash_app_chained_callbacks()
