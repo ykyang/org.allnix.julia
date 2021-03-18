@@ -383,7 +383,36 @@ function dash_app_multiple_outputs()
     app = dash(external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"])
 
     app.layout = html_div() do
+        dcc_input(id = "input-1", value = "1", type="text"),
+        html_tr( 
+            (html_td("x^2 ="), html_td(id="square"))
+        ),
+        html_tr(
+            (html_td("x^3 ="), html_td(id="cube"))
+        )
     end    
+
+    callback!(
+        app,
+        Output("square", "children"),
+        Output("cube", "children"),
+        Input("input-1", "value")
+    ) do x
+        @show x
+        try
+            x = parse(Int64, x)
+            return (x^2, x^3)
+        catch e
+            if isa(e, ArgumentError)
+                return ("", "")        
+            end
+
+            # unknown error
+            @error e
+        end
+
+        
+    end
 
     run_server(app, "0.0.0.0", debug=true)
 end
