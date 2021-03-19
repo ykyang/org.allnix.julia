@@ -482,8 +482,29 @@ end
 function dash_app_state()
     app = dash(external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"])
     
+    app.layout = html_div() do
+        input_1 = dcc_input(id = "input-1-state", type = "text", value = "Montreal")
+        input_2 = dcc_input(id = "input-2-state", type = "text", value = "Canada")
+        button = html_button(id = "submit-button-state", children = "submit", n_clicks = 0)
+        out   = html_div(id = "output-state")
+        return input_1, input_2, button, out
+    end
+
+    callback!(
+        app,
+        Output("output-state", "children"),
+        Input("submit-button-state", "n_clicks"),
+        State("input-1-state", "value"),
+        State("input-2-state", "value"),
+    ) do clicks, input_1, input_2
+        Ans = "The button has been clicked $(clicks) times, inputs are $(input_1) and $(input_2)"
+
+        return Ans
+    end
+
     run_server(app, "0.0.0.0", debug=true)
 end
+
 # https://dash-julia.plotly.com/getting-started
 #hello_dash()
 #dash_table()
@@ -494,4 +515,5 @@ end
 #dash_layout_figure_slider()
 #Ans = dash_app_multiple_inputs()
 #Ans = dash_app_multiple_outputs()
-Ans = dash_app_chained_callbacks()
+#Ans = dash_app_chained_callbacks()
+Ans = dash_app_state()
