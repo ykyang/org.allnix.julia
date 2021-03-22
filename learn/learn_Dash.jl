@@ -645,6 +645,13 @@ function dash_intro_visual()
     run_server(app, "0.0.0.0", debug=true)
 end
 
+"""
+[Update Graphs on Hover](https://dash-julia.plotly.com/interactive-graphing)
+"""
+function dash_update_graphs_on_hover()
+    
+end
+
 # https://dash-julia.plotly.com/getting-started
 #hello_dash()
 #dash_table()
