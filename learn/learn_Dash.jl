@@ -649,8 +649,199 @@ end
 [Update Graphs on Hover](https://dash-julia.plotly.com/interactive-graphing)
 """
 function dash_update_graphs_on_hover()
-    
+    df = DataFrame(urldownload("https://raw.githubusercontent.com/plotly/datasets/master/country_indicators.csv"))
+
+    dropmissing!(df)
+    #display(df)
+    @show names(df)
+
+    available_indicators = unique(df[:, "Indicator Name"])
+    years = unique(df[!, "Year"])
+
+    app = dash(external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"])    
+    app.layout = html_div() do
+        tag_1 = html_div(
+            children = [
+                html_div( # x
+                    children=[
+                        dcc_dropdown( # x-column
+                            id = "crossfilter-xaxis-column",
+                            options = [(label = x, value = x) for x in available_indicators],
+                            value = available_indicators[3],
+                        ),
+                        dcc_radioitems( # x-axis
+                            id = "crossfilter-xaxis-type",
+                            options = [(label = x, value = x) for x in ["linear", "log"]],
+                            value = "linear",
+                        )
+                    ],
+                    style = (width = "49%", display = "inline-block")
+                ),
+                html_div( # y
+                    children = [
+                        dcc_dropdown( # y-column
+                            id = "crossfilter-yaxis-column",
+                            options = [(label = x, value = x) for x in available_indicators],
+                            value = available_indicators[4],
+                        ),
+                        dcc_radioitems( # y-axis
+                            id = "crossfilter-yaxis-type",
+                            options = [(label = x, value = x) for x in ["linear", "log"]],
+                            value = "linear",
+                        ),
+                    ],
+                    style = (
+                        width = "49%",
+                        float = "right",
+                        display = "inline-block",
+                    ),
+                ),
+            ],
+            style = (
+                borderBottom = "thin lightgrey solid",
+                backgroundColor = "rgb(250,250,250)",
+                padding = "10px 5px",
+            ),
+        )        
+        tag_2 = html_div(
+            children = [
+                dcc_graph(id = "crossfilter-indicator-scatter"),
+                dcc_slider(
+                    id = "crossfilter-year-slider",
+                    min = minimum(years),
+                    max = maximum(years),
+                    marks = Dict([Symbol(x) => Symbol(x) for x in years]),
+                    value = minimum(years),
+                    step = nothing,
+                )
+            ],
+            style = (
+                width = "49%",
+                display = "inline-block",
+            ),
+        )
+        tag_3 = html_div(
+            children = [
+                dcc_graph(id = "x-time-series"),
+                dcc_graph(id = "y-time-series"),
+            ],
+            style = (
+                width = "49%", display = "inline-block", 
+            #    float="right"
+            ),
+        )
+
+        return tag_1, tag_2, tag_3
+    end
+
+    callback!(
+        app,
+        Output("crossfilter-indicator-scatter", "figure"),
+        Input("crossfilter-xaxis-column", "value"),
+        Input("crossfilter-yaxis-column", "value"),
+        Input("crossfilter-xaxis-type", "value"),
+        Input("crossfilter-yaxis-type", "value"),
+        Input("crossfilter-year-slider", "value"),
+    ) do xaxis_column_name, yaxis_column_name, xaxis_type, yaxis_type, year_slider_value
+        dff = df[df.Year .== year_slider_value, :] # filtered
+        pt = Plot(
+            dff[dff[!, Symbol("Indicator Name")] .== xaxis_column_name, :Value],
+            dff[dff[!, Symbol("Indicator Name")] .== yaxis_column_name, :Value],
+            Layout(
+                xaxis_title = xaxis_column_name,
+                xaxis_type = xaxis_type == "linear" ? "linear" : "log",
+                yaxis_title = yaxis_column_name,
+                yaxis_type = yaxis_type == "linear" ? "linear" : "log",
+                hovermode = "closest",
+                height = 450,
+            ),
+            kind = "scatter",
+            text = dff[
+                dff[!, Symbol("Indicator Name")] .== yaxis_column_name,
+                Symbol("Country Name"),
+            ],
+            customdata = dff[
+                dff[!, Symbol("Indicator Name")] .== yaxis_column_name,
+                Symbol("Country Name"),
+            ],
+            mode = "markers",
+            marker_size = 15,
+            marker_opacity = 0.5,
+            marker_line_width = 0.5, 
+            marker_line_color = "white",
+        )
+
+        return pt
+    end
+
+    callback!(
+        app,
+        Output("x-time-series", "figure"),
+        Input("crossfilter-indicator-scatter", "hoverData"),
+        Input("crossfilter-xaxis-column", "value"),
+        Input("crossfilter-xaxis-type", "value"),
+    ) do hover_data, xaxis_column_name, axis_type
+        @show hover_data
+        country_name = isnothing(hover_data) ? "" : hover_data.points[1].customdata
+        dff = df[df[:, Symbol("Country Name")] .== country_name, :]
+        dff = dff[dff[:, Symbol("Indicator Name")] .== xaxis_column_name, :]
+        title = "<b>$(country_name)</b><br>$(xaxis_column_name)"
+
+        return create_time_series(dff, axis_type, title)
+    end
+
+    callback!(
+        app,
+        Output("y-time-series", "figure"),
+        Input("crossfilter-indicator-scatter", "hoverData"),
+        Input("crossfilter-yaxis-column", "value"),
+        Input("crossfilter-yaxis-type", "value"),
+    ) do hover_data, yaxis_column_name, axis_type
+        @show hover_data
+        country_name = isnothing(hover_data) ? "" : hover_data.points[1].customdata
+        dff = df[df[:, Symbol("Country Name")] .== country_name, :]
+        dff = dff[dff[:, Symbol("Indicator Name")] .== yaxis_column_name, :]
+        #title = "<b>$(country_name)</b><br>$(yaxis_column_name)"
+
+        return create_time_series(dff, axis_type, yaxis_column_name)
+    end
+
+
+    #return df
+    run_server(app, "0.0.0.0", debug=true)
 end
+
+"""
+
+Utility function for `dash_update_graphs_on_hover()`.
+"""
+function create_time_series(df, axis_type, title)
+    pt = Plot(
+        df[:, :Year],
+        df[:, :Value],
+        Layout(
+            yaxis_type = axis_type == "linear" ? "linear" : "log",
+            xaxis_showgrid = false,
+            annotations = [attr(
+                x = 0,
+                y = 0.85,
+                xanchor = "left",
+                yanchor = "bottom",
+                xref = "paper",
+                yref = "paper",
+                showarrow = false,
+                align = "left",
+                bgcolor = "rgba(255,255,255,0.5)",
+                text = title,
+            )],
+            height = 225,
+        ),
+        mode = "lines+markers",
+    )
+
+    return pt
+end
+
 
 # https://dash-julia.plotly.com/getting-started
 #hello_dash()
@@ -664,4 +855,5 @@ end
 #Ans = dash_app_multiple_outputs()
 #Ans = dash_app_chained_callbacks()
 #Ans = dash_app_state()
-Ans = dash_intro_visual()
+#Ans = dash_intro_visual()
+Ans = dash_update_graphs_on_hover()
