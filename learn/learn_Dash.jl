@@ -908,7 +908,7 @@ function dash_generic_crossfilter_recipe()
         Input("graph_2", "selectedData"),
         Input("graph_3", "selectedData"),
     ) do s1, s2, s3
-        selectedpoints = 1:size(df)[1]
+        selectedpoints = (1:size(df)[1]) .- 1
 
         for selected_data in [s1, s2, s3]
             if selected_data != nothing
@@ -955,11 +955,19 @@ function create_figure(df, x_col, y_col, selectedpoints, local_selectedpoints)
             "x0" => minimum(df[:, x_col][2]),
         )
     end
+    @info x_col
+    @info y_col
 
     pt = Plot(
         df,
-        x = df[:, x_col],
-        y = y_col,
+
+        # use this group
+        Symbol(x_col),
+        Symbol(y_col),
+        # or this group
+        #x = df[:, x_col],
+        #y = df[:, y_col],
+
         mode = "markers+text",
         marker_size = 20,
         text = 1:size(df)[1],
