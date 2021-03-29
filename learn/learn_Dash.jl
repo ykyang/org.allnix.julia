@@ -1,3 +1,24 @@
+"""
+    Learn Dash server
+
+Use `run_Dash.jl` to run the Dash server.
+For learning or debugging purpose, 
+
+```julia-repl
+julia> include("learn_Dash.jl")
+julia> db.@enter your_function_name()
+# Enter compiled mode by `C` (capital C), otherwise it is too slow.
+1|debug> C
+```
+"""
+
+# Use run_Dash.jl to run Dash server
+#
+# For debugging,
+# 
+
+# Deprecatd, use run_Dash.jl
+#
 # Use version 1.5.3 and run in command line
 #
 #   julia --project=@. learn_Dash.jl
@@ -20,6 +41,13 @@ using Dash, DashHtmlComponents, DashCoreComponents
 using DataFrames, CSV, HTTP
 using PlotlyJS #, RDatasets
 import JSON3
+
+import Debugger
+db = Debugger
+
+using Logging
+logger = SimpleLogger(stdout, Logging.Info)
+global_logger(logger)
 
 # https://dash-julia.plotly.com/getting-started
 
@@ -649,11 +677,13 @@ end
 [Update Graphs on Hover](https://dash-julia.plotly.com/interactive-graphing)
 """
 function dash_update_graphs_on_hover()
+    println("Random command to study Debugger")
+
     df = DataFrame(urldownload("https://raw.githubusercontent.com/plotly/datasets/master/country_indicators.csv"))
 
     dropmissing!(df)
     #display(df)
-    @show names(df)
+    #@show names(df)
 
     available_indicators = unique(df[:, "Indicator Name"])
     years = unique(df[!, "Year"])
@@ -781,7 +811,7 @@ function dash_update_graphs_on_hover()
         Input("crossfilter-xaxis-column", "value"),
         Input("crossfilter-xaxis-type", "value"),
     ) do hover_data, xaxis_column_name, axis_type
-        @show hover_data
+        #@show hover_data
         country_name = isnothing(hover_data) ? "" : hover_data.points[1].customdata
         dff = df[df[:, Symbol("Country Name")] .== country_name, :]
         dff = dff[dff[:, Symbol("Indicator Name")] .== xaxis_column_name, :]
@@ -797,7 +827,7 @@ function dash_update_graphs_on_hover()
         Input("crossfilter-yaxis-column", "value"),
         Input("crossfilter-yaxis-type", "value"),
     ) do hover_data, yaxis_column_name, axis_type
-        @show hover_data
+        #@show hover_data
         country_name = isnothing(hover_data) ? "" : hover_data.points[1].customdata
         dff = df[df[:, Symbol("Country Name")] .== country_name, :]
         dff = dff[dff[:, Symbol("Indicator Name")] .== yaxis_column_name, :]
@@ -842,7 +872,109 @@ function create_time_series(df, axis_type, title)
     return pt
 end
 
+"""
+[Update Graphs on Hover](https://dash-julia.plotly.com/interactive-graphing)
+"""
+function dash_generic_crossfilter_recipe()
+    data = [("Col $(i)" => rand(30)) for i = 1:6] # array of pairs
+    db = Dict(data)
+    df = DataFrame(db)
 
+    app = dash(external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"])    
+
+    app.layout = html_div() do
+        tag_1 = html_div(
+            dcc_graph(id = "graph_1"),
+            style = (width = "32%", display = "inline-block"),
+        )
+        tag_2 = html_div(
+            dcc_graph(id = "graph_2"),
+            style = (width = "32%", display = "inline-block"),
+        )
+        tag_3 = html_div(
+            dcc_graph(id = "graph_3"),
+            style = (width = "32%", display = "inline-block"),
+        )
+
+        return tag_1, tag_2, tag_3
+    end
+
+    callback!(
+        app,
+        Output("graph_1", "figure"),
+        Output("graph_2", "figure"),
+        Output("graph_3", "figure"),
+        Input("graph_1", "selectedData"),
+        Input("graph_2", "selectedData"),
+        Input("graph_3", "selectedData"),
+    ) do s1, s2, s3
+        selectedpoints = 1:size(df)[1]
+
+        for selected_data in [s1, s2, s3]
+            if selected_data != nothing
+                # JS is 0-offset?
+                selectedpoints = [p[:customdata] - 1 for p in selected_data.points]
+                @info selectedpoints
+            end
+        end
+
+        fig_1 = create_figure(df, "Col 1", "Col 2", selectedpoints, s1)
+        fig_2 = create_figure(df, "Col 3", "Col 4", selectedpoints, s2)
+        fig_3 = create_figure(df, "Col 5", "Col 6", selectedpoints, s3)
+
+        return fig_1, fig_2, fig_3
+    end
+
+    run_server(app, "0.0.0.0", debug=true)    
+end
+
+"""
+
+Utility function for `dash_generic_crossfilter_recipe()`
+"""
+function create_figure(df, x_col, y_col, selectedpoints, local_selectedpoints)
+
+    # Get selection bounds
+    if local_selectedpoints != nothing
+        @info "local_selectedpoint is something"
+        # ranges = (x = Any[0.29, 1.09], y = Any[4.59, 23.78])
+        ranges = local_selectedpoints[:range]
+        @info ranges
+        selection_bounds = Dict(
+            "x0" => ranges[:x][1],
+            "x1" => ranges[:x][2],
+            "y0" => ranges[:y][1],
+            "x0" => ranges[:y][2],
+        )
+    else
+        @info "local_selectedpoint is nothing"
+        selection_bounds = Dict(
+            "x0" => minimum(df[:, x_col][1]),
+            "x1" => minimum(df[:, x_col][2]),
+            "y0" => minimum(df[:, y_col][1]),
+            "x0" => minimum(df[:, x_col][2]),
+        )
+    end
+
+    pt = Plot(
+        df,
+        x = df[:, x_col],
+        y = y_col,
+        mode = "markers+text",
+        marker_size = 20,
+        text = 1:size(df)[1],
+        customdata = 1:size(df)[1],
+        selectedpoints = selectedpoints,
+        unselected = (
+            marker = (opacity = 0.3, textfont = (color = "rgba(0,0,0,0)"))
+        )
+    )
+
+    return pt
+end
+
+# Use run_Dash.jl to run
+#
 # https://dash-julia.plotly.com/getting-started
 #hello_dash()
 #dash_table()
@@ -856,4 +988,6 @@ end
 #Ans = dash_app_chained_callbacks()
 #Ans = dash_app_state()
 #Ans = dash_intro_visual()
-Ans = dash_update_graphs_on_hover()
+#Ans = dash_update_graphs_on_hover()
+
+nothing
