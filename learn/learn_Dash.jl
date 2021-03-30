@@ -37,7 +37,7 @@ julia> db.@enter your_function_name()
 # add Dash DashCoreComponents DashHtmlComponents DashTable
 
 # https://dash-julia.plotly.com/getting-started
-using Dash, DashHtmlComponents, DashCoreComponents
+using Dash, DashHtmlComponents, DashCoreComponents, DashBootstrapComponents
 using DataFrames, CSV, HTTP
 using PlotlyJS #, RDatasets
 import JSON3
@@ -448,6 +448,9 @@ function dash_app_multiple_outputs()
     run_server(app, "0.0.0.0", debug=true)
 end
 
+"""
+[Dash App With Chained Callbacks]
+"""
 function dash_app_chained_callbacks()
     app = dash(external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"])
 
@@ -688,7 +691,8 @@ function dash_update_graphs_on_hover()
     available_indicators = unique(df[:, "Indicator Name"])
     years = unique(df[!, "Year"])
 
-    app = dash(external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"])    
+    #app = dash(external_stylesheets = ["https://codepen.io/chriddyp/pen/bWLwgP.css"])    
+    app = dash(external_stylesheets=[dbc_themes.BOOTSTRAP])
     app.layout = html_div() do
         tag_1 = html_div(
             children = [
@@ -908,12 +912,12 @@ function dash_generic_crossfilter_recipe()
         Input("graph_2", "selectedData"),
         Input("graph_3", "selectedData"),
     ) do s1, s2, s3
-        selectedpoints = (1:size(df)[1]) .- 1
+        selectedpoints = 1:size(df)[1]
 
         for selected_data in [s1, s2, s3]
             if selected_data != nothing
                 # JS is 0-offset?
-                selectedpoints = [p[:customdata] - 1 for p in selected_data.points]
+                selectedpoints = [p[:customdata] for p in selected_data.points]
                 @info selectedpoints
             end
         end
@@ -934,6 +938,7 @@ Utility function for `dash_generic_crossfilter_recipe()`
 """
 function create_figure(df, x_col, y_col, selectedpoints, local_selectedpoints)
 
+    # This outcome of this `if` is not used.
     # Get selection bounds
     if local_selectedpoints != nothing
         @info "local_selectedpoint is something"
@@ -955,9 +960,7 @@ function create_figure(df, x_col, y_col, selectedpoints, local_selectedpoints)
             "x0" => minimum(df[:, x_col][2]),
         )
     end
-    @info x_col
-    @info y_col
-
+    
     pt = Plot(
         df,
 
@@ -970,9 +973,9 @@ function create_figure(df, x_col, y_col, selectedpoints, local_selectedpoints)
 
         mode = "markers+text",
         marker_size = 20,
-        text = 1:size(df)[1],
+        text = 1:size(df)[1],  
         customdata = 1:size(df)[1],
-        selectedpoints = selectedpoints,
+        selectedpoints = selectedpoints .- 1, # Index in JS use 0-offset
         unselected = (
             marker = (opacity = 0.3, textfont = (color = "rgba(0,0,0,0)"))
         )
@@ -980,6 +983,8 @@ function create_figure(df, x_col, y_col, selectedpoints, local_selectedpoints)
 
     return pt
 end
+
+
 
 # Use run_Dash.jl to run
 #
