@@ -151,6 +151,8 @@ function badge_example(; app=nothing)
             dbc_badge("Dark", color="dark", href="#"),
             dcc_markdown("""
             ```julia
+            # Test code block with Markdown
+            # Not highlighted for Julia yet
             dbc_badge("Primary", color="primary", className="mr-1", href="#"),
             dbc_badge("Secondary", color="secondary", className="mr-1", href="#"),
             dbc_badge("Success", color="success", className="mr-1", href="#"),
@@ -166,6 +168,169 @@ function badge_example(; app=nothing)
         ],
         className="p-3 my-2 border rounded"
         )
+    end
+
+    return app
+end
+
+function button_example(; app=nothing)
+    if isnothing(app)
+        app = dash()
+    end
+
+    app.layout = dbc_container() do
+        dbc_container([
+            html_h3("Buttons"),
+            dbc_button("Primary", color="primary", className="mr-1"),
+            dbc_button("Secondary", color="secondary", className="mr-1"),
+            dbc_button("Success", color="success", className="mr-1"),
+            dbc_button("Warning", color="warning", className="mr-1"),
+            dbc_button("Danger", color="danger", className="mr-1"),
+            dbc_button("Info", color="info", className="mr-1"),
+            dbc_button("Light", color="light", className="mr-1"),
+            dbc_button("Dark", color="dark", className="mr-1"),
+            dbc_button("Link", color="link"),
+        ],
+        className="p-3 my-2 border rounded"
+        ),
+        dbc_container([
+            html_h3("Using buttons"),
+            dbc_button("Click me", id="click-me", className="mr-2"),
+            html_span(id="click-me-output", style=Dict("vertical-align"=>"middle"))
+        ], className="p-3 my-2 border rounded"),
+        # Outline buttons
+        dbc_container([
+            html_h3("Outline buttons"),
+            dbc_button("Primary", color="primary", className="mr-1", outline=true),
+            dbc_button("Secondary", color="secondary", className="mr-1", outline=true),
+            dbc_button("Success", color="success", className="mr-1", outline=true),
+            dbc_button("Warning", color="warning", className="mr-1", outline=true),
+            dbc_button("Danger", color="danger", className="mr-1", outline=true),
+            dbc_button("Info", color="info", className="mr-1", outline=true),
+            dbc_button("Light", color="light", className="mr-1", outline=true),
+            dbc_button("Dark", color="dark", className="mr-1", outline=true),
+            dbc_button("Link", color="link", outline=true),
+        ], className="p-3 my-2 border rounded"),
+        # Button size
+        dbc_container([
+            html_h3("Button size"),
+            dbc_button("Large button", size="lg", className="mr-1"),
+            dbc_button("Regular button", className="mr-1"),
+            dbc_button("Small button", size="sm"),
+            html_hr(),
+            # Block button
+            dbc_button("Block button", block=true)
+        ], className="p-3 my-2 border rounded"),
+        # Active and disabled states
+        dbc_container([
+            html_h3("Active and disabled states"),
+            dbc_button("Regular", color="primary", className="mr-1"),
+            dbc_button("Active", color="primary", active=true, className="mr-1"),
+            dbc_button("Disabled", color="primary", disabled=true),
+        ], className="p-3 my-2 border rounded")
+    end
+    
+    callback!( # Click me button
+        app,
+        Output("click-me-output", "children"),
+        Input("click-me", "n_clicks")
+    ) do n
+        #@show n
+        
+        if isnothing(n)
+            return "Not clicked"    
+        else
+            return "Clicked $n times"
+        end
+    end
+
+    return app
+end
+
+function button_group_example(; app=nothing)
+    if isnothing(app)
+        app = dash()
+    end
+
+    app.layout = dbc_container() do
+        dbc_container([
+            html_h3("Simple example"),
+            dbc_buttongroup([
+                dbc_button("Left"), dbc_button("Middle"), dbc_button("Right"),
+            ])
+        ], className="p-3 my-2 border rounded"),
+        dbc_container([
+            html_h3("Size"),
+            dbc_buttongroup([
+                dbc_button("Left"), dbc_button("Middle"), dbc_button("Right"),
+            ], size="lg", className="mr-1"),
+            dbc_buttongroup([
+                dbc_button("Left"), dbc_button("Middle"), dbc_button("Right"),
+            ], size="md", className="mr-1"),
+            dbc_buttongroup([
+                dbc_button("Left"), dbc_button("Middle"), dbc_button("Right"),
+            ], size="sm", className="mr-1"),
+        ], className="p-3 my-2 border rounded"),
+        dbc_container([
+            html_h3("Dropdown"),
+            dbc_dropdownmenu([
+                dbc_dropdownmenuitem("Item 1"), dbc_dropdownmenuitem("Item 2"),
+            ], label="Dropdown", group=false)
+        ], className="p-3 my-2 border rounded"),
+        dbc_container([
+            html_h3("Simple example"),
+            dbc_buttongroup([
+                dbc_button("Top"), dbc_button("Middle"), dbc_button("Bottom"),
+            ], vertical=true)
+        ], className="p-3 my-2 border rounded")
+    end
+
+    return app
+end
+
+function card_example(; app=nothing)
+    if isnothing(app)
+        app = dash()
+    end
+
+    app.layout = dbc_container() do
+        dbc_container([
+            html_h3("Simple example"),
+            dbc_card([
+                dbc_cardimg(src="/assets/images/placeholder286x180.png", top=true),
+                dbc_cardbody([
+                    html_h4("Card title", className="card-title"),
+                    html_p([
+                        "Some quick example text to build on the card title and ",
+                        "make up the bulk of the card's content",
+                    ], className="card-text"),
+                    dbc_button("Go somewhere", color="primary"),
+                ]),
+            ], style=Dict("width"=>"18rem")),
+        ], className="p-3 my-2 border rounded"),
+        dbc_container([
+            html_h3("Content types"),
+            html_p("Cards support a wide variety of content. Here are some of the building blocks you can use when creating your own cards."),
+
+            html_h4("Body"),
+            dbc_card(
+                dbc_cardbody("This is within a card body"),
+                className="mb-3",
+            ),
+            dbc_card("Card body with card directly", body=true, className="mb-3"),
+            
+            html_h4("Titles, text and links"),
+            dbc_card(
+                dbc_cardbody([
+                    html_h4("Title", className="card-title"),
+                    html_h5("Subtitle", className="card-subtitle"),
+                    html_p([
+                        "Some quick example text to build on the card title and make ",
+                        "up the bulk of the card's content.",
+                    ], className="card-text")
+                ]),
+            ),
+        ], className="p-3 my-2 border rounded")
     end
 
     return app
