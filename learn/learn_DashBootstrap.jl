@@ -27,7 +27,7 @@ function hello_world()
             html_p(
                 "Let's put some more text down here, but remove the bottom margin",
                 className="mb-0"
-            )
+            ),
         ])
 
     end
@@ -293,8 +293,41 @@ function card_example(; app=nothing)
         app = dash()
     end
 
+    # Objects to be used later
+    top_card = dbc_card([
+        dbc_cardimg(src="assets/images/placeholder286x180.png", top=true),
+        dbc_cardbody(
+            html_p("This card has an image at the top", className="card-text")
+        ),
+    ])
+
+    bottom_card = dbc_card([
+        dbc_cardbody(
+            html_p("This is the bottom image", className="card-text"),
+        ),
+        dbc_cardimg(src="assets/images/placeholder286x180.png", bottom=true)
+    ])
+
+    card_1 = dbc_card(
+        dbc_cardbody([
+            html_h5("Card title", className="card-title"),
+            html_p("This card has some text content, but not much else"),
+            dbc_button("Go", color="primary"),
+        ])
+    )
+    card_2 = dbc_card(
+        dbc_cardbody([
+            html_h5("Card title", className="card-title"),
+            html_p("""
+            This card also has some text content and not much else, but
+            it is twice as wide as the first card.
+            """),
+            dbc_button("Go", color="success")
+        ])
+    )
+
     app.layout = dbc_container() do
-        dbc_container([
+        dbc_container([ # Simple example
             html_h3("Simple example"),
             dbc_card([
                 dbc_cardimg(src="/assets/images/placeholder286x180.png", top=true),
@@ -308,7 +341,9 @@ function card_example(; app=nothing)
                 ]),
             ], style=Dict("width"=>"18rem")),
         ], className="p-3 my-2 border rounded"),
-        dbc_container([
+        
+
+        dbc_container([ # Content types
             html_h3("Content types"),
             html_p("Cards support a wide variety of content. Here are some of the building blocks you can use when creating your own cards."),
 
@@ -327,9 +362,92 @@ function card_example(; app=nothing)
                     html_p([
                         "Some quick example text to build on the card title and make ",
                         "up the bulk of the card's content.",
-                    ], className="card-text")
-                ]),
+                    ], className="card-text"),
+                    dbc_cardlink("Card link", href="#"),
+                    dbc_cardlink("Google", href="https://google.com"),
+                ]), style=Dict("width"=>"18rem")
             ),
+
+            html_h4("Images"),
+            dbc_row([
+                dbc_col(top_card, width="auto"), dbc_col(bottom_card, width="auto")
+            ]),
+        
+            html_h4("List groups"),
+            dbc_card(
+                dbc_listgroup([
+                    dbc_listgroupitem("Item 1"),
+                    dbc_listgroupitem("Item 2"),
+                    dbc_listgroupitem("Item 3"),
+                    dbc_listgroupitem("Item 4"),
+                ]),
+                style=Dict("width"=>"18rem")
+            ),
+
+            html_h4("Header and footer"),
+            dbc_card([
+                dbc_cardheader("Header"),
+                dbc_cardbody([
+                    html_h4("Card title", className="card-title"),
+                    html_p("This is some card text.", className="card-text"),
+                ]),
+                dbc_cardfooter("Footer"),
+            ], style=Dict("width"=>"20rem")),
+        ], className="p-3 my-2 border rounded"),
+
+
+        dbc_container([ # Sizing
+            html_h3("Sizing"),
+            html_p("As mentioned previously, cards assume no specific width, so they will expand to the width of the parent element unless otherwise specified. You can change this behaviour as needed in one of three different ways."),
+
+            html_h4("Using grid components"),
+            dbc_row([
+                dbc_col(card_1, width=4), dbc_col(card_2, width=8)
+            ]),
+
+            html_h4("Using Bootstrap utility classes"),
+            dbc_card(
+                dbc_cardbody([
+                    html_h5("75% width card", className="card-title"),
+                    dcc_markdown("""
+                    This card uses the `w-75` class to set the width to 75%.
+                    """),
+                    html_p([
+                        "This card uses the ",
+                        html_code("w-75"),
+                        " class to set the width to 75%",
+                    ])
+                ]), 
+                className="w-75 mb-3"
+            ),
+            dbc_card(
+                dbc_cardbody([
+                    html_h5("50% width card", className="card-title"),
+                    dcc_markdown("""
+                    This card uses the `w-50` class to set the width to 50%.
+                    """)
+                ]), 
+                className="w-50 mb-3"
+            ),
+
+            html_h4("Using custom CSS"),
+            dbc_card(
+                dbc_cardbody([
+                    html_h5("Custom CSS", className="card-title"),
+                    dcc_markdown("""
+                    This card has inline styles applied controlling the width.
+                    You could also apply the same styles with a custom CSS
+                    class.
+                    """)
+                ]),
+                style=Dict("width"=>"18rem"),
+            )
+        ], className="p-3 my-2 border rounded"),
+
+        dbc_container([ # Card style
+            html_h3("Card style"),
+            html_h4("Background and color"),
+            
         ], className="p-3 my-2 border rounded")
     end
 
