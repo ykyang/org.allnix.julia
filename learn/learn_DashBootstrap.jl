@@ -326,6 +326,41 @@ function card_example(; app=nothing)
         ])
     )
 
+    card_content = [
+        dbc_cardheader("Card header"),
+        dbc_cardbody([
+            html_h5("Card title", className="card-title"),
+            html_p("""
+            This is some card content that we will reuse."
+            """,
+            className="card-text")
+        ])
+    ]
+
+    card_content_1 = card_content
+
+    card_content_2 = [
+        dbc_cardbody([
+            dcc_markdown("""
+            > A learning experience is one of those things that says,
+            > 'you know that thing you just did?  Don't do that.'
+            >
+            > *Douglas Adams*
+            """),
+        ])
+    ]
+
+    card_content_3 = [
+        dbc_cardimg(src="assets/images/placeholder286x180.png"),
+        dbc_cardbody([
+            dcc_markdown("""
+            ##### Card with image
+            This card has an image on top, and a button below."
+            """, className="card-text"),
+            dbc_button("Click", color="primary"),
+        ]),
+    ]
+
     app.layout = dbc_container() do
         dbc_container([ # Simple example
             html_h3("Simple example"),
@@ -348,6 +383,7 @@ function card_example(; app=nothing)
             html_p("Cards support a wide variety of content. Here are some of the building blocks you can use when creating your own cards."),
 
             html_h4("Body"),
+            html_small("$(@__FILE__): $(@__LINE__)"),
             dbc_card(
                 dbc_cardbody("This is within a card body"),
                 className="mb-3",
@@ -355,6 +391,7 @@ function card_example(; app=nothing)
             dbc_card("Card body with card directly", body=true, className="mb-3"),
             
             html_h4("Titles, text and links"),
+            html_small("$(@__FILE__): $(@__LINE__)"),
             dbc_card(
                 dbc_cardbody([
                     html_h4("Title", className="card-title"),
@@ -369,11 +406,13 @@ function card_example(; app=nothing)
             ),
 
             html_h4("Images"),
+            html_small("$(@__FILE__): $(@__LINE__)"),
             dbc_row([
                 dbc_col(top_card, width="auto"), dbc_col(bottom_card, width="auto")
             ]),
         
             html_h4("List groups"),
+            html_small("$(@__FILE__): $(@__LINE__)"),
             dbc_card(
                 dbc_listgroup([
                     dbc_listgroupitem("Item 1"),
@@ -385,6 +424,7 @@ function card_example(; app=nothing)
             ),
 
             html_h4("Header and footer"),
+            html_small("$(@__FILE__): $(@__LINE__)"),
             dbc_card([
                 dbc_cardheader("Header"),
                 dbc_cardbody([
@@ -401,11 +441,13 @@ function card_example(; app=nothing)
             html_p("As mentioned previously, cards assume no specific width, so they will expand to the width of the parent element unless otherwise specified. You can change this behaviour as needed in one of three different ways."),
 
             html_h4("Using grid components"),
+            html_small("$(@__FILE__): $(@__LINE__)"),
             dbc_row([
                 dbc_col(card_1, width=4), dbc_col(card_2, width=8)
             ]),
 
             html_h4("Using Bootstrap utility classes"),
+            html_small("$(@__FILE__): $(@__LINE__)"),
             dbc_card(
                 dbc_cardbody([
                     html_h5("75% width card", className="card-title"),
@@ -431,6 +473,7 @@ function card_example(; app=nothing)
             ),
 
             html_h4("Using custom CSS"),
+            html_small("$(@__FILE__): $(@__LINE__)"),
             dbc_card(
                 dbc_cardbody([
                     html_h5("Custom CSS", className="card-title"),
@@ -447,8 +490,119 @@ function card_example(; app=nothing)
         dbc_container([ # Card style
             html_h3("Card style"),
             html_h4("Background and color"),
-            
+            html_small("$(@__FILE__): $(@__LINE__)"),
+            dbc_row([
+                dbc_col(dbc_card(card_content, color="primary", inverse=true)),
+                dbc_col(dbc_card(card_content, color="secondary", inverse=true)),
+                dbc_col(dbc_card(card_content, color="info", inverse=true)),
+            ], className="mb-4"),
+            dbc_row([
+                dbc_col(dbc_card(card_content, color="success", inverse=true)),
+                dbc_col(dbc_card(card_content, color="warning", inverse=true)),
+                dbc_col(dbc_card(card_content, color="danger", inverse=true)),
+            ], className="mb-4"),
+            dbc_row([
+                dbc_col(dbc_card(card_content, color="light", inverse=false)),
+                dbc_col(dbc_card(card_content, color="dark", inverse=true)),
+            ], className="mb-4"),
+
+            html_h4("Outline style"),
+            html_small("$(@__FILE__): $(@__LINE__)"),
+            dbc_row([
+                dbc_col(dbc_card(card_content, color="primary", outline=true)),
+                dbc_col(dbc_card(card_content, color="secondary", outline=true)),
+                dbc_col(dbc_card(card_content, color="info", outline=true)),
+            ], className="mb-4"),
+            dbc_row([
+                dbc_col(dbc_card(card_content, color="success", outline=true)),
+                dbc_col(dbc_card(card_content, color="warning", outline=true)),
+                dbc_col(dbc_card(card_content, color="danger", outline=true)),
+            ], className="mb-4"),
+            dbc_row([
+                dbc_col(dbc_card(card_content, color="light", outline=true)),
+                dbc_col(dbc_card(card_content, color="dark", outline=true)),
+            ], className="mb-4"),
+
+        ], className="p-3 my-2 border rounded"),
+
+        dbc_container([ # Card layout
+            html_h3("Card layout"),
+            html_h4("Card group"),
+            html_small("$(@__FILE__): $(@__LINE__)"),
+            dbc_cardgroup([
+                dbc_card(dbc_cardbody([
+                    html_h5("Card 1", className="card-title"),
+                    dcc_markdown("""
+                    This cas has some text content, which is a little
+                    bit longer than the second card.
+                    """, className="card-text"),
+                    dbc_button("Go", color="success", className="mt-auto"),
+                ])),
+                dbc_card(dbc_cardbody([
+                    html_h5("Card 2", className="card-title"),
+                    dcc_markdown("""
+                    This card has some text content.
+                    """, className="card-text"),
+                    dbc_button("Go", color="warning", className="mt-auto"),
+                ])),
+                dbc_card(dbc_cardbody([
+                    html_h5("Card 3", className="card-title"),
+                    dcc_markdown("""
+                    This card has some text content, which is longer than
+                    both of the other two cards, in order to demonstrate the
+                    equal height property of cards in a card group.
+                    """, className="card-text"),
+                    dbc_button("Go", color="danger", className="mt-auto"),
+                ])),
+            ], className="mb-3"),
+
+            html_h4("Card deck"),
+            html_small("$(@__FILE__): $(@__LINE__)"),
+            dbc_carddeck([
+                dbc_card(dbc_cardbody([
+                    html_h5("Card 1", className="card-title"),
+                    dcc_markdown("""
+                    This cas has some text content, which is a little
+                    bit longer than the second card.
+                    """, className="card-text"),
+                    dbc_button("Go", color="success", className="mt-auto"),
+                ])),
+                dbc_card(dbc_cardbody([
+                    html_h5("Card 2", className="card-title"),
+                    dcc_markdown("""
+                    This card has some text content.
+                    """, className="card-text"),
+                    dbc_button("Go", color="warning", className="mt-auto"),
+                ])),
+                dbc_card(dbc_cardbody([
+                    html_h5("Card 3", className="card-title"),
+                    dcc_markdown("""
+                    This card has some text content, which is longer than
+                    both of the other two cards, in order to demonstrate the
+                    equal height property of cards in a card group.
+                    """, className="card-text"),
+                    dbc_button("Go", color="danger", className="mt-auto"),
+                ])),
+            ], className="mb-3"),
+
+            html_h4("Card columns"),
+            html_small("$(@__FILE__): $(@__LINE__)"),
+            dbc_cardcolumns([
+                dbc_card(card_content_1, color="primary", inverse=true),
+                dbc_card(card_content_2),
+                dbc_card(card_content_1, color="secondary", inverse=true),
+                dbc_card(card_content_3, color="info", inverse=true),
+                dbc_card(card_content_1, color="success", inverse=true),
+                dbc_card(card_content_1, color="warning", inverse=true),
+                dbc_card(card_content_1, color="danger", inverse=true),
+                dbc_card(card_content_3, color="light", inverse=false),
+                dbc_card(card_content_1, color="dark", inverse=true),
+
+            ]),
+
         ], className="p-3 my-2 border rounded")
+
+        
     end
 
     return app

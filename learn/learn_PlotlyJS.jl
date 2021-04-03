@@ -15,9 +15,17 @@ Replace the dataset function from RDatasets.  It stopped working.
 """
 function dataset(dir, name)
     url = "https://raw.githubusercontent.com/vincentarelbundock/Rdatasets/master/csv/$(dir)/$(name).csv"
+    df = urldownload(url)
+
+    return df
+end
+
+function urldownload(url)
     body = HTTP.get(url).body
     csv = CSV.File(body)
     df = DataFrames.DataFrame(csv)
+
+    return df
 end
 
 #
@@ -208,7 +216,7 @@ function random_line()
                     margin=attr(l=0, r=0, b=0, t=65))
     plot([trace1, trace2, trace3], layout)
 end
-display(random_line())
+#display(random_line())
 
 function topo_surface()
     z = Vector[[27.80985, 49.61936, 83.08067, 116.6632, 130.414, 150.7206, 220.1871,
@@ -339,9 +347,9 @@ function clustering_alpha_shapes()
 
     for (i, nm) in enumerate(nms)
         df = iris[iris[!,:Species] .== nm, :]
-        x=df[!,:SepalLength]
-        y=df[!,:SepalWidth]
-        z=df[!,:PetalLength]
+        x=df[!,Symbol("Sepal.Length")]
+        y=df[!,Symbol("Sepal.Width")]
+        z=df[!,Symbol("Petal.Length")]
         trace = scatter3d(;name=nm, mode="markers",
                            marker_size=3, marker_color=colors[i], marker_line_width=0,
                            x=x, y=y, z=z)
@@ -367,7 +375,10 @@ function clustering_alpha_shapes()
                                            backgroundcolor="rgb(230, 230,230)"),
                                aspectratio=attr(x=1, y=1, z=0.7),
                                aspectmode = "manual"))
-    plot(data, layout)
+
+    # Need to use Plot to work with Dash                               
+    # return plot(data, layout)
+    return Plot(data, layout)
 end
 #display(clustering_alpha_shapes())
 
@@ -389,7 +400,7 @@ function scatter_3d()
 
     layout = Layout(margin=attr(l=0, r=0, t=0, b=0))
 
-    plot([trace1, trace2], layout)
+    return Plot([trace1, trace2], layout)
 end
 #display(scatter_3d())
 
@@ -554,8 +565,9 @@ function linescatter5()
                                tickcolor="rgb(102, 102, 102)"),
                     legend=attr(font_size=10, yanchor="middle",
                                 xanchor="right"),
-                    )
-    plot(data, layout)
+    )
+
+    return Plot(data, layout)
 end
 #display(linescatter5())
 

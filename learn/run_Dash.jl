@@ -24,7 +24,7 @@ include("learn_Dash.jl")
 # https://dash-julia.plotly.com/getting-started
 #hello_dash()
 #dash_table()
-#dash_plotly() # RDatasets does not work
+dash_plotly() # RDatasets does not work
 #dash_markdown()
 #dash_core()
 #dash_basic_callback()
@@ -34,5 +34,5 @@ include("learn_Dash.jl")
 #Ans = dash_app_chained_callbacks()
 #Ans = dash_app_state()
 #Ans = dash_intro_visual()
-Ans = dash_update_graphs_on_hover()
+#Ans = dash_update_graphs_on_hover()
 #Ans = dash_generic_crossfilter_recipe()
