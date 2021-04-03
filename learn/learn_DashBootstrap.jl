@@ -586,7 +586,7 @@ function card_example(; app=nothing)
             ], className="mb-3"),
 
             html_h4("Card columns"),
-            html_small("$(@__FILE__): $(@__LINE__)"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="mb-1"),
             dbc_cardcolumns([
                 dbc_card(card_content_1, color="primary", inverse=true),
                 dbc_card(card_content_2),
@@ -702,6 +702,99 @@ function layout_specify_width_for_different_screen_sizes(;app=nothing)
             dbc_col("One of four columns", width=6, lg=3, style=bg_style),
         ])
     end
+
+    return app
+end
+
+function nav_example(; app=nothing)
+    if isnothing(app)
+        app = dash(external_stylesheets=[dbc_themes.SPACELAB])
+    end
+
+    content = [
+        dbc_container([html_h3("Base nav"),
+            dbc_badge("Line $(@__LINE__)"),
+            dcc_markdown("""Use `dbc_navitem` with `dbc_navlink`. """),
+            dbc_nav([
+                dbc_navitem(dbc_navlink("Active", active=true, href="#")),
+                dbc_navitem(dbc_navlink("Link 1", href="#")),
+                dbc_navitem(dbc_navlink("Link 2", href="#")),
+                dbc_navitem(dbc_navlink("Disabled", disabled=true, href="#")),
+                dbc_dropdownmenu([
+                    dbc_dropdownmenuitem("Item 1"),
+                    dbc_dropdownmenuitem("Item 2"),
+                ], 
+                label="Dropdown", 
+                nav=true, # button looking -> menu looking
+                ),
+            ]),
+            dbc_badge("Line $(@__LINE__)"),
+            dcc_markdown("""Use `dbc_navlink` directly."""),
+            dbc_nav([
+                dbc_navlink("Active", active=true, href="#"),
+                dbc_navlink("Link 1", href="#"),
+                dbc_navlink("Link 2", href="#"),
+                dbc_navlink("Disabled", disabled=true, href="#"),
+                dbc_dropdownmenu([
+                    dbc_dropdownmenuitem("Item 1"),
+                    dbc_dropdownmenuitem("Item 2"),
+                ], 
+                label="Dropdown", 
+                nav=true, # button looking -> menu looking
+                ),
+            ])
+
+        ], className="p-3 my-2 border rounded"),
+
+        dbc_container([html_h3("Using NavLink"),
+            dbc_badge("Source", href="https://dash-bootstrap-components.opensource.faculty.ai/docs/components/nav/"),
+            dbc_badge("Line $(@__LINE__)", className="ml-1"),
+
+        ], className="p-3 my-2 border rounded"),
+    ]
+    
+    app.layout = dbc_container(content)
+
+    return app
+end
+
+function navbar_example(; app=nothing)
+    if isnothing(app)
+        app = dash(external_stylesheets=[dbc_themes.SPACELAB])
+    end
+   
+    content = [
+        dbc_container([html_h3("NavbarSimple"),
+            dbc_badge("Line $(@__LINE__)"),
+            dbc_navbarsimple(children = [
+                dbc_navitem(dbc_navlink("Page 1", href="#")),
+                dbc_navitem(dbc_navlink("Page 2", href="#")),
+                dbc_dropdownmenu([
+                    dbc_dropdownmenuitem("More pages", header=true),    
+                    dbc_dropdownmenuitem("Page 3", href="#"),
+                    dbc_dropdownmenuitem("Page 4", href="#"),
+                ], 
+                nav = true,
+                in_navbar=true,
+                label="More",
+                )
+                
+            ],
+            brand = "NavbarSimple",
+            brand_href="#",
+            color = "primary",
+            dark = true,            
+            ),
+
+        ], className="p-3 my-2 border rounded"),
+        dbc_container([html_h3("Navbar"),
+            dbc_badge("Line $(@__LINE__)"),
+
+        ], className="p-3 my-2 border rounded"),
+
+    ]
+
+    app.layout = dbc_container(content)
 
     return app
 end
