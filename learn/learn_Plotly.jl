@@ -11,7 +11,31 @@ function configuration_options(; app=nothing)
     
    
     content = [
-        dbc_container([html_h3("Scroll and Zoom"),
+        # https://stackoverflow.com/questions/4086107/fixed-page-header-overlaps-in-page-anchors
+        # see my.css
+        # for how to offset scrolling
+        dbc_navbarsimple([
+            # dbc_navitem(dbc_navlink("Scroll and zoom", href="#scroll-and-zoom",  external_link=true)),
+            # dbc_navitem(dbc_navlink("Editable mode", href="#editable-mode", external_link=true)),
+            # dbc_navitem(dbc_navlink("Making a static chart", href="#making-a-static-chart", external_link=true)),
+            # dbc_navitem(dbc_navlink("Customize download plot options", href="#customize-download-plot-options", external_link=true)),
+            # dbc_navitem(dbc_navlink("Force the modebar to always be visible", href="#customize-download-plot-options", external_link=true)),
+            dbc_dropdownmenu([
+                dbc_dropdownmenuitem("Scroll and zoom", href="#scroll-and-zoom", external_link=true),
+                dbc_dropdownmenuitem("Editable mode", href="#editable-mode", external_link=true),
+                dbc_dropdownmenuitem("Making a static chart", href="#making-a-static-chart", external_link=true),
+                dbc_dropdownmenuitem("Customize download plot options", href="#customize-download-plot-options", external_link=true),
+                dbc_dropdownmenuitem("Force the modebar to always be visible", href="#customize-download-plot-options", external_link=true),
+            ], 
+            in_navbar=true, 
+            label="Section",
+            caret = true),        
+        ], 
+        sticky="top", brand="Plotly", brand_href="https://plotly.com/javascript",
+        expand=true,
+        ),        
+
+        dbc_container([html_h3("Scroll and zoom", id="scroll-and-zoom"),
             dbc_badge("Origin", color="info", href="https://plotly.com/javascript/configuration-options/#scroll-and-zoom"), 
             dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
             dcc_markdown("""
@@ -24,25 +48,26 @@ function configuration_options(; app=nothing)
             ),
         ], className="p-3 my-2 border rounded"),
 
-        dbc_container([html_h3("Editable Mode"),
+        dbc_container([html_h3("Editable Mode", id="editable-mode"),
             dbc_badge("Origin", color="info", href="https://plotly.com/javascript/configuration-options/#editable-mode"), 
-            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dbc_badge([html_i(className = "fa fa-car mr-1"), "Line: $(@__LINE__)"], color="info", className="ml-1"),
+            
             dcc_graph(
                 figure = editable_mode(),
                 config = Dict(:scrollZoom=>true, :editable=>true)  
             ),
         ], className="p-3 my-2 border rounded"),
 
-        dbc_container([html_h3("Making a Static Chart"),
+        dbc_container([html_h3("Making a Static Chart",  id="making-a-static-chart"),
             dbc_badge("Origin", color="info", href="https://plotly.com/javascript/configuration-options/#making-a-static-chart"),
             dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
             dcc_graph(
                 figure = making_a_static_chart(),
                 config = Dict(:staticPlot => true),
             ),
-        ], className="p-3 my-2 border rounded"),
+        ], className="p-3 my-2 border rounded",),
 
-        dbc_container([html_h3("Customize Download Plot Options"),
+        dbc_container([html_h3("Customize Download Plot Options", id="customize-download-plot-options"),
             dbc_badge("Origin", color="info", href="https://plotly.com/javascript/configuration-options/#customize-download-plot-options"),
             dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
             dcc_graph(
@@ -62,6 +87,8 @@ function configuration_options(; app=nothing)
         dbc_container([html_h3("Force the modebar to always be visible"),
             dbc_badge("Origin", color="info", href="https://plotly.com/javascript/configuration-options/#force-the-modebar-to-always-be-visible"),
         ], className="p-3 my-2 border rounded"),
+
+        
     ]
 
     app.layout = dbc_container(content)

@@ -1,6 +1,11 @@
 include("learn_Plotly.jl")
 
-app = dash(external_stylesheets=[dbc_themes.SPACELAB])
+app = dash(external_stylesheets=[
+    dbc_themes.SPACELAB,
+    "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css",
+    #"/myassets/spacelab.css",
+    #"myassets/my.css"
+    ])
 
 app = configuration_options(app=app)
 
