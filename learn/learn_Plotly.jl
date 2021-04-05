@@ -20,12 +20,14 @@ function configuration_options(; app=nothing)
             # dbc_navitem(dbc_navlink("Making a static chart", href="#making-a-static-chart", external_link=true)),
             # dbc_navitem(dbc_navlink("Customize download plot options", href="#customize-download-plot-options", external_link=true)),
             # dbc_navitem(dbc_navlink("Force the modebar to always be visible", href="#customize-download-plot-options", external_link=true)),
+            
             dbc_dropdownmenu([
                 dbc_dropdownmenuitem("Scroll and zoom", href="#scroll-and-zoom", external_link=true),
                 dbc_dropdownmenuitem("Editable mode", href="#editable-mode", external_link=true),
                 dbc_dropdownmenuitem("Making a static chart", href="#making-a-static-chart", external_link=true),
                 dbc_dropdownmenuitem("Customize download plot options", href="#customize-download-plot-options", external_link=true),
-                dbc_dropdownmenuitem("Force the modebar to always be visible", href="#customize-download-plot-options", external_link=true),
+                dbc_dropdownmenuitem("Force the modebar to always be visible", href="#force-the-modebar-to-always-be-visible", external_link=true),
+                
             ], 
             in_navbar=true, 
             label="Section",
@@ -84,8 +86,15 @@ function configuration_options(; app=nothing)
             )
         ], className="p-3 my-2 border rounded"),
 
-        dbc_container([html_h3("Force the modebar to always be visible"),
+        dbc_container([html_h3("Force the modebar to always be visible", id="force-the-modebar-to-always-be-visible"),
             dbc_badge("Origin", color="info", href="https://plotly.com/javascript/configuration-options/#force-the-modebar-to-always-be-visible"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(force_the_modebar_to_always_be_visible()...),
+                config = Dict(
+                    :displayModeBar => true,
+                ),
+            ),
         ], className="p-3 my-2 border rounded"),
 
         
@@ -177,8 +186,32 @@ function customize_download_plot_options()
         title = "Download as SVG",
         showlegend = false,
     )
-
+    
     plt = Plot(traces, layout)
 
     return plt
+end
+
+function force_the_modebar_to_always_be_visible()
+   traces = [
+       bar(
+           x = [90, 40, 60, 80, 75, 92, 87, 73],
+           y = ["Marc", "Henrietta", "Jean", "Claude", "Jeffrey", "Jonathan", "Jennifer", "Zacharias"],
+           orientation = "h",
+       )
+   ]
+
+   layout = Layout(
+       title = Dict(
+           :text => "Always display the modebar",
+           :y => 0.92,
+       ),
+       showlegend = false,
+       margin = Dict(
+           :l => 80, :t => 80,
+       ),
+   )
+
+   #plt = Plot(traces, layout)
+    return traces, layout
 end
