@@ -131,6 +131,16 @@ function configuration_options(; app=nothing)
                 ),
             ),
         ], className="p-3 my-2 border rounded"),
+
+        dbc_container([html_h3("Add buttons to modebar", id="add-buttons-to-modebar"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/configuration-options/#add-buttons-to-modebar"),
+            dbc_badge("Line $(@__LINE__)", color="danger", className="ml-1"),
+            dcc_graph(
+                figure = Plot(add_buttons_to_modebar()...),
+                config = add_buttons_to_modebar_config(),
+
+            )
+        ], className="p-3 my-2 border rounded"),
     ]
 
     app.layout = dbc_container(content)
@@ -285,4 +295,62 @@ function remove_modebar_buttons()
     )
 
     return traces, layout
+end
+
+function add_buttons_to_modebar()
+    traces = [
+        scatter(
+            mode = "lines",
+            y = [2,1,2],
+            line = Dict(
+                :color => "green", :width => 3, :shape => "spline",
+            )
+        )
+    ]
+
+    layout = Layout(
+        title = "add mode bar button with custom icon",
+        modebardisplay = false,
+    )
+
+    return traces, layout
+end
+
+# TODO: Don't know how to implement callback
+# TODO: Does not work now
+function add_buttons_to_modebar_config()
+    icon_1 = Dict(
+        :width => 500,
+        :height => 600,
+        :path => "M224 512c35.32 0 63.97-28.65 63.97-64H160.03c0 35.35 28.65 64 63.97 64zm215.39-149.71c-19.32-20.76-55.47-51.99-55.47-154.29 0-77.7-54.48-139.9-127.94-155.16V32c0-17.67-14.32-32-31.98-32s-31.98 14.33-31.98 32v20.84C118.56 68.1 64.08 130.3 64.08 208c0 102.3-36.15 133.53-55.47 154.29-6 6.45-8.66 14.16-8.61 21.71.11 16.4 12.98 32 32.1 32h383.8c19.12 0 32-15.6 32.1-32 .05-7.55-2.61-15.27-8.61-21.71z"
+    )
+    config = Dict(
+        :modeBarButtons => [
+            ["autoScale2d"
+            # Dict(
+            #     :name => "color toggler",
+            #     :icon => icon_1,
+            #     :click => nothing,
+            # ),
+            ] 
+        ],
+        :modeBarButtonsToAdd => [
+            
+            #Dict(
+            #    :name => "color toggler",
+            #    :icon => icon_1,
+
+            #), 
+            # Dict(
+            #     :name => "button-1",
+            #     :icon => "Plotly.Icons.pencil",
+            #     :direction => "up",
+            # ),
+        ],
+        :modeBarButtonsToRemove => [
+            "pan2d", "select2d", "lasso2d", "resetScale2d", "zoomOut2d",
+        ]
+    )
+
+    return config
 end
