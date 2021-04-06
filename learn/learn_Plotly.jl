@@ -12,8 +12,10 @@ function configuration_options(; app=nothing)
    
     content = [
         # https://stackoverflow.com/questions/4086107/fixed-page-header-overlaps-in-page-anchors
-        # see my.css
-        # for how to offset scrolling
+        # Put this in my.css
+        # html {
+        # scroll-padding-top: 80px; /* height of sticky header */
+        # }
         dbc_navbarsimple([
             # dbc_navitem(dbc_navlink("Scroll and zoom", href="#scroll-and-zoom",  external_link=true)),
             # dbc_navitem(dbc_navlink("Editable mode", href="#editable-mode", external_link=true)),
@@ -27,7 +29,14 @@ function configuration_options(; app=nothing)
                 dbc_dropdownmenuitem("Making a static chart", href="#making-a-static-chart", external_link=true),
                 dbc_dropdownmenuitem("Customize download plot options", href="#customize-download-plot-options", external_link=true),
                 dbc_dropdownmenuitem("Force the modebar to always be visible", href="#force-the-modebar-to-always-be-visible", external_link=true),
-                
+                dbc_dropdownmenuitem(
+                    "Never display the modebar",
+                    href="#never-display-the-modebar", external_link = true,
+                ),
+                dbc_dropdownmenuitem(
+                    "Remove modebar buttons",
+                    href="#remove-modebar-buttons", external_link=true,
+                ),
             ], 
             in_navbar=true, 
             label="Section",
@@ -89,6 +98,10 @@ function configuration_options(; app=nothing)
         dbc_container([html_h3("Force the modebar to always be visible", id="force-the-modebar-to-always-be-visible"),
             dbc_badge("Origin", color="info", href="https://plotly.com/javascript/configuration-options/#force-the-modebar-to-always-be-visible"),
             dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_markdown("""
+            See `force_the_modebar_to_always_be_visible()` for adjusting title
+            position and margin so modebar does not overlap with title.
+            """),
             dcc_graph(
                 figure = Plot(force_the_modebar_to_always_be_visible()...),
                 config = Dict(
@@ -97,7 +110,27 @@ function configuration_options(; app=nothing)
             ),
         ], className="p-3 my-2 border rounded"),
 
-        
+        dbc_container([html_h3("Never display the modebar", id="never-display-the-modebar"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/configuration-options/#never-display-the-modebar"),
+            dbc_badge("Line $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(never_display_the_modebar()...),
+                config = Dict(
+                    :displayModeBar => false,
+                ),
+            ),
+        ], className="p-3 my-2 border rounded"),
+
+        dbc_container([html_h3("Remove modebar buttons", id="remove-modebar-buttons"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/configuration-options/#remove-modebar-buttons"),
+            dbc_badge("Line $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(remove_modebar_buttons()...),
+                config = Dict(
+                    :modeBarButtonsToRemove => ["toImage"],
+                ),
+            ),
+        ], className="p-3 my-2 border rounded"),
     ]
 
     app.layout = dbc_container(content)
@@ -213,5 +246,43 @@ function force_the_modebar_to_always_be_visible()
    )
 
    #plt = Plot(traces, layout)
+    return traces, layout
+end
+
+function never_display_the_modebar()
+    traces = [
+        bar(
+            x = ["Zebras", "Linons", "Pelicans"],
+            y = [90, 40, 60],
+            name = "New York Zoo",
+        ),
+        bar(
+            x = ["Zebras", "Linons", "Pelicans"],
+            y = [10, 80, 45],
+            name = "San Francisco Zoo",
+        )
+    ]
+
+    layout = Layout(
+        title = "Hide the Modebar",
+        showlegend = true,
+    )
+
+    return traces, layout
+end
+
+function remove_modebar_buttons()
+    traces = [
+        bar(
+            x = ["trees", "flowers", "hedges"],
+            y = [90, 130, 40],
+        ),
+    ]
+
+    layout = Layout(
+        title = "Remove modebar buttons",
+        showlegend = false,
+    )
+
     return traces, layout
 end
