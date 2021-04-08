@@ -7,7 +7,8 @@ app = dash(external_stylesheets=[
     #"myassets/my.css"
     ])
 
-app = configuration_options(app=app)
+#app = configuration_options(app=app)
+app = scatter_plots(app=app)
 
 run_server(
     app, 

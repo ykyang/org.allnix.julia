@@ -3,7 +3,10 @@
 using Dash, DashHtmlComponents, DashCoreComponents, DashBootstrapComponents
 using PlotlyJS, HTTP, CSV
 
-# https://plotly.com/javascript/configuration-options/
+"""
+
+https://plotly.com/javascript/configuration-options/
+"""
 function configuration_options(; app=nothing)
     if isnothing(app)
         app = dash(external_stylesheets=[dbc_themes.SPACELAB])
@@ -353,4 +356,107 @@ function add_buttons_to_modebar_config()
     )
 
     return config
+end
+
+"""
+
+https://plotly.com/javascript/line-and-scatter/
+"""
+function scatter_plots(; app=nothing)
+    if isnothing(app)
+        app = dash(external_stylesheets=[dbc_themes.SPACELAB])
+    end
+    content = [
+        # https://stackoverflow.com/questions/4086107/fixed-page-header-overlaps-in-page-anchors
+        # Put this in my.css
+        # html {
+        # scroll-padding-top: 80px; /* height of sticky header */
+        # }
+        dbc_navbarsimple([
+            dbc_dropdownmenu([
+                dbc_dropdownmenuitem("Line and scatter plot", href="#line-and-scatter-plot", external_link=true),
+                dbc_dropdownmenuitem("Data labels hover", href="#data-labels-hover", external_link=true),
+            ], in_navbar=true, label="Section", caret=true),
+        ], sticky="top", expand=true, brand="Plotly", brand_href="https://plotly.com/javascript"),
+
+        dbc_container([html_h3("Line and scatter plot", id="line-and-scatter-plot"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/line-and-scatter/#line-and-scatter-plot"), 
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(line_and_scatter_plot()...),
+                config = Dict(),
+            )
+        ], className="p-3 my-2 border rounded"),
+
+        dbc_container([html_h3("Data labels hover", id="data-labels-hover"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/line-and-scatter/#data-labels-hover"), 
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(data_labels_hover()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded"),
+    ]
+
+    app.layout = dbc_container(content)
+
+    return app
+end
+
+function line_and_scatter_plot()
+    traces = [
+        scatter(
+            x = [1, 2, 3, 4],
+            y = [10, 15, 13, 17],
+            mode = "markers",
+            type = "scatter",
+        ),
+        scatter(
+            x = [2, 3, 4, 5],
+            y = [16, 5, 11, 9],
+            mode = "lines",
+            type = "scatter",
+        ),
+        scatter(
+            x = [1, 2, 3, 4],
+            y = [12, 9, 15, 12],
+            mode = "lines+markers",
+            type = "scatter",
+        ),
+    ]
+
+    layout = Layout()
+
+    return traces, layout
+end
+
+function data_labels_hover()
+    traces = [
+        scatter(
+            x = [1, 2, 3, 4, 5],
+            y = [1, 6, 3, 6, 1],
+            mode = "markers",
+            type = "scatter",
+            name = "Team A",
+            text = ["A-1", "A-2", "A-3", "A-4", "A-5"],
+            marker = Dict(:size=> 12)
+        ),
+        scatter(
+            x = [1.5, 2.5, 3.5, 4.5, 5.5],
+            y = [4, 1, 7, 1, 4],
+            mode = "markers",
+            type = "scatter",
+            name = "Team B",
+            text = ["B-a", "B-b", "B-c", "B-d", "B-e"],
+            marker = Dict(:size=>16)
+        ),
+    ]
+
+    layout = Layout(
+        xaxis = Dict(:range=>[0.75, 5.25]),
+        yaxis = Dict(:range=>[0, 8]),
+        title = "Data Labels Hover",
+    )
+
+    return traces, layout
 end
