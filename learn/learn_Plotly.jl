@@ -376,6 +376,8 @@ function scatter_plots(; app=nothing)
             dbc_dropdownmenu([
                 dbc_dropdownmenuitem("Line and scatter plot", href="#line-and-scatter-plot", external_link=true),
                 dbc_dropdownmenuitem("Data labels hover", href="#data-labels-hover", external_link=true),
+                dbc_dropdownmenuitem("Data labels on the plot", href="#data-labels-on-the-plot", external_link=true),
+                dbc_dropdownmenuitem("Scatter plot with a color dimension", href="#scatter-plot-with-a-color-dimension", external_link=true),
             ], in_navbar=true, label="Section", caret=true),
         ], sticky="top", expand=true, brand="Plotly", brand_href="https://plotly.com/javascript"),
 
@@ -396,7 +398,27 @@ function scatter_plots(; app=nothing)
                 config = Dict(),
             ),
         ], className="p-3 my-2 border rounded"),
-    ]
+
+        dbc_container([html_h3("Data labels on the plot", id="data-labels-on-the-plot"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/line-and-scatter/#data-labels-on-the-plot"), 
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(data_labels_on_the_plot()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded"),
+
+        dbc_container([html_h3("Scatter plot with a color dimension", id="scatter-plot-with-a-color-dimension"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/line-and-scatter/#scatter-plot-with-a-color-dimension"), 
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(scatter_plot_with_a_color_dimension()...),
+                config = Dict(),
+            ),
+
+        ], className="p-3 my-2 border rounded"),
+
+    ] # content
 
     app.layout = dbc_container(content)
 
@@ -456,6 +478,73 @@ function data_labels_hover()
         xaxis = Dict(:range=>[0.75, 5.25]),
         yaxis = Dict(:range=>[0, 8]),
         title = "Data Labels Hover",
+    )
+
+    return traces, layout
+end
+
+function data_labels_on_the_plot()
+    traces = [
+        scatter(
+            x = [1, 2, 3, 4, 5],
+            y = [1, 6, 3, 6, 1],
+            mode = "markers+text",
+            type = "scatter",
+            name = "Team A",
+            text = ["A-1", "A-2", "A-3", "A-4", "A-5"],
+            textposition = "top center",
+            textfont = Dict(:family=>"Raleway, sans-serif"),
+            marker = Dict(:size=> 12)
+        ),
+        scatter(
+            x = [1.5, 2.5, 3.5, 4.5, 5.5],
+            y = [4, 1, 7, 1, 4],
+            mode = "markers+text",
+            type = "scatter",
+            name = "Team B",
+            text = ["B-1", "B-2", "B-3", "B-4", "B-5"],
+            textposition = "top center",
+            textfont = Dict(:family=>"Times New Roman"),
+            marker = Dict(:size=>16)
+        ),
+    ]
+
+    layout = Layout(
+        xaxis = Dict(:range=>[0.75, 5.25]),
+        yaxis = Dict(:range=>[0, 8]),
+        title = "Data Labels on the Plot",
+        legend = Dict(
+            :y => 0.5,
+            :yref => "paper", # ???
+            :font => Dict(
+                :family => "Arial, sans-serif",
+                :size => 20,
+                :color => "grey",
+            ),
+        ),
+    )
+
+    return traces, layout
+end
+
+function scatter_plot_with_a_color_dimension()
+    traces = [
+        scatter(
+            y = [5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+            mode = "markers",
+            type = "scatter",
+            
+            
+            textfont = Dict(:family => "Raleway, sans-serif"),
+            marker = Dict(
+                :size => 40,
+                :color => [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39],
+            )
+        ),
+    ]
+
+    layout = Layout(
+        title = "Scatter Plot with a Color Dimension",
     )
 
     return traces, layout
