@@ -366,6 +366,7 @@ function scatter_plots(; app=nothing)
     if isnothing(app)
         app = dash(external_stylesheets=[dbc_themes.SPACELAB])
     end
+    
     content = [
         # https://stackoverflow.com/questions/4086107/fixed-page-header-overlaps-in-page-anchors
         # Put this in my.css
@@ -546,6 +547,242 @@ function scatter_plot_with_a_color_dimension()
     layout = Layout(
         title = "Scatter Plot with a Color Dimension",
     )
+
+    return traces, layout
+end
+
+"""
+
+https://plotly.com/javascript/line-charts/
+"""
+function line_charts(; app = nothing)
+    if isnothing(app)
+        app = dash(external_stylesheets=[dbc_themes.SPACELAB])
+    end
+
+    content = [
+        # https://stackoverflow.com/questions/4086107/fixed-page-header-overlaps-in-page-anchors
+        # Put this in my.css
+        # html {
+        # scroll-padding-top: 80px; /* height of sticky header */
+        # }
+        dbc_navbarsimple([
+            dbc_dropdownmenu([
+                dbc_dropdownmenuitem("Basic line plot", href="#basic-line-plot", external_link=true),
+                dbc_dropdownmenuitem("Line and scatter plot", href="#line-and-scatter-plot", external_link=true),
+                dbc_dropdownmenuitem("Adding names to line and scatter plot", href="#adding-names-to-line-and-scatter-plot", external_link=true),
+                dbc_dropdownmenuitem("Line and scatter styling", href="#line-and-scatter-styling", external_link=true),
+                dbc_dropdownmenuitem("Styling line plot", href="#styling-line-plot", external_link=true),
+                dbc_dropdownmenuitem("Colored and styled scatter plot", href="#colored-and-styled-scatter-plot", external_link=true),
+                dbc_dropdownmenuitem("Line shape options for interpolation", href="#line-shape-options-for-interpolation", external_link=true),
+                dbc_dropdownmenuitem("Graph and axes titles", href="#graph-and-axes-titles", external_link=true),
+                dbc_dropdownmenuitem("Line dash", href="#line-dash", external_link=true),
+                dbc_dropdownmenuitem("Connect gaps between data", href="#connect-gaps-between-data", external_link=true),
+                dbc_dropdownmenuitem("Labelling lines with annotations", href="#labelling-lines-with-annotations", external_link=true),
+                # dbc_dropdownmenuitem("", href="", external_link=true),
+            ],
+            in_navbar=true, label="Section", caret=true, direction="left"),
+        ], 
+        sticky="top", expand=true, brand="Allnix", brand_href="https://github.com/ykyang",
+        ),
+
+        dbc_container([html_h3("Basic line plot", id="basic-line-plot"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/line-charts/#basic-line-plot"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(basic_line_plot()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
+
+        dbc_container([html_h3("Line and scatter plot", id="line-and-scatter-plot"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/line-charts/#line-and-scatter-plot"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(line_and_scatter_plot()...), # func defined above
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
+
+        dbc_container([html_h3("Adding names to line and scatter plot", id="adding-names-to-line-and-scatter-plot"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/line-charts/#adding-names-to-line-and-scatter-plot"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(adding_names_to_line_and_scatter_plot()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded"),
+
+        dbc_container([html_h3("Line and scatter styling", id="line-and-scatter-styling"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/line-charts/#line-and-scatter-styling"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(line_and_scatter_styling()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded"),
+
+        # skip Styling line plot
+        dbc_container([html_h3("SKIP: Styling line plot", id="styling-line-plot"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/line-charts/#styling-line-plot"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+        ], className="p-3 my-2 border rounded"),
+
+        dbc_container([html_h3("Colored and styled scatter plot", id="colored-and-styled-scatter-plot"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/line-charts/#colored-and-styled-scatter-plot"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(colored_and_styled_scatter_plot()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded"),
+
+    ]
+
+    app.layout = dbc_container(content)
+
+    return app
+end
+
+function basic_line_plot()
+    traces = [
+        scatter(
+            x = [1,2,3,4],
+            y = [10, 15, 13, 17],
+        ),
+        scatter(
+            x = [1,2,3,4],
+            y = [16, 5, 11, 9],
+        ),
+    ]
+
+    layout = Layout()
+
+    return traces, layout
+end
+
+function adding_names_to_line_and_scatter_plot()
+    traces = [
+        scatter(
+            x = [1,2,3,4],
+            y = [10, 15, 13, 17],
+            mode = "markers",
+            name = "Scatter", 
+        ),
+        scatter(
+            x = [2, 3, 4, 5],
+            y = [16, 5, 11, 9],
+            mode = "lines",
+            name = "Lines",
+        ),
+        scatter(
+            x = [1, 2, 3, 4],
+            y = [12, 9, 15, 12],
+            mode = "lines+markers",
+            name = "Scatter + Lines",
+        ),
+    ]
+
+    layout = Layout(
+        title = "Adding Names to Line and Scatter Plot",
+    )
+
+    return traces, layout
+end
+
+function line_and_scatter_styling()
+    traces = [
+        scatter(
+            x = [1,2,3,4],
+            y = [10, 15, 13, 17],
+            name = "Red Dot",
+            mode = "markers",
+            marker = Dict(
+                :color => "rgb(219,64,82)",
+                :size => 12,
+            ),
+        ),
+        scatter(
+            x = [2,3,4,5],
+            y = [16,5,11,9],
+            name = "Blue Line",
+            mode = "lines",
+            line = Dict(
+                :color => "rgb(55,128,191)",
+                :width => 3,
+            ),
+        ),
+        scatter(
+            x = [1,2,3,4],
+            y = [12,9,15,12],
+            name = "Purple",
+            mode = "lines+markers",
+            marker = Dict(
+                :color => "rgb(128,0,128)",
+                :size => 8,
+            ),
+            line = Dict(
+                :color => "rgb(128,0,128)",
+                :width => 1,
+            ),
+        ),
+    ]
+
+    layout = Layout(
+        title = "Line and Scatter Styling",
+        showlegend = true,
+    )
+
+    return traces, layout
+end
+
+function colored_and_styled_scatter_plot()
+    traces = [
+        scatter(
+            x = [52698, 43117],
+            y = [53, 31],
+            mode = "markers",
+            name = "North America",
+            text = ["United States", "Canada"],
+            marker = Dict(
+                :color => "rgb(164, 194, 244)",
+                :size => 12,
+                :line => Dict( # Marker outline
+                    :color => "black", # use black so we can see
+                    :width => 0.5,
+                ),
+            ),
+        ),
+        scatter(
+            x = [39317, 37236, 35650, 30066, 29570, 27159, 23557, 21046, 18007],
+            y = [33, 20, 13, 19, 27, 19, 49, 44, 38],
+            mode = "markers",
+            name = "Europe",
+            text = ["Germany", "Britain", "France", "Spain", "Italy", "Czech", "Greece", "Poland"],
+            marker = Dict(
+                :color => "rgb(255, 217, 102)",
+                :size => 12,
+            ),
+        ),
+        scatter(
+            x = [42952, 37037, 33106, 17478, 9813, 5253, 4692, 3899],
+            y = [23, 42, 54, 89, 14, 99, 93, 70],
+            mode = "markers",
+            name = "Asia/Pacific",
+            text = ["Australia", "Japan", "South Korea", "Malaysia", "China", "Indonesia", "Philippines", "India"],
+            marker = Dict(
+                :color => "rgb(234, 153, 153)",
+                :size => 12,
+            ),   
+        ),
+        scatter(
+            x = [19097, 18601, 15595, 13546, 12026, 7434, 5419],
+            y = [43, 47, 56, 80, 86, 93, 80],
+            mode = "markers",
+        ),
+    ]
+
+    layout = Layout()
 
     return traces, layout
 end

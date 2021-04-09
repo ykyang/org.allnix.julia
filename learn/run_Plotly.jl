@@ -8,7 +8,8 @@ app = dash(external_stylesheets=[
     ])
 
 #app = configuration_options(app=app)
-app = scatter_plots(app=app)
+#app = scatter_plots(app=app)
+app = line_charts(app=app)
 
 run_server(
     app, 
