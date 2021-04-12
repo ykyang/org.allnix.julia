@@ -637,6 +637,52 @@ function line_charts(; app = nothing)
             ),
         ], className="p-3 my-2 border rounded"),
 
+        dbc_container([html_h3("Line shape options for interpolation", id="line-shape-options-for-interpolation"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/line-charts/#line-shape-options-for-interpolation"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(line_shape_options_for_interplation()...),
+                config = Dict(),
+            ),
+
+        ], className="p-3 my-2 border rounded"),
+
+        dbc_container([html_h3("Graph and axes titles", id="graph_and_axes_titles"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/line-charts/#graph-and-axes-titles"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(graph_and_axes_titles()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded"),
+
+        dbc_container([html_h3("Line dash", id="line_dash"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/line-charts/#line-dash"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(line_dash()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded"),
+
+        dbc_container([html_h3("Connect gaps between data", id="connect_gaps_between_data"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/line-charts/#connect-gaps-between-data"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(connect_gaps_between_data()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded"),
+
+        dbc_container([html_h3("Labelling lines with annotations", id="labelling_lines_with_annotations"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/line-charts/#labelling-lines-with-annotations"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(labelling_lines_with_annotations()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded")
+
     ]
 
     app.layout = dbc_container(content)
@@ -779,10 +825,273 @@ function colored_and_styled_scatter_plot()
             x = [19097, 18601, 15595, 13546, 12026, 7434, 5419],
             y = [43, 47, 56, 80, 86, 93, 80],
             mode = "markers",
+            name = "Latin America",
+            text = ["Chile", "Argentina", "Mexico", "Venezuela", "Columbia", "El Salvador", "Bolivia"],
+            marker = Dict(
+                :color => "rgb(142, 124, 195)",
+                :size => 12,
+            ),
         ),
     ]
 
     layout = Layout()
+
+    return traces, layout
+end
+
+function line_shape_options_for_interplation()
+    traces = [
+        scatter( # 1
+            x = [1, 2, 3, 4, 5],
+            y = [1, 3, 2, 3, 1],
+            mode = "lines+markers",
+            name = "linear",
+            line = Dict(
+                :shape => "linear",
+            ),
+        ),
+        scatter( # 2
+            x = [1, 2, 3, 4, 5],
+            y = [6, 8, 7, 8, 6],
+            mode = "lines+markers",
+            name = "spline",
+            line = Dict(
+                # tweak line smoothness with "smoothing"
+                :shape => "spline",
+            ),
+        ),
+        scatter( # 3
+            x = [1, 2, 3, 4, 5],
+            y = [11, 13, 12, 13, 11],
+            mode = "lines+markers",
+            name = "vhv",
+            line = Dict(
+                :shape => "vhv",
+            ),
+        ),
+        scatter( # 4
+            x = [1, 2, 3, 4, 5],
+            y = [16, 18, 17, 18, 16],
+            mode = "lines+markers",
+            name = "hvh", 
+            line = Dict(
+                :shape => "hvh",
+            ),
+        ),
+        scatter( # 5
+            x = [1, 2, 3, 4, 5],
+            y = [21, 23, 22, 23, 21],
+            mode = "lines+markers",
+            name = "vh", 
+            line = Dict(
+                :shape => "vh",
+            ),
+        ),
+        scatter( # 6
+            x = [1, 2, 3, 4, 5],
+            y = [26, 28, 27, 28, 26],
+            mode = "lines+markers",
+            name = "hv",
+            line = Dict(
+                :shape => "hv",
+            ),
+        ),
+    ]
+
+    layout = Layout(
+        legend = Dict(
+            :y => 0.5,
+            :traceorder => "reversed",
+            :font => Dict(
+                :size => 16,
+            ),
+        ),
+    )
+
+    return traces, layout
+end
+
+function graph_and_axes_titles()
+    traces = [
+        scatter(
+            x = [1, 2, 3, 4],
+            y = [10, 15, 13, 17],
+            mode = "markers",
+            name = "Scatter",
+        ),
+        scatter(
+            x = [1, 2, 3, 4],
+            y = [16, 5, 11, 9],
+            mode = "lines",
+            name = "Lines",
+        ),
+        scatter(
+            x = [1, 2, 3, 4],
+            y = [12, 9, 15, 12],
+            mode = "lines+markers",
+            name = "Scatter and Lines",
+        ),
+    ]
+
+    layout = Layout(
+        title = "Title of the Graph",
+        xaxis = Dict(
+            :title => "x-axis title"
+        ),
+        yaxis = Dict(
+            :title => "y-axis title"
+        )
+    )
+
+    return traces, layout
+end
+
+function line_dash()
+    x = [1, 2, 3, 4, 5]
+    y = [1, 3, 2, 3, 1]
+    traces = [
+        scatter(
+            x = x,
+            y = y,
+            mode = "lines",
+            name = "Solid",
+            line = Dict(
+                :dash => "solid",
+                :width => 4,
+            )
+        ),
+        scatter(
+            x = x,
+            y = y .+ 5,
+            mode = "lines",
+            name = "dashdot",
+            line = Dict(
+                :dash => "dashdot",
+                :width => 4,
+            ),
+        ),
+        scatter( # 3
+            x = x,
+            y = y .+ 10,
+            mode = "lines",
+            name = "Solid",
+            line = Dict(
+                :dash => "solid",
+                :width => 4,
+            )
+        ),
+        scatter( # 4
+            x = x,
+            y = y .+ 15,
+            mode = "lines",
+            name = "Dot",
+            line = Dict(
+                :dash => "dot",
+                :width => 4,
+            )
+        ),
+    ]
+
+    layout = Layout(
+        title = "Line Dash",
+        xaxis = Dict(
+            :range => [0.75, 5.25],
+            :autorange => false,
+        ),
+        yaxis = Dict(
+            :range => [0, 18.5],
+            :autorange => false,
+        ),
+        legend = Dict(
+            :y => 0.5,
+            :traceorder => "reversed",
+            :font => Dict(
+                :size => 16,
+            ),
+        )
+    )
+
+    return traces, layout
+end
+
+function connect_gaps_between_data()
+    x = [1:8...]
+    traces = [
+        scatter(
+            x = x,
+            y = [10, 15, nothing,17, 14, 12,10, nothing],
+            mode = "lines+markers",
+            connectgaps = true,
+        ),
+        scatter(
+            x = x,
+            y = [16, nothing, 13, 10, 8, nothing, 11, 12],
+            mode = "lines",
+            connectgaps = true,
+        )
+    ]
+
+    layout = Layout(
+        title = "Connect the Gaps Between Data",
+        showlegend = false,
+    )
+
+    return traces, layout
+end
+
+function labelling_lines_with_annotations()
+    xdata_list = [
+        [2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013],
+        [2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013],  
+        [2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013],
+        [2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2013], 
+    ]
+    ydata_list = [
+        [74, 82, 80, 74, 73, 72, 74, 70, 70, 66, 66, 69],
+        [45, 42, 50, 46, 36, 36, 34, 35, 32, 31, 31, 28],
+        [13, 14, 20, 24, 20, 24, 24, 40, 35, 41, 43, 50],
+        [18, 21, 18, 21, 16, 14, 13, 18, 17, 16, 19, 23],
+    ]
+
+    trace_count = min(length(xdata_list), length(ydata_list))
+
+    
+    traces = Vector{AbstractTrace}()
+        
+    
+
+    
+
+    # Construct traces of lines
+    for ind in 1:trace_count
+        xdata = xdata_list[ind]
+        ydata = ydata_list[ind]
+        trace = scatter(
+            x = xdata,
+            y = ydata,
+            mode = "lines",
+            line = Dict(
+                # :color => colors[ind],
+                # :width => linesize_list[ind]
+            )
+        )
+
+        push!(traces, trace)
+    end
+    # Construct traces of end points
+
+
+    layout = Layout(
+        showlegend = false,
+        height = 600,
+        width = 600,
+        xaxis = Dict(
+
+        ),
+        yaxis = Dict(
+            
+        )
+    )
 
     return traces, layout
 end
