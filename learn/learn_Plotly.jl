@@ -7,7 +7,7 @@ using PlotlyJS, HTTP, CSV
 
 https://plotly.com/javascript/configuration-options/
 """
-function configuration_options(; app=nothing)
+function chapter_configuration_options(; app=nothing)
     if isnothing(app)
         app = dash(external_stylesheets=[dbc_themes.SPACELAB])
     end
@@ -362,7 +362,7 @@ end
 
 https://plotly.com/javascript/line-and-scatter/
 """
-function scatter_plots(; app=nothing)
+function chapter_scatter_plots(; app=nothing)
     if isnothing(app)
         app = dash(external_stylesheets=[dbc_themes.SPACELAB])
     end
@@ -555,7 +555,7 @@ end
 
 https://plotly.com/javascript/line-charts/
 """
-function line_charts(; app = nothing)
+function chapter_line_charts(; app = nothing)
     if isnothing(app)
         app = dash(external_stylesheets=[dbc_themes.SPACELAB])
     end
@@ -647,7 +647,7 @@ function line_charts(; app = nothing)
 
         ], className="p-3 my-2 border rounded"),
 
-        dbc_container([html_h3("Graph and axes titles", id="graph_and_axes_titles"),
+        dbc_container([html_h3("Graph and axes titles", id="graph-and-axes-titles"),
             dbc_badge("Origin", color="info", href="https://plotly.com/javascript/line-charts/#graph-and-axes-titles"),
             dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
             dcc_graph(
@@ -656,7 +656,7 @@ function line_charts(; app = nothing)
             ),
         ], className="p-3 my-2 border rounded"),
 
-        dbc_container([html_h3("Line dash", id="line_dash"),
+        dbc_container([html_h3("Line dash", id="line-dash"),
             dbc_badge("Origin", color="info", href="https://plotly.com/javascript/line-charts/#line-dash"),
             dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
             dcc_graph(
@@ -665,7 +665,7 @@ function line_charts(; app = nothing)
             ),
         ], className="p-3 my-2 border rounded"),
 
-        dbc_container([html_h3("Connect gaps between data", id="connect_gaps_between_data"),
+        dbc_container([html_h3("Connect gaps between data", id="connect-gaps-between-data"),
             dbc_badge("Origin", color="info", href="https://plotly.com/javascript/line-charts/#connect-gaps-between-data"),
             dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
             dcc_graph(
@@ -674,7 +674,7 @@ function line_charts(; app = nothing)
             ),
         ], className="p-3 my-2 border rounded"),
 
-        dbc_container([html_h3("Labelling lines with annotations", id="labelling_lines_with_annotations"),
+        dbc_container([html_h3("Labelling lines with annotations", id="labelling-lines-with-annotations"),
             dbc_badge("Origin", color="info", href="https://plotly.com/javascript/line-charts/#labelling-lines-with-annotations"),
             dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
             dcc_graph(
@@ -1143,12 +1143,90 @@ function labelling_lines_with_annotations()
             :l => 100,
             :r => 20,
             :t => 100,
+            :b => 60,
             
         ),
         annotations = [],
     )
 
     #@show layout["annotations"]
+
+    annotations = layout["annotations"]
+
+    # Top annotation
+    item = Dict(
+        :xref => "paper",
+        :yref => "paper",
+        :x => 0.5, :xanchor => "center",
+        :y => 1.05, :yanchor => "bottom",
+        
+        :text => "Main Source for News",
+        :font => Dict(
+            :family => "Arial",
+            :size => 30,
+            :color => "rgb(37,37,37)",
+        ),
+        :showarrow => false,
+    )
+    push!(annotations, item)
+
+    # Bottom annotation
+    item = Dict(
+        :xref => "paper",
+        :yref => "paper",
+        :x => 0.5,
+        :y => -0.15,
+        :text => "Source: Pew Research Center & Storytelling with data",
+        :showarrow => false,
+        :font => Dict(
+            :family => "Arial",
+            :size => 12,
+            :color => "rgb(150,150,150)",
+        ),
+    )
+    push!(annotations, item)
+
+    
+    # Left & Right annotations
+    for ind in 1:trace_count
+        xdata = xdata_list[ind]
+        ydata = ydata_list[ind]
+        # Left annotation
+        item = Dict(
+            :xref => "paper", # very important
+            :x => 0.05,
+            :y => ydata[1],
+            :xanchor => "right",
+            :yanchor => "middle",
+            :text => "$(labels[ind]) $(ydata[1])%",
+            :showarrow => false,
+            :font => Dict(
+                :family => "Arial",
+                :size => 16,
+                :color => "black",
+            ),
+        )
+        push!(annotations, item)
+
+        # Right annotation
+        item = Dict(
+            :xref => "paper",
+            :x => 0.95,
+            :y => ydata[end],
+            :xanchor => "left",
+            :yanchor => "middle",
+            :text => "$(ydata[end])%",
+            :font => Dict(
+                :family => "Arial",
+                :size => 16,
+                :color => "black",
+            ),
+            :showarrow => false,
+
+        )
+        push!(annotations, item)
+    end
+    
 
 
     return traces, layout

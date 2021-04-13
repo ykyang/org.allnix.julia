@@ -7,9 +7,9 @@ app = dash(external_stylesheets=[
     #"myassets/my.css"
     ])
 
-#app = configuration_options(app=app)
-#app = scatter_plots(app=app)
-app = line_charts(app=app)
+#app = chapter_configuration_options(app=app)
+#app = chapter_scatter_plots(app=app)
+app = chapter_line_charts(app=app)
 
 run_server(
     app, 
