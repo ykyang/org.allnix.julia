@@ -1052,6 +1052,19 @@ function labelling_lines_with_annotations()
         [13, 14, 20, 24, 20, 24, 24, 40, 35, 41, 43, 50],
         [18, 21, 18, 21, 16, 14, 13, 18, 17, 16, 19, 23],
     ]
+    
+    colors = [
+        "rgba(67, 67, 67,1 )", 
+        "rgba(115, 115, 115, 1)", 
+        "rgba(49, 130, 189, 1)",
+        "rgba(189, 189, 189, 1)"
+    ]
+
+    labels = [
+        "Television", "Newspaper", "Internet", "Radio"
+    ]
+
+    linesize_list = [2, 2, 4, 2]
 
     trace_count = min(length(xdata_list), length(ydata_list))
 
@@ -1071,14 +1084,30 @@ function labelling_lines_with_annotations()
             y = ydata,
             mode = "lines",
             line = Dict(
-                # :color => colors[ind],
-                # :width => linesize_list[ind]
+                :color => colors[ind],
+                :width => linesize_list[ind]
             )
         )
 
         push!(traces, trace)
     end
+
     # Construct traces of end points
+    for ind in 1:trace_count
+        xdata = xdata_list[ind]
+        ydata = ydata_list[ind]
+        trace = scatter(
+            x = [xdata[1], xdata[end]],
+            y = [ydata[1], ydata[end]],
+            mode = "markers",
+            marker = Dict(
+                :color => colors[ind],
+                :size => 12,
+            )
+        )
+
+        push!(traces, trace);
+    end
 
 
     layout = Layout(
@@ -1086,12 +1115,41 @@ function labelling_lines_with_annotations()
         height = 600,
         width = 600,
         xaxis = Dict(
-
+            :showline => true,
+            :showgrid => false,
+            :showticklabels => true,
+            :linecolor => "rgb(204,204,204)",
+            :linewidth => 2,
+            :autotick => false, # print every x value
+            :ticks => "outside",
+            :tickcolor => "rgb(204,204,204)",
+            :tickwidth => 2,
+            :ticklen => 5,
+            :tickfont => Dict(
+                :family => "Arial",
+                :size => 12,
+                :color => "rgb(82, 82, 82)",
+            ),
         ),
         yaxis = Dict(
+            :showgrid => false,
+            :zeroline => false,
+            :showline => false,
+            :showticklabels => false,
+        ),
+        autosize = false,
+        margin = Dict(
+            :autoexpand => false,
+            :l => 100,
+            :r => 20,
+            :t => 100,
             
-        )
+        ),
+        annotations = [],
     )
+
+    #@show layout["annotations"]
+
 
     return traces, layout
 end
