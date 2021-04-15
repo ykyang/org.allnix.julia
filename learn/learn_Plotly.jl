@@ -2,6 +2,7 @@
 
 using Dash, DashHtmlComponents, DashCoreComponents, DashBootstrapComponents
 using PlotlyJS, HTTP, CSV
+using DataFrames
 
 """
 
@@ -1228,6 +1229,432 @@ function labelling_lines_with_annotations()
     end
     
 
+
+    return traces, layout
+end
+
+"""
+
+https://plotly.com/javascript/bar-charts/
+"""
+function chapter_bar_charts(; app=nothing)
+    if isnothing(app)
+        app = dash(external_stylesheets=[dbc_themes.SPACELAB])
+    end
+
+    # https://stackoverflow.com/questions/4086107/fixed-page-header-overlaps-in-page-anchors
+    # Put this in my.css
+    # html {
+    # scroll-padding-top: 80px; /* height of sticky header */
+    # }
+    navbar = dbc_navbarsimple([
+        dbc_dropdownmenu([
+            dbc_dropdownmenuitem("Basic bar chart", href="#basic-bar-chart", external_link=true),
+            dbc_dropdownmenuitem("Grouped bar chart", href="#grouped-bar-chart", external_link=true),
+            dbc_dropdownmenuitem("Stacked bar chart", href="#stacked-bar-chart", external_link=true),
+            dbc_dropdownmenuitem("Bar chart with hover text", href="#bar-chart-with-hover-text", external_link=true),
+            dbc_dropdownmenuitem("Bar chart with direct labels", href="#bar-chart-with-direct-labels", external_link=true),
+            dbc_dropdownmenuitem("Grouped bar chart with direct labels", href="#grouped-bar-chart-with-direct-labels", external_link=true),
+            dbc_dropdownmenuitem("Bar chart with rotated labels", href="#bar-chart-with-rotated-labels", external_link=true),
+            dbc_dropdownmenuitem("Customizing individual bar colors", href="#customizing-individual-bar-colors", external_link=true),
+            dbc_dropdownmenuitem("Customizing individual bar widths", href="#customizing-individual-bar-widths", external_link=true),
+            dbc_dropdownmenuitem("Customizing individual bar base", href="#customizing-individual-bar-base", external_link=true),
+            dbc_dropdownmenuitem("Colored and styled bar chart", href="#colored-and-styled-bar-chart", external_link=true),
+            dbc_dropdownmenuitem("Waterfall bar chart", href="#waterfall-bar-chart", external_link=true),
+            dbc_dropdownmenuitem("Bar chart with relative barmode", href="#bar-chart-with-relative-barmode", external_link=true),
+            # dbc_dropdownmenuitem("", href="", external_link=true),
+        ],
+        in_navbar=true, label="Section", caret=true, direction="left"),
+    ], 
+    sticky="top", expand=true, brand="Allnix", brand_href="https://github.com/ykyang",
+    )
+
+    content = [
+        dbc_container([html_h3("Basic bar chart", id="basic-bar-chart"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/bar-charts/#basic-bar-chart"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(basic_bar_chart()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
+
+        dbc_container([html_h3("Grouped bar chart", id="grouped-bar-chart"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/bar-charts/#grouped-bar-chart"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(grouped_bar_chart()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded"),      
+        
+        dbc_container([html_h3("Stacked bar chart", id="stacked-bar-chart"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/bar-charts/#stacked-bar-chart"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(stacked_bar_chart()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded"),
+        
+        dbc_container([html_h3("Bar chart with hover text", id="bar-chart-with-hover-text"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/bar-charts/#bar-chart-with-hover-text"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(bar_chart_with_hover_text()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded"),
+        
+        dbc_container([html_h3("Bar chart with direct labels", id="bar-chart-with-direct-labels"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/bar-charts/#bar-chart-with-direct-labels"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(bar_chart_with_direct_labels()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded"),
+        
+        dbc_container([html_h3("Grouped bar chart with direct labels", id="grouped-bar-chart-with-direct-labels"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/bar-charts/#grouped-bar-chart-with-direct-labels"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(grouped_bar_chart_with_direct_labels()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded"),
+
+        dbc_container([html_h3("Bar chart with rotated labels", id="bar-chart-with-rotated-labels"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/bar-charts/#bar-chart-with-rotated-labels"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(bar_chart_with_rotated_labels()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded"),
+
+        dbc_container([html_h3("Customizing individual bar colors", id="customizing-individual-bar-colors"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/bar-charts/#customizing-individual-bar-colors"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(customizing_individual_bar_colors()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded"),
+
+        dbc_container([html_h3("Customizing individual bar widths", id="customizing-individual-bar-widths"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/bar-charts/#customizing-individual-bar-widths"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(customizing_individual_bar_widths()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded"),
+
+        dbc_container([html_h3("Customizing individual bar base", id="customizing-individual-bar-base"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/bar-charts/#customizing-individual-bar-base"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(customizing_individual_bar_base()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded"),
+    ]
+
+    # during development, it is convenient to reverse
+    # so the new one is at the top
+    content = reverse(content)
+
+    pushfirst!(content, navbar)
+
+    app.layout = dbc_container(content)
+
+    return app
+end
+
+function basic_bar_chart()
+    traces = [
+        bar(
+            x = ["giraffes", "orangutans", "monkeys"],
+            y = [20, 14, 23],
+        ),
+    ]
+
+    layout = Layout()
+
+    return traces, layout
+end
+
+function grouped_bar_chart()
+    traces = [
+        bar(
+            x = ["giraffes", "orangutans", "monkeys"],
+            y = [20, 14, 23],
+            name = "SF Zoo",
+        ),
+        bar(
+            x = ["giraffes", "orangutans", "monkeys"],
+            y = [12, 18, 29],
+            name = "LA Zoo",
+        ),
+    ]
+
+    layout = Layout(
+        barmode = "group", # default mode
+    )
+
+    return traces, layout
+end
+
+function stacked_bar_chart()
+    traces = [
+        bar(        
+            x = ["giraffes", "orangutans", "monkeys"],
+            y = [20, 14, 23],
+            name = "SF Zoo",
+        ),
+        bar(
+            x = ["giraffes", "orangutans", "monkeys"],
+            y = [12, 18, 29],
+            name = "LA Zoo",
+        ),
+    ]
+    layout = Layout(
+        barmode = "stack",
+    )
+
+    return traces, layout
+end
+
+function bar_chart_with_hover_text()
+    df = DataFrame([
+        "name"  => ["Liam", "Sophie", "Jacob", "Mia", "William", "Olivia"],
+        "score" => [8.0, 8.0, 12.0, 12.0, 13.0, 20.0],
+        "note"  => [
+            "4.17 below the mean", "4.17 below the mean", "0.17 below the mean",
+            "0.17 below the mean", "0.83 above the mean", "7.83 above the mean"
+        ]
+    ])
+
+    traces = [
+        bar(
+            x = df[!,"name"],
+            y = df[!,"score"],
+            text = df[!,"note"],
+            marker = Dict(
+                :color => "rgb(142,124,195)",
+            ),
+        )
+    ]
+
+    layout = Layout(
+        title = "Number of Graphs Made this Week",
+        font = Dict(
+            :family => "Raleway, sans-serif",
+        ),
+        showlegend = false,
+        xaxis = Dict(
+            :tickangle => -45,
+        ),
+        yaxis = Dict(
+            :zeroline => false,
+            :gridwidth => 2,
+        ),
+        bargap = 0.05,
+    )
+
+    return traces, layout
+end
+
+function bar_chart_with_direct_labels()
+    df = DataFrame(
+        "name" => ["Product A", "Product B", "Product C"],
+        "price" => Vector{Int64}([20, 14, 23])
+    )
+
+    traces = [
+        bar(
+            x = df[!,"name"],
+            y = df[!,"price"],
+            text = map(string, df[!,"price"]), # convert to String
+            textposition = "auto",
+            hoverinfo = "none",
+            marker = Dict(
+                :color => "rgb(158,202,225)",
+                :opacity => 0.6,
+                :line => Dict(
+                    :color => "rgb(8,48,107)",
+                    :width => 1.5,
+                ),
+            )
+        )
+    ]
+
+    layout = Layout(
+        title = "January 2013 Sales Report",
+        barmode = "stack"
+    )
+
+    return traces, layout
+end
+
+function grouped_bar_chart_with_direct_labels()
+    df = DataFrame(
+        "name" => ["Product A", "Product B", "Product C"],
+        "price1" => Vector{Int64}([20, 14, 23]),
+        "price2" => Vector{Int64}([24, 16, 20]),
+    )
+    traces = [
+        bar(
+            x = df[!,"name"],
+            y = df[!,"price1"],
+            text = map(string, df[!,"price1"]),
+            textposition = "auto",
+            hoverinfo = "none",
+            opacity = 0.5,
+            name = "Team A",
+            marker = Dict(
+                :color => "rgb(158,202,225)",
+                :line => Dict(
+                    :color => "rgb(8,48,107)",
+                    :width => 1.5,
+                ),
+            ),
+        ),
+        bar(
+            x = df[!,"name"],
+            y = df[!,"price2"],
+            text = map(string, df[!,"price2"]),
+            textposition = "auto",
+            hoverinfo = "none",
+            name = "Team B",
+            marker = Dict(
+                :color => "rgba(58,200,225,0.5)",
+                :line => Dict(
+                    :color => "rgb(8,48,107)",
+                    :width => 1.5,
+                ),
+            ),
+        ),
+    ]
+    layout = Layout(
+        title = "January 2013 Sales Report"
+    )
+
+    return traces, layout
+end
+
+function bar_chart_with_rotated_labels()
+    df = DataFrame(
+        "x" => ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+        "y1" => Vector{Int64}([20, 14, 25, 16, 18, 22, 19, 15, 12, 16, 14, 17]),
+        "y2" => Vector{Int64}([19, 14, 22, 14, 16, 19, 15, 14, 10, 12, 12, 16]),
+    )
+    traces = [
+        bar(
+            x = df[!,"x"],
+            y = df[!,"y1"],
+            name = "Primary",
+            marker = Dict(
+                :color => "rgb(49,130,189)",
+                :opacity => 0.7,
+            )
+        ),
+        bar(
+            x = df[!,"x"],
+            y = df[!,"y2"],
+            name = "Secondary",
+            marker = Dict(
+                :color => "rgb(204,204,204)",
+                :opacity => 0.5,
+            )
+        ),
+    ]
+    layout = Layout(
+        title = "2013 Sales Report",
+        xaxis = Dict(
+            :tickangle => -45,
+        ),
+        barmode = "group",
+    )
+
+    return traces, layout
+end
+
+function customizing_individual_bar_colors()
+    df = DataFrame(
+        "x"  => ["Feature A", "Feature B", "Feature C", "Feature D", "Feature E"],
+        "y" => Vector{Int64}([20, 14, 23, 25, 22]),
+        "color" => [
+            "rgba(204,204,204,1)", 
+            "rgba(222,45,38,0.8)", 
+            "rgba(204,204,204,1)", 
+            "rgba(204,204,204,1)", 
+            "rgba(204,204,204,1)", 
+        ]
+    )
+
+    traces = [
+        bar(
+            x = df[!,"x"],
+            y = df[!,"y"],
+            marker = Dict(
+                :color => df[!,"color"],
+            ),
+        )
+    ]
+
+    layout = Layout(
+        title = "Least Used Feature",
+    )
+
+    return traces, layout
+end
+
+function customizing_individual_bar_widths()
+    df = DataFrame(
+        "x"  => Vector{Float64}([1, 2, 3, 5.5, 10]),
+        "y" => Vector{Int64}([10, 8, 6, 4, 2]),
+        "width" => Vector{Float64}([0.8, 0.8, 0.8, 3.5, 4])
+    )
+
+    traces = [
+        bar(
+            x = df[!,"x"],
+            y = df[!,"y"],
+            width = df[!,"width"],
+        ),
+    ]
+
+    layout = Layout()
+
+    return traces, layout
+end
+
+function customizing_individual_bar_base()
+    traces = [
+        bar(
+            name = "expenses",
+            x = ["2016", "2017", "2018"],
+            y = [500, 600, 700],
+            base = [-500, -600, -700],
+            hovertemplate = "%{base}",
+            marker = Dict(
+                :color => "red",
+            )
+        ),
+        bar(
+            name = "revenue",
+            x = ["2016", "2017", "2018"],
+            y = [300, 400, 700],
+            base = 0,
+            marker = Dict(
+                :color => "blue",
+            ),
+
+        ),
+    ]
+    layout = Layout()
 
     return traces, layout
 end
