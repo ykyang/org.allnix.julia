@@ -1883,3 +1883,215 @@ function bar_chart_with_relative_barmode()
 
     return traces, layout
 end
+
+"""
+
+https://plotly.com/javascript/pie-charts/
+"""
+function chapter_pie_charts(; app=nothing)
+    if isnothing(app)
+        app = dash(external_stylesheets=[dbc_themes.SPACELAB])
+    end
+
+    # https://stackoverflow.com/questions/4086107/fixed-page-header-overlaps-in-page-anchors
+    # Put this in my.css
+    # html {
+    # scroll-padding-top: 80px; /* height of sticky header */
+    # }
+    navbar = dbc_navbarsimple([
+        dbc_dropdownmenu([
+            dbc_dropdownmenuitem("Basic pie chart", href="#basic-pie-chart", external_link=true),
+            dbc_dropdownmenuitem("Pie chart subplots", href="#pie-chart-subplots", external_link=true),
+            dbc_dropdownmenuitem("Donut chart", href="#donut-chart", external_link=true),
+            dbc_dropdownmenuitem("Automatically adjust margins", href="#automatically-adjust-margins", external_link=true),
+            dbc_dropdownmenuitem("Control text orientation inside pie chart sectors", href="#control-text-orientation-inside-pie-chart-sectors", external_link=true),
+            
+            # dbc_dropdownmenuitem("", href="", external_link=true),
+        ],
+        in_navbar=true, label="Section", caret=true, direction="left"),
+    ], 
+    sticky="top", expand=true, brand="Allnix", brand_href="https://github.com/ykyang",
+    )
+
+    content = [
+        dbc_container([html_h3("Basic pie chart", id="basic-pie-chart"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/pie-charts/#basic-pie-chart"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(basic_pie_chart()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
+
+        dbc_container([html_h3("Pie chart subplots", id="pie-chart-subplots"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/pie-charts/#pie-chart-subplots"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(pie_chart_subplots()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
+        
+        dbc_container([html_h3("Donut chart", id="donut-chart"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/pie-charts/#donut-chart"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(donut_chart()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
+
+        dbc_container([html_h3("Automatically adjust margins", id="automatically-adjust-margins"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/pie-charts/#automatically-adjust-margins"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            # dcc_graph(
+            #     figure = Plot(donut_chart()...),
+            #     config = Dict(),
+            # ),
+        ], className="p-3 my-2 border rounded",),
+
+        dbc_container([html_h3("Control text orientation inside pie chart sectors", id="control-text-orientation-inside-pie-chart-sectors"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/pie-charts/#control-text-orientation-inside-pie-chart-sectors"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            # dcc_graph(
+            #     figure = Plot(donut_chart()...),
+            #     config = Dict(),
+            # ),
+        ], className="p-3 my-2 border rounded",),
+    ]
+
+    # during development, it is convenient to reverse
+    # so the new one is at the top
+    content = reverse(content)
+
+    pushfirst!(content, navbar)
+
+    app.layout = dbc_container(content)
+
+    return app
+end
+
+function basic_pie_chart()
+    df = DataFrame(
+        "value" => Vector{Int32}([19,26,55]),
+        "label" => Vector{String}(["Residential", "Non-Residential", "Utility"]),
+    )
+    traces = [
+        pie(
+            values = df[!,"value"],
+            labels = df[!,"label"],
+        )
+    ]
+    layout = Layout()
+
+    return traces, layout
+end
+
+function pie_chart_subplots()
+    df = DataFrame(
+        "T1" => Vector{Int32}([38, 27, 18, 10, 7]),
+        "T2" => Vector{Int32}([28, 26, 21, 15, 10]),
+        "T3" => Vector{Int32}([38, 19, 16, 14, 13]),
+        "T4" => Vector{Int32}([31, 24, 19, 18, 8]),
+        "C1" => ["rgb(56, 75, 126)", "rgb(18, 36, 37)", "rgb(34, 53, 101)", "rgb(36, 55, 57)", "rgb(6, 4, 4)"],
+        "C2" => ["rgb(177, 127, 38)", "rgb(205, 152, 36)", "rgb(99, 79, 37)", "rgb(129, 180, 179)", "rgb(124, 103, 37)"],
+        "C3" => ["rgb(33, 75, 99)", "rgb(79, 129, 102)", "rgb(151, 179, 100)", "rgb(175, 49, 35)", "rgb(36, 73, 147)"],
+        "C4" => ["rgb(146, 123, 21)", "rgb(177, 180, 34)", "rgb(206, 206, 40)", "rgb(175, 51, 21)", "rgb(35, 36, 21)"],
+        "label" => ["1st", "2nd", "3rd", "4th", "5th"],
+    )
+
+    traces = [
+        pie(
+            name = "Starry Night",
+            values = df[!,"T1"],
+            labels = df[!, "label"],
+            marker = Dict(
+                :colors => df[!,"C1"],
+            ),
+            domain = Dict(
+                :row => 0, :column => 0,
+            ),
+            hoverinfo = "label+percent+name",
+            textinfo = "none", # text in the pi
+        ),
+        pie(
+            name = "Sunflowers",
+            values = df[!,"T2"],
+            labels = df[!, "label"],
+            marker = Dict(
+                :colors => df[!,"C2"],
+            ),
+            domain = Dict(
+                :row => 1, :column => 0,
+            ),
+            hoverinfo = "label+percent+name",
+            textinfo = "none", # text in the pi
+        ),
+        pie(
+            name = "Sunflowers",
+            values = df[!,"T3"],
+            labels = df[!, "label"],
+            marker = Dict(
+                :colors => df[!,"C3"],
+            ),
+            domain = Dict(
+                :row => 0, :column => 1,
+            ),
+            hoverinfo = "label+percent+name",
+            textinfo = "none", # text in the pi
+        ),
+        pie(
+            name = "Sunflowers",
+            values = df[!,"T4"],
+            labels = df[!, "label"],
+            marker = Dict(
+                :colors => df[!,"C4"],
+            ),
+            domain = Dict(
+                :row => 1, :column => 1,
+            ),
+            hoverinfo = "label+percent+name",
+            textinfo = "none", # text in the pi
+        ),
+    ]
+
+    layout = Layout(
+        height = 400,
+        width = 500,
+        grid = Dict(
+            :rows => 2, :columns => 2,
+        )
+    )
+
+    return traces, layout
+end
+
+function donut_chart()
+    traces = [
+        pie(),
+    ]
+
+    layout = Layout()
+
+    return traces, layout
+end
+
+function automatically_adjust_margins()
+    traces = [
+        pie(),
+    ]
+
+    layout = Layout()
+
+    return traces, layout
+end
+
+function control_text_orientation_inside_pie_chart_sectors()
+    traces = [
+        pie(),
+    ]
+
+    layout = Layout()
+
+    return traces, layout
+end
