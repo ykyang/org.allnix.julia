@@ -1359,11 +1359,38 @@ function chapter_bar_charts(; app=nothing)
                 config = Dict(),
             ),
         ], className="p-3 my-2 border rounded"),
+
+        dbc_container([html_h3("Colored and styled bar chart", id="colored-and-styled-bar-chart"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/bar-charts/#colored-and-styled-bar-chart"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(colored_and_styled_bar_chart()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded"),
+
+        dbc_container([html_h3("Waterfall bar chart", id="waterfall-bar-chart"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/bar-charts/#waterfall-bar-chart"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(waterfall_bar_chart()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded"),
+
+        dbc_container([html_h3("Bar chart with relative barmode", id="bar-chart-with-relative-barmode"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/bar-charts/#bar-chart-with-relative-barmode"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(bar_chart_with_relative_barmode()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded"),
     ]
 
     # during development, it is convenient to reverse
     # so the new one is at the top
-    content = reverse(content)
+    #content = reverse(content)
 
     pushfirst!(content, navbar)
 
@@ -1655,6 +1682,204 @@ function customizing_individual_bar_base()
         ),
     ]
     layout = Layout()
+
+    return traces, layout
+end
+
+function colored_and_styled_bar_chart()
+    df = DataFrame(
+        "year"  => Vector{Int32}([1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012]),
+        # not including China
+        "world" => Vector{Int32}([219, 146, 112, 127, 124, 180, 236, 207, 236, 263, 350, 430, 474, 526, 488, 537, 500, 439]),
+        "china" => Vector{Int32}([16, 13, 10, 11, 28, 37, 43, 55, 56, 88, 105, 156, 270, 299, 340, 403, 549, 499])
+    )
+
+    traces = [
+        bar(
+            name = "Rest of world",
+            x = df[!,"year"],
+            y = df[!,"world"],
+            marker = Dict(
+                :color => "rgb(55,83,109)",
+            )
+        ),
+        bar(
+            name = "China",
+            x = df[!,"year"],
+            y = df[!,"china"],
+            marker = Dict(
+                :color => "rgb(26,118,255)",
+            )
+        ),
+    ]
+
+    layout = Layout(
+        title = "US Export of Plastic Scrap",
+        barmode = "group",
+        bargap = 0.15,      # distance between different groups
+        bargroupgap = 0.10, # distance between bars within a group
+        xaxis = Dict(
+            :title => "Year",
+            :titlefont => Dict(
+                :size => 16,
+                :color => "rgb(107,107,107)",
+            ),
+            :tickfont => Dict(
+                :size => 14,
+                :color => "rgb(107,107,107)",
+            )
+        ),
+        yaxis = Dict(
+            :title => "USD (millions)",
+            :titlefont => Dict(
+                :size => 16,
+                :color => "rgb(107,107,107)",
+            ),
+            :tickfont => Dict(
+                :size => 14,
+                :color => "rgb(107,107,107)",
+            )
+        ),
+        legend = Dict(
+            :x => 0,
+            :y => 1.0,
+            :bgcolor     => "rgba(255,255,255,0)", # transparent
+            :bordercolor => "rgba(255,255,255,0)", # transparent
+        ),
+    )
+
+    return traces, layout
+end
+
+function waterfall_bar_chart()
+    df = DataFrame(
+        "x" => [
+            "Product<br>Revenue", "Services<br>Revenue",
+            "Total<br>Revenue", "Fixed<br>Costs",
+            "Variable<br>Costs", "Total<br>Costs", "Total<br>Profit"
+        ],
+        "text" => ["\$430K", "\$260K", "\$690K", "\$-120K", "\$-200K", "\$-320K", "\$370K"],
+        # for text position
+        "y"  => Vector{Int64}([400, 660, 660, 590, 400, 400, 340]), 
+        "base" => Vector{Int64}([0, 430, 0, 570, 370, 370, 0]),
+        "revenue" => Vector{Int64}([430, 260, 690, 0, 0, 0, 0]),
+        "cost" => Vector{Int64}([0, 0, 0, 120, 200, 320, 0]),
+        "profit" => Vector{Int64}([0, 0, 0, 0, 0, 0, 370]),
+        
+    )
+    #@show size(df)
+    traces = [
+        bar( # base
+            x = df[!,"x"],
+            y = df[!, "base"],
+            marker = Dict(
+                :color => "rgba(1,1,1,0.0)", # transparent for the base
+            ),
+        ),
+        bar( # revenue
+            x = df[!,"x"],
+            y = df[!,"revenue"],
+            marker = Dict(
+                :color => "rgba(55,128,191,0.7)",
+                :line => Dict(
+                    :color => "rgba(55,128,191,1.0)",
+                    #:width => 2,
+                )
+            )
+        ),
+        bar( # cost
+            x = df[!,"x"],
+            y = df[!,"cost"],
+            marker = Dict(
+                :color => "rgba(219,64,82,0.7)",
+                :line => Dict(
+                    :color => "rgba(219,64,82,1.0)",
+                    #:width => 2,
+                ),
+            )
+        ), 
+        bar( # profit
+            x = df[!,"x"],
+            y = df[!,"profit"],
+            marker = Dict(
+                :color => "rgba(50,171,96,0.7)",
+                :line => Dict(
+                    :color => "rgba(50,171,96,0.7)",
+                    #:width => 2,
+                ),
+            )
+        ),
+    ]
+    layout = Layout(
+        title = "Annual Profit 2015",
+        barmode = "stack",
+        width = 600,
+        height = 600,
+        paper_bgcolor = "rgba(245,246,249,1)",
+        plot_bgcolor = "rgba(245,246,249,1)",
+        showlegend = false,
+        annotations = [],
+    )
+
+    height = size(df)[1]
+
+    annotations = layout["annotations"]
+    for ind = 1:height
+        annotation = Dict(
+            :x => df[!,"x"][ind],
+            :y => df[!,"y"][ind],
+            :text => df[!,"text"][ind],
+            :showarrow => false,
+            :font => Dict(
+                :family => "Arial",
+                :size => 14,
+                :color => "rgba(245,246,249,1)",
+            )
+        )
+
+        push!(annotations, annotation)
+    end
+
+    return traces, layout
+end
+
+function bar_chart_with_relative_barmode()
+    df = DataFrame(
+        "x"  => Vector{Int32}([1, 2, 3, 4]),
+        "y1" => Vector{Float64}([1, 4, 9, 16]),
+        "y2" => Vector{Float64}([6, -8, -4.5, 8]),
+        "y3" => Vector{Float64}([-15, -3, 4.5, -8]),
+        "y4" => Vector{Float64}([-1, 3, -3, -4]),
+    )
+
+    traces = [
+        bar(
+            name = "T-1",
+            x = df[!,"x"],
+            y = df[!,"y1"],
+        ),
+        bar(
+            name = "T-2",
+            x = df[!,"x"],
+            y = df[!,"y2"],
+        ),
+        bar(
+            name = "T-3",
+            x = df[!,"x"],
+            y = df[!,"y3"],
+        ),
+        bar(
+            name = "T-4",
+            x = df[!,"x"],
+            y = df[!,"y4"],
+        ),
+    ]
+
+    layout = Layout(
+        xaxis = Dict(:title => "X axis"),
+        yaxis = Dict(:title => "Y axis"),
+        barmode = "relative",
+    )
 
     return traces, layout
 end
