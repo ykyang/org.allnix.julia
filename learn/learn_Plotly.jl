@@ -2487,3 +2487,143 @@ function marker_size_color_and_symbol_as_an_array()
 
     return traces, layout
 end
+
+"""
+
+https://plotly.com/javascript/bubble-charts/
+"""
+function chapter_contour_plots(; app=nothing)
+    if isnothing(app)
+        app = dash(external_stylesheets=[dbc_themes.SPACELAB])
+    end
+
+    # https://stackoverflow.com/questions/4086107/fixed-page-header-overlaps-in-page-anchors
+    # Put this in my.css
+    # html {
+    # scroll-padding-top: 80px; /* height of sticky header */
+    # }
+    navbar = dbc_navbarsimple([
+        dbc_dropdownmenu([
+            dbc_dropdownmenuitem("Simple contour plot", href="#simple-contour-plot", external_link=true),
+            dbc_dropdownmenuitem("Simple contour plot 2", href="#simple-contour-plot2", external_link=true),
+            # dbc_dropdownmenuitem("", href="", external_link=true),
+        ],
+        in_navbar=true, label="Section", caret=true, direction="left"),
+    ], 
+    sticky="top", expand=true, brand="Allnix", brand_href="https://github.com/ykyang",
+    )
+
+    content = [
+        dbc_container([html_h3("Simple contour plot", id="simple-contour-plot"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/contour-plots/#simple-contour-plot"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(simple_contour_plot()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
+
+        dbc_container([html_h3("Simple contour plot 2", id="simple-contour-plot2"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/contour-plots/#simple-contour-plot"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_markdown("""
+            Same as `simple_contour_plot()` but use different sizes for x and y
+            to demonstrate how z-value is mapped onto the x-y grid.
+            It is `z[i][j]`, where `i` is in x-direction and `j` is in y-direction.
+            """),
+            dcc_graph(
+                figure = Plot(simple_contour_plot2()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
+
+    ]
+
+    # during development, it is convenient to reverse
+    # so the new one is at the top
+    content = reverse(content)
+
+    pushfirst!(content, navbar)
+
+    app.layout = dbc_container(content)
+
+    return app
+end
+
+function simple_contour_plot()
+    traces = Vector{AbstractTrace}()
+    layout = Layout()
+
+    size = 100
+    x = zeros(Float64,size)
+    y = zeros(Float64,size)
+    z = Vector{Vector{Float64}}(undef, size) #zeros(Float64,size)
+    # Number of points = (# of x) * (# of y)
+    for i in 1:size
+        x[i] = y[i] = -2 * pi + 4*pi*i/size
+        z[i] = zeros(Float64,size)
+    end
+    for i in 1:size
+        for j in 1:size
+            r = x[i]^2 + y[j]^2
+            z[i][j] = sin(x[i]) * cos(y[j]) * sin(r)/ log(r+1)
+        end
+    end
+
+    push!(traces, contour(
+        x = x,
+        y = y,
+        z = z,
+    ))
+
+
+    return traces, layout
+end
+
+"""
+
+Same as `simple_contour_plot()` but different sizes for x and y
+to demonstrate how z-value is mapped onto the x-y grid.
+`z` is a 2-dimensional array.  The first dimension has the size of `x`.
+It is `z[i][j]`, where `i` is in x-direction and `j` is in y-direction.
+"""
+function simple_contour_plot2()
+    traces = Vector{AbstractTrace}()
+    layout = Layout()
+
+    # size = 100
+    x_size = 100
+    y_size = 50
+    x = zeros(Float64,x_size)
+    y = zeros(Float64,y_size)
+    z = Vector{Vector{Float64}}(undef, x_size) #zeros(Float64,size)
+    # Number of points = (# of x) * (# of y)
+    # for i in 1:size
+    #     x[i] = y[i] = -2 * pi + 4*pi*i/size
+    #     z[i] = zeros(Float64,size)
+    # end
+    for i in 1:x_size
+        x[i] = -2 * pi + 4*pi*i/x_size
+        z[i] = zeros(Float64, y_size)
+    end
+    for j in 1:y_size
+        y[j] = -2 * pi + 4*pi*(j*2)/(y_size*2)
+        #z[j] = zeros(Float64, x_size)
+    end
+
+    for i in 1:x_size
+        for j in 1:y_size
+            r = x[i]^2 + y[j]^2
+            z[i][j] = sin(x[i]) * cos(y[j]) * sin(r)/ log(r+1)
+        end
+    end
+
+    push!(traces, contour(
+        x = x,
+        y = y,
+        z = z,
+    ))
+
+
+    return traces, layout
+end
