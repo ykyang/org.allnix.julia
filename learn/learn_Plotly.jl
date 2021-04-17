@@ -1962,7 +1962,7 @@ function chapter_pie_charts(; app=nothing)
 
     # during development, it is convenient to reverse
     # so the new one is at the top
-    content = reverse(content)
+    #content = reverse(content)
 
     pushfirst!(content, navbar)
 
@@ -2171,6 +2171,318 @@ function control_text_orientation_inside_pie_chart_sectors()
     layout = Layout(
         height = 500,
         width = 500,
+    )
+
+    return traces, layout
+end
+
+"""
+
+https://plotly.com/javascript/bubble-charts/
+"""
+function chapter_bubble_charts(; app=nothing)
+    if isnothing(app)
+        app = dash(external_stylesheets=[dbc_themes.SPACELAB])
+    end
+
+    # https://stackoverflow.com/questions/4086107/fixed-page-header-overlaps-in-page-anchors
+    # Put this in my.css
+    # html {
+    # scroll-padding-top: 80px; /* height of sticky header */
+    # }
+    navbar = dbc_navbarsimple([
+        dbc_dropdownmenu([
+            dbc_dropdownmenuitem("Marker size on bubble charts", href="#marker-size-on-bubble-charts", external_link=true),
+            dbc_dropdownmenuitem("Marker size and color on bubble charts", href="#marker-size-and-color-on-bubble-charts", external_link=true),
+            dbc_dropdownmenuitem("Hover text on bubble charts", href="#hover-text-on-bubble-charts", external_link=true),
+            dbc_dropdownmenuitem("Bubble size scaling on charts", href="#bubble-size-scaling-on-charts", external_link=true),
+            dbc_dropdownmenuitem("Marker size color and symbol as an array", href="#marker-size-color-and-symbol-as-an-array", external_link=true),
+            
+            # dbc_dropdownmenuitem("", href="", external_link=true),
+        ],
+        in_navbar=true, label="Section", caret=true, direction="left"),
+    ], 
+    sticky="top", expand=true, brand="Allnix", brand_href="https://github.com/ykyang",
+    )
+
+    content = [
+        dbc_container([html_h3("Marker size on bubble charts", id="marker-size-on-bubble-charts"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/bubble-charts/#marker-size-on-bubble-charts"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(marker_size_on_bubble_charts()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
+
+        dbc_container([html_h3("Marker size and color on bubble charts", id="marker-size-and-color-on-bubble-charts"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/bubble-charts/#marker-size-and-color-on-bubble-charts"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(marker_size_and_color_on_bubble_charts()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
+
+        dbc_container([html_h3("Hover text on bubble charts", id="hover-text-on-bubble-charts"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/bubble-charts/#marker-size-and-color-on-bubble-charts"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(hover_text_on_bubble_charts()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
+
+        dbc_container([html_h3("Bubble size scaling on charts", id="bubble-size-scaling-on-charts"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/bubble-charts/#bubble-size-scaling-on-charts"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(bubble_size_scaling_on_charts()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
+
+        dbc_container([html_h3("Marker size, color and symbol as an array", id="marker-size-color-and-symbol-as-an-array"),
+        dbc_badge("Origin", color="info", href="https://plotly.com/javascript/bubble-charts/#marker-size-color-and-symbol-as-an-array"),
+        dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+        dcc_graph(
+            figure = Plot(marker_size_color_and_symbol_as_an_array()...),
+            config = Dict(),
+        ),
+    ], className="p-3 my-2 border rounded",),
+    ]
+
+    # during development, it is convenient to reverse
+    # so the new one is at the top
+    content = reverse(content)
+
+    pushfirst!(content, navbar)
+
+    app.layout = dbc_container(content)
+
+    return app
+end
+
+function marker_size_on_bubble_charts()
+    df = DataFrame(
+        "x" => Vector{Int64}([1, 2, 3, 4]),
+        "y" => Vector{Int64}([10, 11, 12, 13]),
+        "size" => Vector{Int64}([40, 60, 80, 100]),
+    )
+    traces = [
+        scatter(
+            x = df[!,:x],
+            y = df[!,:y],
+            mode = "markers",
+            marker = Dict(
+                :size => df[!,:size],
+            )
+        )
+    ]
+
+    layout = Layout(
+        title = "Marker Size",
+        showlegend = false,
+        # height = 600,
+        # width = 600
+    )
+
+    return traces, layout
+end
+
+function marker_size_and_color_on_bubble_charts()
+    df = DataFrame(
+        "x" => Vector{Int64}([1, 2, 3, 4]),
+        "y" => Vector{Int64}([10, 11, 12, 13]),
+        "size" => Vector{Int64}([40, 60, 80, 100]),
+        "opacity" => Vector{Float32}([1, 0.8, 0.6, 0.4]),
+        "color" => Vector{String}([
+            "rgb(93,164,214)", "rgb(255,144,14)", "rgb(44,160,101)", "rgb(255,65,54)"
+        ]),
+    )
+
+    traces = [
+        scatter(
+            x = df[!,:x],
+            y = df[!,:y],
+            mode = "markers",
+            marker = Dict(
+                :size => df[!,:size],
+                :opacity => df[!,:opacity],
+                :color => df[!,:color],
+            )
+        ),
+    ]
+
+    layout = Layout(
+        title = "Marker Size and Color",
+        showlegend = false,
+    )
+
+    return traces, layout
+end
+
+function hover_text_on_bubble_charts()
+    df = DataFrame(
+        "x" => Vector{Int64}([1, 2, 3, 4]),
+        "y" => Vector{Int64}([10, 11, 12, 13]),
+        "size" => Vector{Int64}([40, 60, 80, 100]),
+        "opacity" => Vector{Float32}([1, 0.8, 0.6, 0.4]),
+        "text" => Vector{String}(["A", "B", "C", "D"]),
+        "color" => Vector{String}([
+            "rgb(93,164,214)", "rgb(255,144,14)", "rgb(44,160,101)", "rgb(255,65,54)"
+        ]),
+    )
+
+    traces = [
+        scatter(
+            mode = "markers",
+            x = df[!,:x],
+            y = df[!,:y],
+            #text = text_list,
+            text =["$t<br>size: $s" for (t,s) in zip(df[!,:text], df[!,:size])], 
+            marker = Dict(
+                :size => df[!,:size],
+                :color => df[!,:color],
+            ),
+
+        ),
+    ]
+
+    layout = Layout(
+        title = "Bubble Chart Hover Text",
+        showlegend = false,
+    )
+
+    return traces, layout
+end
+
+"""
+
+Recommended 
+```
+sizeref = 2.0 * max_size / desired_max_size**2
+```
+"""
+function bubble_size_scaling_on_charts()
+    df = DataFrame(
+        "x" => Vector{Int64}([1, 2, 3, 4]),
+        "y" => Vector{Int64}([10, 11, 12, 13]),
+        "size" => Vector{Int64}([40, 60, 80, 100]),
+        "opacity" => Vector{Float32}([1, 0.8, 0.6, 0.4]),
+        "text" => Vector{String}(["A", "B", "C", "D"]),
+        "color" => Vector{String}([
+            "rgb(93,164,214)", "rgb(255,144,14)", "rgb(44,160,101)", "rgb(255,65,54)"
+        ]),
+    )
+    traces = Vector{AbstractTrace}()
+    layout = Layout(
+        title = "Bubble Chart Size Scaling",
+        showlegend = true,
+    )
+
+    # Trace 1
+    trace = scatter(
+        name = "sizeref not set",
+        x = df[!,:x],
+        y = df[!,:y] .+ 0*4,
+        text = ["$t<br>size: $s" for (t,s) in zip(df[!,:text], df[!,:size])],
+        marker = Dict(
+            :sizemode => "area",    
+            :size => df[!,:size] .* 10,
+        ),
+        mode = "markers",
+    )
+    push!(traces, trace)
+
+    # Trace 2
+    trace = scatter(
+        name = "sizeref = 2",
+        x = df[!,:x],
+        y = df[!,:y] .+ 1*4,
+        text = ["$t<br>size: $s<br>sizeref: 2" for (t,s) in zip(df[!,:text],df[!,:size])],
+        marker = Dict(
+            :sizemode => "area",
+            :size => df[!,:size] .* 10,
+            :sizeref => 2, # bigger than 1 -> small
+        ),
+        mode = "markers",
+    )
+    push!(traces, trace)
+
+    # Trace 3
+    trace = scatter(
+        name = "sizeref = 0.2",
+        x = df[!,:x],
+        y = df[!,:y] .+ 2*4,
+        text = ["$t<br>size: $s<br>sizeref: 0.2" for (t,s) in zip(df[!,:text], df[!,:size])],
+        marker = Dict(
+            :sizemode => "area",
+            :size => df[!,:size] .* 10,
+            :sizeref => 0.2,
+        ),
+        mode = "markers",
+    )
+    push!(traces, trace)
+
+    desired_max_size = 40
+    sizeref = 2.0 * maximum(df[!,:size] .* 10) / desired_max_size^2
+    # Trace 4
+    trace = scatter(
+        name = "2 * M / d**2",
+        x = df[!,:x],
+        y = df[!,:y] .+ 3*4,
+        text = ["$t<br>size: $s<br>sizeref: $sizeref" for (t,s) in zip(df[!,:text], df[!,:size])],
+        marker = Dict(
+            :sizemode => "area",
+            :size => df[!,:size] .* 10,
+            :sizeref => sizeref,
+        ),
+        mode = "markers",
+    )
+    push!(traces, trace)
+
+    return traces, layout
+end
+
+function marker_size_color_and_symbol_as_an_array()
+    traces = Vector{AbstractTrace}([
+        scatter(
+            x = [1, 2, 3, 4],
+            y = [10, 11, 12, 13],
+            mode = "markers",
+            marker = Dict(
+                :size => [12, 22, 32, 42],
+                :color => ["hsl(0,100,40)", "hsl(33,100,40)", "hsl(66,100,40)", "hsl(99,100,40)"],
+                :opacity => [0.6, 0.7, 0.8, 0.9],
+            ),
+        ),
+        scatter(
+            x = [1, 2, 3, 4],
+            y = [10, 11, 12, 13] .+ 1,
+            mode = "markers",
+            marker = Dict(
+                :color => "rgb(31,119,180)",
+                :size => 18,
+                :symbol => ["circle", "square", "diamond", "cross"],
+            ),
+        ),
+        scatter(
+            x = [1, 2, 3, 4],
+            y = [10, 11, 12, 13] .+ 2,
+            mode = "markers",
+            marker = Dict(
+                :size => 18,
+                :line => Dict(
+                    :color => ["rgb(120,120,120)", "rgb(120,120,120)", "red", "rgb(120,120,120)"],
+                    :width => [2, 2, 6, 2],
+                )
+            )
+        ),
+    ])
+
+    layout = Layout(
+        showlegend = false,
     )
 
     return traces, layout
