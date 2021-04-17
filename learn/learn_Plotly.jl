@@ -1944,19 +1944,19 @@ function chapter_pie_charts(; app=nothing)
         dbc_container([html_h3("Automatically adjust margins", id="automatically-adjust-margins"),
             dbc_badge("Origin", color="info", href="https://plotly.com/javascript/pie-charts/#automatically-adjust-margins"),
             dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
-            # dcc_graph(
-            #     figure = Plot(donut_chart()...),
-            #     config = Dict(),
-            # ),
+            dcc_graph(
+                figure = Plot(automatically_adjust_margins()...),
+                config = Dict(),
+            ),
         ], className="p-3 my-2 border rounded",),
 
         dbc_container([html_h3("Control text orientation inside pie chart sectors", id="control-text-orientation-inside-pie-chart-sectors"),
             dbc_badge("Origin", color="info", href="https://plotly.com/javascript/pie-charts/#control-text-orientation-inside-pie-chart-sectors"),
             dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
-            # dcc_graph(
-            #     figure = Plot(donut_chart()...),
-            #     config = Dict(),
-            # ),
+            dcc_graph(
+                figure = Plot(control_text_orientation_inside_pie_chart_sectors()...),
+                config = Dict(),
+            ),
         ], className="p-3 my-2 border rounded",),
     ]
 
@@ -2067,31 +2067,111 @@ function pie_chart_subplots()
 end
 
 function donut_chart()
+    df = DataFrame(
+        "nation" => Vector{String}(["US", "China", "European Union", "Russian Federation", "Brazil", "India", "Rest of World"]),
+        "ghg" => Vector{Int32}([16, 15, 12, 6, 5, 4, 42]),
+        "co2" => Vector{Int32}([27, 11, 25, 8, 1, 3, 25]),
+    )
+
     traces = [
-        pie(),
+        pie(
+            name = "GHG Emissions",
+            labels = df[!,"nation"],
+            values = df[!,"ghg"],
+            hole = 0.4,  # This is what makes donut
+            domain = Dict(:column => 0),
+            hoverinfo = "label+percent+name",
+        ),
+        pie(
+            name = "CO2 Emissions",
+            labels = df[!,"nation"],
+            values = df[!,"co2"],
+            hole = 0.4,  # This is what makes donut
+            domain = Dict(:column => 1),
+            hoverinfo = "label+percent+name",
+        ),
     ]
 
-    layout = Layout()
+    layout = Layout(
+        title = "Global Emissions 1990-2011",
+        showlegend = false,
+        height = 400,
+        width = 600,
+        grid = Dict(
+            :rows => 1, :columns => 2,
+        ),
+        annotations = [
+            Dict(
+                :text => "GHG",
+                :showarrow => false,
+                :x => 0.185, :y => 0.5,
+                :font => Dict(
+                    :size => 20,
+                )
+            ), 
+            Dict(
+                :text => "CO2",
+                :showarrow => false,
+                :x => 0.81, :y => 0.5,
+                :font => Dict(
+                    :size => 20,
+                )
+            ),
+        ]
+    )
 
     return traces, layout
 end
 
 function automatically_adjust_margins()
+    df = DataFrame(
+        "money" => Vector{Int32}([2, 3, 4, 4]),
+        "type"  => Vector{String}(["Wages", "Operating expenses", "Cost of sales", "Insurance"]),
+    )
+
     traces = [
-        pie(),
+        pie(
+            values = df[!,"money"],
+            labels = df[!,"type"],
+            textinfo = "label+percent",
+            textposition = "outside",
+            # What is the difference?
+            # Auto scale after purposely setting bad margin (below).
+            automargin = true, 
+        ),
     ]
 
-    layout = Layout()
+    layout = Layout(
+        height = 400,
+        width = 400,
+        margin = Dict(
+            :t => 0, :b => 0, :l => 0, :r => 0,
+        ),
+        showlegend = false,
+    )
 
     return traces, layout
 end
 
 function control_text_orientation_inside_pie_chart_sectors()
+    df = DataFrame(
+        "money" => Vector{Int32}([2, 3, 4, 4]),
+        "type"  => Vector{String}(["Wages", "Operating expenses", "Cost of sales", "Insurance"]),
+    )
+
     traces = [
-        pie(),
+        pie(
+            labels = df[!,"type"],
+            values = df[!,"money"],
+            textinfo = "label+percent",
+            insidetextorientation = "radial",
+        ),
     ]
 
-    layout = Layout()
+    layout = Layout(
+        height = 500,
+        width = 500,
+    )
 
     return traces, layout
 end
