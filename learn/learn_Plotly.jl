@@ -2512,6 +2512,12 @@ function chapter_contour_plots(; app=nothing)
             dbc_dropdownmenuitem("Basic contour plot 3", href="#basic-contour-plot3", external_link=true),
             dbc_dropdownmenuitem("Setting x and y coordinates in a contour plot", href="#setting-x-and-y-coordinates-in-a-contour-plot", external_link=true),
             dbc_dropdownmenuitem("Colorscale for contour plot", href="#colorscale-for-contour-plot", external_link=true),
+            dbc_dropdownmenuitem("Customizing size and range of a contour plot's contours", href="#customizing_size_and_range_of_a_contour_plots_contours", external_link=true),
+            dbc_dropdownmenuitem("Customizing spacing between x and y ticks", href="#customizing_spacing_between_x_and_y_ticks", external_link=true),
+            dbc_dropdownmenuitem("Connect the gaps between null values in the z matrix", href="#connect_the_gaps_between_null_values_in_the_z_matrix", external_link=true),
+            dbc_dropdownmenuitem("Smoothing contour lines", href="#smoothing_contour_lines", external_link=true),
+            dbc_dropdownmenuitem("Smooth contour coloring", href="#smooth_contour_coloring", external_link=true),
+            dbc_dropdownmenuitem("Contour lines", href="#contour_lines", external_link=true),
             # dbc_dropdownmenuitem("", href="", external_link=true),
         ],
         in_navbar=true, label="Section", caret=true, direction="left"),
@@ -2616,6 +2622,60 @@ function chapter_contour_plots(; app=nothing)
             dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
             dcc_graph(
                 figure = Plot(colorscale_for_contour_plot()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
+
+        dbc_container([html_h3("Customizing size and range of a contour plot's contours", id="customizing_size_and_range_of_a_contour_plots_contours"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/contour-plots/#customizing-size-and-range-of-a-contour-plots-contours"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(customizing_size_and_range_of_a_contour_plots_contours()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
+
+        dbc_container([html_h3("Customizing spacing between x and y ticks", id="customizing_spacing_between_x_and_y_ticks"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/contour-plots/#customizing-spacing-between-x-and-y-ticks"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(customizing_spacing_between_x_and_y_ticks()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
+        
+        dbc_container([html_h3("Connect the gaps between null values in the z matrix", id="connect_the_gaps_between_null_values_in_the_z_matrix"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/contour-plots/#connect-the-gaps-between-null-values-in-the-z-matrix"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(connect_the_gaps_between_null_values_in_the_z_matrix()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
+
+        dbc_container([html_h3("Smoothing contour lines", id="smoothing_contour_lines"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/contour-plots/#smoothing-contour-lines"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(smoothing_contour_lines()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
+
+        dbc_container([html_h3("Smooth contour coloring", id="smooth_contour_coloring"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/contour-plots/#smooth-contour-coloring"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(smooth_contour_coloring()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
+
+        dbc_container([html_h3("Contour lines", id="contour_lines"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/contour-plots/#contour-lines"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(contour_lines()...),
                 config = Dict(),
             ),
         ], className="p-3 my-2 border rounded",),
@@ -2866,6 +2926,225 @@ function colorscale_for_contour_plot()
         colorscale = "Jet",
     )
     push!(traces, trace)
+
+    return traces, layout
+end
+
+function customizing_size_and_range_of_a_contour_plots_contours()
+    traces = Vector{AbstractTrace}()
+    layout = Layout(
+        title = "Customizing Size and Range of Contours"
+    )
+
+    # Copied from web
+    z_original = [ # this should be seen as 5 vertical arrays
+        [10, 10.625, 12.5, 15.625, 20],
+        [5.625, 6.25, 8.125, 11.25, 15.625],
+        [2.5, 3.125, 5., 8.125, 12.5],
+        [0.625, 1.25, 3.125, 6.25, 10.625], 
+        [0, 0.625, 2.5, 5.625, 10]
+    ]
+
+    #x = Vector{Float64}([-9, -6, -5 , -3, -1])
+    #y = Vector{Float64}([0, 1, 4, 5, 7])
+    z = hcat(z_original...) #Array{Float64,2}(undef, 5, 5)
+
+    push!(traces, contour(
+        z = z,
+        colorscale = "Jet",
+        autocontour = false,
+        contours = Dict(
+            :start => 0,
+            :end => 8,
+            :size => 2,
+        )
+    ))
+
+    return traces, layout
+end
+
+function customizing_spacing_between_x_and_y_ticks()
+    traces = Vector{AbstractTrace}()
+    layout = Layout(
+        title = "Customizing Spacing Between X and Y Axis Ticks",
+    )
+
+    # Copied from web
+    z_original = [ # this should be seen as 5 vertical arrays
+        [10, 10.625, 12.5, 15.625, 20],
+        [5.625, 6.25, 8.125, 11.25, 15.625],
+        [2.5, 3.125, 5., 8.125, 12.5],
+        [0.625, 1.25, 3.125, 6.25, 10.625], 
+        [0, 0.625, 2.5, 5.625, 10]
+    ]
+
+    z = hcat(z_original...) #Array{Float64,2}(undef, 5, 5)
+
+    push!(traces, contour(
+        z = z, colorscale = "Jet",
+        x0 =  5, dx = 10,
+        y0 = 10, dy = 10,
+
+    ))
+
+    return traces, layout
+end
+
+function connect_the_gaps_between_null_values_in_the_z_matrix()
+    z = [[missing, missing, missing, 12, 13, 14, 15, 16],
+      [missing, 1, missing, 11, missing, missing, missing, 17],
+      [missing, 2, 6, 7, missing, missing, missing, 18],
+      [missing, 3, missing, 8, missing, missing, missing, 19],
+      [5, 4, 10, 9, missing, missing, missing, 20],
+      [missing, missing, missing, 27, missing, missing, missing, 21],
+      [missing, missing, missing, 26, 25, 24, 23, 22]]
+
+    traces = Vector{AbstractTrace}([
+        contour(
+            name = "Gaps",
+            z = z,
+            showscale = false,
+            xaxis = "x1", yaxis = "y1",
+        ),
+        contour(
+            name = "No gaps",
+            connectgaps = true,    
+            z = z,
+            showscale = false,
+            xaxis = "x2", yaxis = "y2",
+        ),
+        heatmap(
+            naem = "Gaps",
+            zsmooth = "best", # comment out to have blocks with constant value
+            z = z,
+            showscale = false,
+            xaxis = "x3", yaxis = "y3",
+        ),
+        heatmap(
+            name = "No gaps",
+            connectgaps = true,
+            zsmooth = "best",
+            z = z,
+            showscale = false,
+            xaxis = "x4", yaxis = "y4",
+        ),
+    ])
+    layout = Layout(
+        
+        title = "Connect the Gaps Between Null Values in the z Matrix",
+        # Fine control of the placement of axes
+
+        xaxis = Dict(:domain=>[0, 0.45], :anchor=>"y1"),
+        yaxis = Dict(:domain=>[0.55, 1], :anchor=>"x1"),
+        
+        xaxis2 = Dict(:domain=>[0.55, 1], :anchor=>"y2"),
+        yaxis2 = Dict(:domain=>[0.55, 1], :anchor=>"x2"),
+
+        xaxis3 = Dict(:domain=>[0, 0.45], :anchor=>"y3"),
+        yaxis3 = Dict(:domain=>[0, 0.45], :anchor=>"x3"),
+
+        xaxis4 = Dict(:domain=>[0.55, 1], :anchor=>"y4"),
+        yaxis4 = Dict(:domain=>[0, 0.45], :anchor=>"x4"),
+    )
+
+
+
+    return traces, layout
+end
+
+function smoothing_contour_lines()
+    z = [
+            [2, 4, 7, 12, 13, 14, 15, 16],
+            [3, 1, 6, 11, 12, 13, 16, 17],
+            [4, 2, 7, 7, 11, 14, 17, 18],
+            [5, 3, 8, 8, 13, 15, 18, 19],
+            [7, 4, 10, 9, 16, 18, 20, 19],
+            [9, 10, 5, 27, 23, 21, 21, 21],
+            [11, 14, 17, 26, 25, 24, 23, 22]
+        ]
+
+    traces = Vector{AbstractTrace}([
+        contour(
+            z = z,
+            xaxis = "x1", yaxis = "y1",
+            line = Dict(
+                :smoothing => 0,
+            ),
+        ),
+        contour(
+            z = z,
+            xaxis = "x2", yaxis = "y2",
+            line = Dict(
+                :smoothing => 0.85,
+            ),
+        ),
+    ])
+
+    layout = Layout(
+        title = "Smoothing Contour Lines",
+        xaxis  = Dict(
+            :domain => [0, 0.45], :anchor => "y1",
+        ),
+        xaxis2 = Dict(
+            :domain => [0.55, 1], :anchor => "y2",
+        ),
+        yaxis  = Dict(
+            :domain => [0, 1], :anchor => "x1",
+        ),
+        yaxis2 = Dict(
+            :domain => [0, 1], :anchor => "x2",
+        ),
+    )
+
+    return traces, layout
+end
+
+function smooth_contour_coloring()
+    z = [
+            [10, 10.625, 12.5, 15.625, 20],
+            [5.625, 6.25, 8.125, 11.25, 15.625],
+            [2.5, 3.125, 5., 8.125, 12.5],
+            [0.625, 1.25, 3.125, 6.25, 10.625],
+            [0, 0.625, 2.5, 5.625, 10]
+        ]
+
+    traces = Vector{AbstractTrace}([
+        contour(
+            z = z,
+            contours = Dict(
+                :coloring => "heatmap",
+            )
+        )
+    ])
+
+    layout = Layout(
+        title = "Smooth Contour Coloring",
+    )
+
+    return traces, layout
+end
+
+function contour_lines()
+    z = [
+        [10, 10.625, 12.5, 15.625, 20],
+        [5.625, 6.25, 8.125, 11.25, 15.625],
+        [2.5, 3.125, 5., 8.125, 12.5],
+        [0.625, 1.25, 3.125, 6.25, 10.625],
+        [0, 0.625, 2.5, 5.625, 10]
+    ]
+
+    traces = Vector{AbstractTrace}([
+        contour(
+            z = z,
+            colorscale = "Jet",
+            contours = Dict(
+                :coloring => "lines",
+            )
+        ),
+    ])
+    layout = Layout(
+        title = "Contour Lines",
+    )
 
     return traces, layout
 end
