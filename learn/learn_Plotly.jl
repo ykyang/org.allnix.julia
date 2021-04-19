@@ -2512,12 +2512,15 @@ function chapter_contour_plots(; app=nothing)
             dbc_dropdownmenuitem("Basic contour plot 3", href="#basic-contour-plot3", external_link=true),
             dbc_dropdownmenuitem("Setting x and y coordinates in a contour plot", href="#setting-x-and-y-coordinates-in-a-contour-plot", external_link=true),
             dbc_dropdownmenuitem("Colorscale for contour plot", href="#colorscale-for-contour-plot", external_link=true),
-            dbc_dropdownmenuitem("Customizing size and range of a contour plot's contours", href="#customizing_size_and_range_of_a_contour_plots_contours", external_link=true),
-            dbc_dropdownmenuitem("Customizing spacing between x and y ticks", href="#customizing_spacing_between_x_and_y_ticks", external_link=true),
-            dbc_dropdownmenuitem("Connect the gaps between null values in the z matrix", href="#connect_the_gaps_between_null_values_in_the_z_matrix", external_link=true),
-            dbc_dropdownmenuitem("Smoothing contour lines", href="#smoothing_contour_lines", external_link=true),
-            dbc_dropdownmenuitem("Smooth contour coloring", href="#smooth_contour_coloring", external_link=true),
-            dbc_dropdownmenuitem("Contour lines", href="#contour_lines", external_link=true),
+            dbc_dropdownmenuitem("Customizing size and range of a contour plot's contours", href="#customizing-size-and-range-of-a-contour-plots-contours", external_link=true),
+            dbc_dropdownmenuitem("Customizing spacing between x and y ticks", href="#customizing-spacing-between-x-and-y-ticks", external_link=true),
+            dbc_dropdownmenuitem("Connect the gaps between null values in the z matrix", href="#connect-the-gaps-between-null-values-in-the-z-matrix", external_link=true),
+            dbc_dropdownmenuitem("Smoothing contour lines", href="#smoothing-contour-lines", external_link=true),
+            dbc_dropdownmenuitem("Smooth contour coloring", href="#smooth-contour-coloring", external_link=true),
+            dbc_dropdownmenuitem("Contour lines", href="#contour-lines", external_link=true),
+            dbc_dropdownmenuitem("Contour line labels", href="#contour-line-labels", external_link=true),
+            dbc_dropdownmenuitem("Custom colorscale for contour plot", href="#custom-colorscale-for-contour-plot", external_link=true),
+            dbc_dropdownmenuitem("Styling color bar ticks for contour plots", href="#styling-color-bar-ticks-for-contour-plots", external_link=true),
             # dbc_dropdownmenuitem("", href="", external_link=true),
         ],
         in_navbar=true, label="Section", caret=true, direction="left"),
@@ -2626,7 +2629,7 @@ function chapter_contour_plots(; app=nothing)
             ),
         ], className="p-3 my-2 border rounded",),
 
-        dbc_container([html_h3("Customizing size and range of a contour plot's contours", id="customizing_size_and_range_of_a_contour_plots_contours"),
+        dbc_container([html_h3("Customizing size and range of a contour plot's contours", id="customizing-size-and-range-of-a-contour-plots-contours"),
             dbc_badge("Origin", color="info", href="https://plotly.com/javascript/contour-plots/#customizing-size-and-range-of-a-contour-plots-contours"),
             dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
             dcc_graph(
@@ -2635,7 +2638,7 @@ function chapter_contour_plots(; app=nothing)
             ),
         ], className="p-3 my-2 border rounded",),
 
-        dbc_container([html_h3("Customizing spacing between x and y ticks", id="customizing_spacing_between_x_and_y_ticks"),
+        dbc_container([html_h3("Customizing spacing between x and y ticks", id="customizing-spacing-between-x-and-y-ticks"),
             dbc_badge("Origin", color="info", href="https://plotly.com/javascript/contour-plots/#customizing-spacing-between-x-and-y-ticks"),
             dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
             dcc_graph(
@@ -2644,7 +2647,7 @@ function chapter_contour_plots(; app=nothing)
             ),
         ], className="p-3 my-2 border rounded",),
         
-        dbc_container([html_h3("Connect the gaps between null values in the z matrix", id="connect_the_gaps_between_null_values_in_the_z_matrix"),
+        dbc_container([html_h3("Connect the gaps between null values in the z matrix", id="connect-the-gaps-between-null-values-in-the-z-matrix"),
             dbc_badge("Origin", color="info", href="https://plotly.com/javascript/contour-plots/#connect-the-gaps-between-null-values-in-the-z-matrix"),
             dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
             dcc_graph(
@@ -2653,7 +2656,7 @@ function chapter_contour_plots(; app=nothing)
             ),
         ], className="p-3 my-2 border rounded",),
 
-        dbc_container([html_h3("Smoothing contour lines", id="smoothing_contour_lines"),
+        dbc_container([html_h3("Smoothing contour lines", id="smoothing-contour-lines"),
             dbc_badge("Origin", color="info", href="https://plotly.com/javascript/contour-plots/#smoothing-contour-lines"),
             dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
             dcc_graph(
@@ -2662,7 +2665,7 @@ function chapter_contour_plots(; app=nothing)
             ),
         ], className="p-3 my-2 border rounded",),
 
-        dbc_container([html_h3("Smooth contour coloring", id="smooth_contour_coloring"),
+        dbc_container([html_h3("Smooth contour coloring", id="smooth-contour-coloring"),
             dbc_badge("Origin", color="info", href="https://plotly.com/javascript/contour-plots/#smooth-contour-coloring"),
             dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
             dcc_graph(
@@ -2671,7 +2674,7 @@ function chapter_contour_plots(; app=nothing)
             ),
         ], className="p-3 my-2 border rounded",),
 
-        dbc_container([html_h3("Contour lines", id="contour_lines"),
+        dbc_container([html_h3("Contour lines", id="contour-lines"),
             dbc_badge("Origin", color="info", href="https://plotly.com/javascript/contour-plots/#contour-lines"),
             dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
             dcc_graph(
@@ -2679,7 +2682,35 @@ function chapter_contour_plots(; app=nothing)
                 config = Dict(),
             ),
         ], className="p-3 my-2 border rounded",),
+
+        dbc_container([html_h3("Contour line labels", id="contour-line-labels"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/contour-plots/#contour-line-labels"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(contour_line_labels()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
+
+        dbc_container([html_h3("Custom colorscale for contour plot", id="custom-colorscale-for-contour-plot"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/contour-plots/#custom-colorscale-for-contour-plot"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(custom_colorscale_for_contour_plot()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
+
+        dbc_container([html_h3("Styling color bar ticks for contour plots", id="styling-color-bar-ticks-for-contour-plots"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/contour-plots/#styling-color-bar-ticks-for-contour-plots"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(styling_color_bar_ticks_for_contour_plots()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
     ]
+
 
     # during development, it is convenient to reverse
     # so the new one is at the top
@@ -3144,6 +3175,115 @@ function contour_lines()
     ])
     layout = Layout(
         title = "Contour Lines",
+    )
+
+    return traces, layout
+end
+
+function contour_line_labels()
+    z = [
+        [10, 10.625, 12.5, 15.625, 20],
+        [5.625, 6.25, 8.125, 11.25, 15.625],
+        [2.5, 3.125, 5., 8.125, 12.5],
+        [0.625, 1.25, 3.125, 6.25, 10.625],
+        [0, 0.625, 2.5, 5.625, 10]
+    ]
+
+    traces = Vector{AbstractTrace}([
+        contour(
+            z = z,
+            contours = Dict(
+                :coloring => "heatmap",
+                :showlabels => true,
+                :labelfont => Dict(
+                    :family => "Raleway",
+                    :size => 12,
+                    :color => "white",
+
+                )
+            )
+        )
+    ])
+    layout = Layout(
+        title = "Contour with Labels"
+    )
+
+    return traces, layout
+end
+
+function custom_colorscale_for_contour_plot()
+    z = [
+        [10, 10.625, 12.5, 15.625, 20],
+        [5.625, 6.25, 8.125, 11.25, 15.625],
+        [2.5, 3.125, 5., 8.125, 12.5],
+        [0.625, 1.25, 3.125, 6.25, 10.625],
+        [0, 0.625, 2.5, 5.625, 10]
+    ]
+
+    traces = Vector{AbstractTrace}([
+        contour(
+            z = z,
+            colorscale = [
+                [0, "rgb(166,206,227)"],
+                [0.25, "rgb(31,120,180)"], 
+                [0.45, "rgb(178,223,138)"], 
+                [0.65, "rgb(51,160,44)"], 
+                [0.85, "rgb(251,154,153)"], 
+                [1, "rgb(227,26,28)"]
+            ],
+            colorbar = Dict(
+                :title => "Color Bar Title",
+                :titleside => "right",
+                :titlefont => Dict(
+                    :size => 14,
+                    :family => "Arial, sans-serif",
+                ),
+                :thickness => 10,
+                :thicknessmode => "pixels",
+                :len => 0.5, # length of the color bar
+                :lenmode => "fraction",
+                :outlinewidth => 1,
+            ),
+        )
+    ])
+    layout = Layout(
+        title = "Custom Contour Plot Colorscale & Colorbar Title"
+    )
+
+    return traces, layout
+end
+
+# color bar title is combined in the example above
+# color bar size is combined in the example above
+
+function styling_color_bar_ticks_for_contour_plots()
+    z = [
+        [10, 10.625, 12.5, 15.625, 20],
+        [5.625, 6.25, 8.125, 11.25, 15.625],
+        [2.5, 3.125, 5., 8.125, 12.5],
+        [0.625, 1.25, 3.125, 6.25, 10.625],
+        [0, 0.625, 2.5, 5.625, 10]
+    ]
+
+    traces = Vector{AbstractTrace}([
+        contour(
+            z = z,
+            colorbar = Dict(
+                :ticks     => "outside",
+                :dtick     => 1, # distance tick or frequencey?
+                :tickwidth => 2,
+                :ticklen   => 10,
+                :tickcolor => "grey",
+                :showticklabels => true,
+                :tickfont => Dict(
+                    :size => 15,
+                ),
+                :xpad => 50,
+            ),
+        )
+    ])
+    layout = Layout(
+        title = "Styling Color Bar Ticks for Contour Plots"
     )
 
     return traces, layout
