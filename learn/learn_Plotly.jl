@@ -2506,6 +2506,12 @@ function chapter_contour_plots(; app=nothing)
         dbc_dropdownmenu([
             dbc_dropdownmenuitem("Simple contour plot", href="#simple-contour-plot", external_link=true),
             dbc_dropdownmenuitem("Simple contour plot 2", href="#simple-contour-plot2", external_link=true),
+            dbc_dropdownmenuitem("Simple contour plot 3", href="#simple-contour-plot3", external_link=true),
+            dbc_dropdownmenuitem("Basic contour plot", href="#basic-contour-plot", external_link=true),
+            dbc_dropdownmenuitem("Basic contour plot 2", href="#basic-contour-plot2", external_link=true),
+            dbc_dropdownmenuitem("Basic contour plot 3", href="#basic-contour-plot3", external_link=true),
+            dbc_dropdownmenuitem("Setting x and y coordinates in a contour plot", href="#setting-x-and-y-coordinates-in-a-contour-plot", external_link=true),
+            dbc_dropdownmenuitem("Colorscale for contour plot", href="#colorscale-for-contour-plot", external_link=true),
             # dbc_dropdownmenuitem("", href="", external_link=true),
         ],
         in_navbar=true, label="Section", caret=true, direction="left"),
@@ -2529,7 +2535,7 @@ function chapter_contour_plots(; app=nothing)
             dcc_markdown("""
             Same as `simple_contour_plot()` but use different sizes for x and y
             to demonstrate how z-value is mapped onto the x-y grid.
-            It is `z[i][j]`, where `i` is in x-direction and `j` is in y-direction.
+            It is `z[j][i]`, where `i` is in x-direction and `j` is in y-direction.
             """),
             dcc_graph(
                 figure = Plot(simple_contour_plot2()...),
@@ -2537,6 +2543,82 @@ function chapter_contour_plots(; app=nothing)
             ),
         ], className="p-3 my-2 border rounded",),
 
+        dbc_container([html_h3("Simple contour plot 3", id="simple-contour-plot3"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/contour-plots/#simple-contour-plot"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_markdown("""
+            Same as `simple_contour_plot()` but use different sizes for x and y
+            to demonstrate how z-value is mapped onto the x-y grid.
+            It is `z[i,j]`, where `i` is in x-direction and `j` is in y-direction.
+            """),
+            dcc_graph(
+                figure = Plot(simple_contour_plot3()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
+
+        dbc_container([html_h3("Basic contour plot", id="basic-contour-plot"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/contour-plots/#basic-contour-plot"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_markdown("""
+            Original example uses the same length in x- and y-direction, makes it
+            hard to understand the structure of `z` array of array.
+            """),
+            dcc_graph(
+                figure = Plot(basic_contour_plot()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
+
+        dbc_container([html_h3("Basic contour plot 2", id="basic-contour-plot2"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/contour-plots/#basic-contour-plot"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_markdown("""
+            The y-direction uses 50 points and the x-direction uses 100 points to
+            demonstrate the structure of z array of array.
+
+            The size of z array of array is `z[y_size][x_size]` where `y_size` is
+            the number of points in the y-direction.
+            """),
+            dcc_graph(
+                figure = Plot(basic_contour_plot2()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
+
+        dbc_container([html_h3("Basic contour plot 3", id="basic-contour-plot3"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/contour-plots/#basic-contour-plot"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_markdown("""
+            Similar to the example before, but use two-dimensional array for z
+            instead of array of array.
+
+            The size of z array is `z[x_size,y_size]` where `x_size` is the 
+            number of points in the x-direction.
+            """),
+            dcc_graph(
+                figure = Plot(basic_contour_plot3()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
+
+        dbc_container([html_h3("Setting x and y coordinates in a contour plot", id="setting-x-and-y-coordinates-in-a-contour-plot"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/contour-plots/#setting-x-and-y-coordinates-in-a-contour-plot"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(setting_x_and_y_coordinates_in_a_contour_plot()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
+
+        dbc_container([html_h3("Colorscale for contour plot", id="colorscale-for-contour-plot"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/contour-plots/#colorscale-for-contour-plot"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(colorscale_for_contour_plot()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
     ]
 
     # during development, it is convenient to reverse
@@ -2580,13 +2662,6 @@ function simple_contour_plot()
     return traces, layout
 end
 
-"""
-
-Same as `simple_contour_plot()` but different sizes for x and y
-to demonstrate how z-value is mapped onto the x-y grid.
-`z` is a 2-dimensional array.  The first dimension has the size of `x`.
-It is `z[i][j]`, where `i` is in x-direction and `j` is in y-direction.
-"""
 function simple_contour_plot2()
     traces = Vector{AbstractTrace}()
     layout = Layout()
@@ -2596,25 +2671,61 @@ function simple_contour_plot2()
     y_size = 50
     x = zeros(Float64,x_size)
     y = zeros(Float64,y_size)
-    z = Vector{Vector{Float64}}(undef, x_size) #zeros(Float64,size)
-    # Number of points = (# of x) * (# of y)
-    # for i in 1:size
-    #     x[i] = y[i] = -2 * pi + 4*pi*i/size
-    #     z[i] = zeros(Float64,size)
-    # end
+    # [j][i], second dimension moves faster so it is in x-direction
+    z = Vector{Vector{Float64}}(undef, y_size) #zeros(Float64,size)
+    
     for i in 1:x_size
         x[i] = -2 * pi + 4*pi*i/x_size
-        z[i] = zeros(Float64, y_size)
+        
     end
     for j in 1:y_size
-        y[j] = -2 * pi + 4*pi*(j*2)/(y_size*2)
-        #z[j] = zeros(Float64, x_size)
+        y[j] = -2 * pi + 4*pi*(2*j)/(2*y_size)
+        z[j] = zeros(Float64, x_size)
     end
 
     for i in 1:x_size
         for j in 1:y_size
             r = x[i]^2 + y[j]^2
-            z[i][j] = sin(x[i]) * cos(y[j]) * sin(r)/ log(r+1)
+            #z[i][j] = sin(x[i]) * cos(y[j]) * sin(r)/ log(r+1)
+            z[j][i] = sin(y[j]) * cos(x[i]) * sin(r)/ log(r+1)
+        end
+    end
+
+    #@show x
+
+    push!(traces, contour(
+        x = x,
+        y = y,
+        z = z,
+    ))
+
+
+    return traces, layout
+end
+
+function simple_contour_plot3()
+    traces = Vector{AbstractTrace}()
+    layout = Layout()
+
+    # size = 100
+    x_size = 100
+    y_size = 50
+    x = zeros(Float64,x_size)
+    y = zeros(Float64,y_size)
+    #z = Vector{Vector{Float64}}(undef, x_size) #zeros(Float64,size)
+    z = zeros(Float64, x_size, y_size)
+    for i in 1:x_size
+        x[i] = -2 * pi + 4*pi*i/x_size
+    end
+    for j in 1:y_size
+        y[j] = -2 * pi + 4*pi*(j*2)/(y_size*2)
+    end
+
+    for j in 1:y_size
+        for i in 1:x_size
+            r = x[i]^2 + y[j]^2
+            #z[i,j] = sin(x[i]) * cos(y[j]) * sin(r)/ log(r+1)
+            z[i,j] = sin(y[j]) * cos(x[i]) * sin(r)/ log(r+1)
         end
     end
 
@@ -2624,6 +2735,137 @@ function simple_contour_plot2()
         z = z,
     ))
 
+
+    return traces, layout
+end
+
+function basic_contour_plot()
+    traces = Vector{AbstractTrace}([
+        contour(
+            x = [2, 3, 4, 5, 6],
+            y = [5, 6, 7, 8, 9],
+            z = [[10, 10.625, 12.5, 15.625, 20],
+            [5.625, 6.25, 8.125, 11.25, 15.625],
+            [2.5, 3.125, 5.0, 8.125, 12.5],
+            [0.625, 1.25, 3.125, 6.25, 10.625],
+            [0, 0.625, 2.5, 5.625, 10]],
+        )
+    ])
+    layout = Layout()
+
+    return traces, layout
+end
+
+"""
+
+Demonstrate the data mapping when using array of array. 
+"""
+function basic_contour_plot2()
+    traces = Vector{AbstractTrace}([
+        contour(
+            x = [2, 3, 4, 5, 6],
+            y = [5, 6, 7, 8],
+            z = [            
+                [10, 10.625, 12.5, 15.625, 20],      # y = 5, x = [2, 3, 4, 5, 6]
+                [5.625, 6.25, 8.125, 11.25, 15.625], # y = 6, x = [2, 3, 4, 5, 6]
+                [2.5, 3.125, 5.0, 8.125, 12.5],
+                [0.625, 1.25, 3.125, 6.25, 10.625],
+                #[0, 0.625, 2.5, 5.625, 10]
+            ],
+        )
+    ])
+    layout = Layout()
+
+    return traces, layout
+end
+
+"""
+
+Demonstrate the data mapping when using 2-dimensional array. 
+"""
+function basic_contour_plot3()
+    # z = [
+    #     10.0    10.625  12.5    15.625  20.0;
+    #     5.625   6.25    8.125  11.25   15.625;
+    #     2.5     3.125   5.0     8.125  12.5;
+    #     0.625   1.25    3.125   6.25   10.625;
+    # ]
+    z = [
+        # x,y=5     x,y=6     x,y=7     x,y=8 
+        10.0        5.625     2.5       0.625
+        10.625      6.25      3.125     1.25
+        12.5        8.125     5.0       3.125
+        15.625     11.25      8.125     6.25
+        20.0       15.625    12.5      10.625
+    ]
+    traces = Vector{AbstractTrace}([
+        contour(
+            x = [2, 3, 4, 5, 6],
+            y = [5, 6, 7, 8],
+            z = z,
+        )
+    ])
+    layout = Layout()
+
+    return traces, layout
+end
+
+function setting_x_and_y_coordinates_in_a_contour_plot()
+    traces = Vector{AbstractTrace}()
+    layout = Layout(
+        title = "Setting the X and Y Coordinates in a Contour Plot"
+    )
+
+    # Copied from web
+    z_original = [ # this should be seen as 5 vertical arrays
+        [10, 10.625, 12.5, 15.625, 20],
+        [5.625, 6.25, 8.125, 11.25, 15.625],
+        [2.5, 3.125, 5., 8.125, 12.5],
+        [0.625, 1.25, 3.125, 6.25, 10.625], 
+        [0, 0.625, 2.5, 5.625, 10]
+    ]
+
+    x = Vector{Float64}([-9, -6, -5 , -3, -1])
+    y = Vector{Float64}([0, 1, 4, 5, 7])
+    # z[1,:] = z_original[1]
+    z = hcat(z_original...) #Array{Float64,2}(undef, 5, 5)
+    #@show size(z) # size(z) = (5, 5)
+
+    trace = contour(
+        x = x,
+        y = y,
+        z = z,
+    )
+    push!(traces, trace)
+
+    return traces, layout
+end
+
+function colorscale_for_contour_plot()
+    traces = Vector{AbstractTrace}()
+    layout = Layout(
+        title = "Colorscale for Contour Plot"
+    )
+
+    # Copied from web
+    z_original = [ # this should be seen as 5 vertical arrays
+        [10, 10.625, 12.5, 15.625, 20],
+        [5.625, 6.25, 8.125, 11.25, 15.625],
+        [2.5, 3.125, 5., 8.125, 12.5],
+        [0.625, 1.25, 3.125, 6.25, 10.625], 
+        [0, 0.625, 2.5, 5.625, 10]
+    ]
+
+    x = Vector{Float64}([-9, -6, -5 , -3, -1])
+    y = Vector{Float64}([0, 1, 4, 5, 7])
+    # z[1,:] = z_original[1]
+    z = hcat(z_original...) #Array{Float64,2}(undef, 5, 5)
+
+    trace = contour(
+        x = x, y = y, z = z,
+        colorscale = "Jet",
+    )
+    push!(traces, trace)
 
     return traces, layout
 end
