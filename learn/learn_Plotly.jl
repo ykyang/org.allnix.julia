@@ -3308,6 +3308,7 @@ function chapter_heatmaps(; app=nothing)
             dbc_dropdownmenuitem("Basic heatmap", href="#basic-heatmap", external_link=true),
             dbc_dropdownmenuitem("Heatmap with categorical axis labels", href="#heatmap-with-categorical-axis-labels", external_link=true),
             dbc_dropdownmenuitem("Annotated heatmap", href="#annotated-heatmap", external_link=true),
+            dbc_dropdownmenuitem("Heatmap with unequal block sizes", href="#heatmap-with-unequal-block-sizes", external_link=true),
             # dbc_dropdownmenuitem("", href="", external_link=true),
         ],
         in_navbar=true, label="Section", caret=true, direction="left"),
@@ -3339,6 +3340,15 @@ function chapter_heatmaps(; app=nothing)
             dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
             dcc_graph(
                 figure = Plot(annotated_heatmap()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
+
+        dbc_container([html_h3("Heatmap with unequal block sizes", id="heatmap-with-unequal-block-sizes"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/heatmaps/#annotated-heatmap"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(heatmap_with_unequal_block_sizes()...),
                 config = Dict(),
             ),
         ], className="p-3 my-2 border rounded",),
@@ -3389,10 +3399,170 @@ function heatmap_with_categorical_axis_labels()
 end
 
 function annotated_heatmap()
-    traces = Vector{AbstractTrace}([
+    x = ["A", "B", "C", "D", "E"]
+    y = ["W", "X", "Y", "Z"]
+    z = [
+        [0.00, 0.00, 0.75, 0.75, 0.00],
+        [0.00, 0.00, 0.75, 0.75, 0.00],
+        [0.75, 0.75, 0.75, 0.75, 0.75],
+        [0.00, 0.00, 0.00, 0.75, 0.00],
+    ]
 
+    colorscale = [
+        [0, "#3D9970"],
+        [1, "#001f3f"],
+    ]
+
+    traces = Vector{AbstractTrace}([
+        heatmap(
+            x = x, y = y, z = z,
+            colorscale = colorscale,
+            showscale = false,
+        )
     ])
-    layout = Layout()
+    layout = Layout(
+        title = "Annotated Heatmap",
+        xaxis = Dict(
+            :ticks => "",
+            :side => "top",
+        ),
+        yaxis = Dict(
+            :ticks => "",
+            :ticksuffix => " ", # extra space
+            #:width => 700,
+            #:height => 700,
+        ),
+        width = 600,
+        height = 400,
+        autosize = false,
+        annotations = [],
+    )
+
+    annotations = layout["annotations"]
+    #@show annotations
+    for j in 1:length(y)
+        for i in 1:length(x)
+            v = z[j][i]
+            if v != 0.0
+                textcolor = "white"
+            else
+                textcolor = "black"
+            end
+
+            item = Dict(
+                :xref => "x1",
+                :yref => "y1",
+                :x => x[i],
+                :y => y[j],
+                :text => v,
+                :showarrow => false,
+                :font => Dict(
+                    :family => "Arial",
+                    :size => 12,
+                    :color => textcolor
+                )
+            )
+
+            push!(annotations,item)
+        end
+    end
+
+    return traces, layout
+end
+
+function heatmap_with_unequal_block_sizes()
+    traces = Vector{AbstractTrace}([])
+    axis = Dict( # for both x- and y-axis
+        :range => [0, 1.6], # 1.6 cut off the spiral on the right
+        :autorange => false,
+        :showgrid => false,
+        :zeroline => false,
+        :linecolor => "black",
+        :showticklabels => false,
+        :ticks => "",
+    )
+    layout = Layout(
+        title = "Heatmap with Unequal Block Sizes",
+        margin = Dict(
+            :t => 50, :r => 50, :b => 50, :l => 50,
+        ),
+        showlegend = false,
+        width = 500,
+        height = 500,
+        xaxis = axis,
+        yaxis = axis,
+        autosize = false,
+    )
+
+    # use range(a,b,length=n) for linspace(a,b,n)
+
+    # Build the spiral
+    nspiral = 2 # number of spiral loops
+    theta_list = range(-pi/13, 2*pi*nspiral, length=1000)
+    @show theta_list
+    
+
+    x_vec = Vector{Float64}()
+    y_vec = Vector{Float64}()
+    #yshift_vec = Vector{Float64}() 
+    finalx_vec = Vector{Float64}()
+    finaly_vec = Vector{Float64}()
+
+    for theta in theta_list
+        a = 1.120529
+        b = 0.306349
+        r = a*exp(-b*theta)
+        x = r * cos(theta)
+        y = r * sin(theta)
+
+        push!(x_vec, x)
+        push!(y_vec, y)
+    end
+
+    # use maximum for getMaxOfArray
+    # use minimum for getMinOfArray
+
+    yshift = 0.5 * (1.6 - (maximum(y_vec) - minimum(y_vec)))
+    #yshift = (1.6 - (maximum(y_vec) - minimum(y_vec)))
+    @show yshift
+
+    spiral_trace = scatter(
+        x = map(x->(-x + x_vec[1]         ), x_vec),
+        y = map(y->(+y - y_vec[1] + yshift), y_vec),
+        line = Dict(
+            #:color => "white",
+            :width => 3,
+        )
+    )
+    push!(traces, spiral_trace)
+
+    # Build the heatmap
+    phi = 0.5*(1.0 + sqrt(5))
+    #@show phi
+    xe = Vector{Float64}([ # x-edge
+      0, 1, (1 + (1/phi^4)), (1 + (1/phi^3)), phi,
+    ])
+    @show xe
+    ye = Vector{Float64}([ # y-edge
+        0, (1/phi^3), (1/phi^3)+(1/phi^4), 1/phi^2, 1,
+    ])
+    @show ye.+yshift
+    #ye = ye .+ yshift 
+    z_vvec = [
+        [13, 3, 3, 5],
+        [13, 2, 1, 5],
+        [13, 10, 11, 12],
+        [13, 8, 8, 8]
+    ]
+    z_mat = hcat(z_vvec...)
+
+    hm = heatmap(
+        x = xe,
+        y = ye .+ yshift,
+        z = z_mat,
+        colorscale = "Viridis",
+    )
+    push!(traces, hm)
 
     return traces, layout
 end
