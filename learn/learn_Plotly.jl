@@ -2714,7 +2714,7 @@ function chapter_contour_plots(; app=nothing)
 
     # during development, it is convenient to reverse
     # so the new one is at the top
-    content = reverse(content)
+    #content = reverse(content)
 
     pushfirst!(content, navbar)
 
@@ -3285,6 +3285,114 @@ function styling_color_bar_ticks_for_contour_plots()
     layout = Layout(
         title = "Styling Color Bar Ticks for Contour Plots"
     )
+
+    return traces, layout
+end
+
+"""
+
+https://plotly.com/javascript/heatmaps/
+"""
+function chapter_heatmaps(; app=nothing)
+    if isnothing(app)
+        app = dash(external_stylesheets=[dbc_themes.SPACELAB])
+    end
+
+    # https://stackoverflow.com/questions/4086107/fixed-page-header-overlaps-in-page-anchors
+    # Put this in my.css
+    # html {
+    # scroll-padding-top: 80px; /* height of sticky header */
+    # }
+    navbar = dbc_navbarsimple([
+        dbc_dropdownmenu([
+            dbc_dropdownmenuitem("Basic heatmap", href="#basic-heatmap", external_link=true),
+            dbc_dropdownmenuitem("Heatmap with categorical axis labels", href="#heatmap-with-categorical-axis-labels", external_link=true),
+            dbc_dropdownmenuitem("Annotated heatmap", href="#annotated-heatmap", external_link=true),
+            # dbc_dropdownmenuitem("", href="", external_link=true),
+        ],
+        in_navbar=true, label="Section", caret=true, direction="left"),
+    ], 
+    sticky="top", expand=true, brand="Allnix", brand_href="https://github.com/ykyang",
+    )
+
+    content = [
+        dbc_container([html_h3("Basic heatmap", id="basic-heatmap"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/heatmaps/#basic-heatmap"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(basic_heatmap()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
+
+        dbc_container([html_h3("Heatmap with categorical axis labels", id="heatmap-with-categorical-axis-labels"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/heatmaps/#heatmap-with-categorical-axis-labels"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(heatmap_with_categorical_axis_labels()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
+
+        dbc_container([html_h3("Annotated heatmap", id="annotated-heatmap"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/heatmaps/#annotated-heatmap"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(annotated_heatmap()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
+    ]
+
+
+    # during development, it is convenient to reverse
+    # so the new one is at the top
+    content = reverse(content)
+
+    pushfirst!(content, navbar)
+
+    app.layout = dbc_container(content)
+
+    return app
+end
+
+function basic_heatmap()
+    z =  [[1, 20, 30], [20, 1, 60], [30, 60, 1]]
+    z = hcat(z...)
+
+    traces = Vector{AbstractTrace}([
+        heatmap(
+            z = z,
+        )
+    ])
+    layout = Layout()
+
+    return traces, layout
+end
+
+function heatmap_with_categorical_axis_labels()
+    z = [[1, missing, 30, 50, 1], [20, 1, 60, 80, 30], [30, 60, 1, -10, 20]]
+    z = hcat(z...)
+    x = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+    y = ["Morning", "Afternoon", "Evening"]
+
+    traces = Vector{AbstractTrace}([
+        heatmap(
+            x = x, y = y, z = z,
+            hoverongaps = false, # disable showing null value
+
+        )
+    ])
+    layout = Layout()
+
+    return traces, layout
+end
+
+function annotated_heatmap()
+    traces = Vector{AbstractTrace}([
+
+    ])
+    layout = Layout()
 
     return traces, layout
 end
