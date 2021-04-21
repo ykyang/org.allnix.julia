@@ -3584,7 +3584,7 @@ function chapter_3d_scatter_plots(; app=nothing)
     # }
     navbar = dbc_navbarsimple([
         dbc_dropdownmenu([
-            dbc_dropdownmenuitem("Basic heatmap", href="#basic-heatmap", external_link=true),
+            dbc_dropdownmenuitem("3D scatter plot", href="#3d-scatter-plot", external_link=true),
             
             # dbc_dropdownmenuitem("", href="", external_link=true),
         ],
@@ -3665,6 +3665,72 @@ function _3d_scatter_plot()
         height = 600,
 
     )
+
+    return traces, layout
+end
+
+function chapter_3d_surface_plots(; app=nothing)
+    if isnothing(app)
+        app = dash(external_stylesheets=[dbc_themes.SPACELAB])
+    end
+
+    # https://stackoverflow.com/questions/4086107/fixed-page-header-overlaps-in-page-anchors
+    # Put this in my.css
+    # html {
+    # scroll-padding-top: 80px; /* height of sticky header */
+    # }
+    navbar = dbc_navbarsimple([
+        dbc_dropdownmenu([
+            dbc_dropdownmenuitem("Topographical 3D surface plot", href="#topographical-3d-surface-plot", external_link=true),
+            
+            # dbc_dropdownmenuitem("", href="", external_link=true),
+        ],
+        in_navbar=true, label="Section", caret=true, direction="left"),
+    ], 
+    sticky="top", expand=true, brand="Allnix", brand_href="https://github.com/ykyang",
+    )
+
+    content = [
+        dbc_container([html_h3("Topographical 3D surface plot", id="topographical-3d-surface-plot"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/3d-surface-plots/#topographical-3d-surface-plot"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(topographical_3d_surface_plot()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
+
+        
+    ]
+
+
+    # during development, it is convenient to reverse
+    # so the new one is at the top
+    content = reverse(content)
+
+    pushfirst!(content, navbar)
+
+    app.layout = dbc_container(content)
+
+    return app
+end
+
+function topographical_3d_surface_plot()
+    url = "https://raw.githubusercontent.com/plotly/datasets/master/api_docs/mt_bruno_elevation.csv"
+    body = HTTP.get(url).body
+    csv = CSV.File(body)
+    #@show csv
+    df = DataFrame(csv)
+    z = convert(Matrix{Float64}, df[!,2:25])
+    #@show names(df)
+    
+
+    traces = Vector{AbstractTrace}([
+        surface(
+            z = z
+        )
+    ])
+    layout = Layout()
 
     return traces, layout
 end
