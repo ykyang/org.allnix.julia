@@ -3,7 +3,10 @@
 
 
 module ch2
-export Node
+export Maze, Node
+export dfs
+import DataStructures
+
 # export Cell
 # export EMPTY
 
@@ -17,20 +20,62 @@ export Node
 end
 
 mutable struct Node
+    state  # MazeLocation
+    parent # Node
+    cost::Float64
+    heuristic::Float64
+
     Node() = ( # incomplete initialization
         me = new();
         #me.cost = 0.0;
         #me.heuristic = 0.0;
         me
-    )    
-    state  # MazeLocation
-    parent # Node
-    cost::Float64
-    heuristic::Float64
+    )
+    Node(state) = (
+        me = new();
+        me.state = state;
+        me
+    )
 end
 
+mutable struct Maze
+    Maze() = (
+        me = new();
+        me
+    )
+    start::Vector{Int64}
+    goal::Vector{Int64}
+    grid::Array{Cell,2}
+end
+
+"""
+
+...
+# Arguments
+- `initial`:
+- `goal_test`:
+- `successors`:
+...
+"""
+function dfs(
+    initial, # MazeLocation
+    goal_test, # function to test if goal reached
+    successors, # function that takes MazeLocation and returns a list of next MazeLocations
+    )
+    
+    ds = DataStructures
+    
+    frontier = ds.Stack{Node}()
+    push!(frontier, Node(initial))
+
+
+
+    return nothing
+end
 
 function new_maze(row_count, col_count, start, goal, sparseness)
+    maze = Maze()
+
     grid = Array{Cell,2}(undef, row_count,col_count)
     grid .= EMPTY::Cell
     
@@ -38,8 +83,12 @@ function new_maze(row_count, col_count, start, goal, sparseness)
 
     grid[start...] = START # same as setindex!(grid, START, start...)
     setindex!(grid, GOAL, goal...)
+    
+    maze.grid = grid
+    maze.start = start
+    maze.goal = goal
 
-    return grid
+    return maze
 end
 
 function new_maze()
@@ -57,6 +106,44 @@ function random_fill!(grid, sparseness)
     end
 end
 
+function successors(grid, here)
+    locations = Vector{Tuple{Int64,Int64}}()
+
+    hr = here[1] # row index
+    hc = here[2] # col index
+    rcount = size(grid)[1]
+    ccount = size(grid)[2]
+
+    nr = hr + 1 # next row index
+    nc = hc
+    if (nr <= rcount) && (grid[nr,nc] != BLOCKED) # () is not necessary, but make it clear
+        push!(locations, (nr,nc))
+    end
+
+    nr = hr - 1
+    nc = hc
+    if (1 <= nr) && (grid[nr,nc] != BLOCKED)
+        push!(locations, (nr,nc))
+    end
+
+    nr = hr
+    nc = hc + 1
+    if (nc <= ccount) && (grid[nr,nc] != BLOCKED)
+        push!(locations, (nr,nc))
+    end
+
+    nr = hr
+    nc = hc - 1
+    if (1 <= nc) && (grid[nr,nc] != BLOCKED)
+        push!(locations, (nr,nc))
+    end
+
+    return locations
+end
+
+function is_goal(goal, here)
+    return (goal[1] == here[1]) && (goal[2] == here[2])
+end
 
 
 
