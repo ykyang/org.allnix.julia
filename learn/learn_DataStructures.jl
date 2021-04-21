@@ -6,6 +6,16 @@
 using Test
 import DataStructures
 
+struct Node
+    id::Int64
+end
+# https://discourse.julialang.org/t/proper-way-to-overload-operators/19872
+# short form
+#Base.:(==)(x::Node,y::Node) = x.id == y.id
+# long from
+function Base.:(==)(x::Node,y::Node) 
+    return x.id == y.id
+end
 
 function learn_Set()
     set = Set{Int64}()
@@ -26,8 +36,20 @@ function learn_Set()
 
     x = pop!(set, 1)
     @test 1 == x
-
     @test !in(1, set)
+
+    # Node
+    @test Node(1) == Node(1) # test Base.:(==) override
+
+    set = Set{Node}()
+    push!(set, Node(1))
+    push!(set, Node(13))
+    @test in(Node(1), set)
+    @test in(Node(13), set)
+
+    x = pop!(set, Node(13))
+    @test Node(13) == x
+    @test !in(Node(13), set)
 end
 
 function learn_Stack()
