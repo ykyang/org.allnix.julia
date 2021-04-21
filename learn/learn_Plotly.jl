@@ -3357,7 +3357,7 @@ function chapter_heatmaps(; app=nothing)
 
     # during development, it is convenient to reverse
     # so the new one is at the top
-    content = reverse(content)
+    #content = reverse(content)
 
     pushfirst!(content, navbar)
 
@@ -3499,7 +3499,7 @@ function heatmap_with_unequal_block_sizes()
     # Build the spiral
     nspiral = 2 # number of spiral loops
     theta_list = range(-pi/13, 2*pi*nspiral, length=1000)
-    @show theta_list
+    #@show theta_list
     
 
     x_vec = Vector{Float64}()
@@ -3524,7 +3524,7 @@ function heatmap_with_unequal_block_sizes()
 
     yshift = 0.5 * (1.6 - (maximum(y_vec) - minimum(y_vec)))
     #yshift = (1.6 - (maximum(y_vec) - minimum(y_vec)))
-    @show yshift
+    #@show yshift
 
     spiral_trace = scatter(
         x = map(x->(-x + x_vec[1]         ), x_vec),
@@ -3542,11 +3542,11 @@ function heatmap_with_unequal_block_sizes()
     xe = Vector{Float64}([ # x-edge
       0, 1, (1 + (1/phi^4)), (1 + (1/phi^3)), phi,
     ])
-    @show xe
+    #@show xe
     ye = Vector{Float64}([ # y-edge
         0, (1/phi^3), (1/phi^3)+(1/phi^4), 1/phi^2, 1,
     ])
-    @show ye.+yshift
+    #@show ye.+yshift
     #ye = ye .+ yshift 
     z_vvec = [
         [13, 3, 3, 5],
@@ -3563,6 +3563,108 @@ function heatmap_with_unequal_block_sizes()
         colorscale = "Viridis",
     )
     push!(traces, hm)
+
+    return traces, layout
+end
+
+"""
+    chapter_3d_scatter_plots(; app=nothing)
+
+https://plotly.com/javascript/3d-scatter-plots/
+"""
+function chapter_3d_scatter_plots(; app=nothing)
+    if isnothing(app)
+        app = dash(external_stylesheets=[dbc_themes.SPACELAB])
+    end
+
+    # https://stackoverflow.com/questions/4086107/fixed-page-header-overlaps-in-page-anchors
+    # Put this in my.css
+    # html {
+    # scroll-padding-top: 80px; /* height of sticky header */
+    # }
+    navbar = dbc_navbarsimple([
+        dbc_dropdownmenu([
+            dbc_dropdownmenuitem("Basic heatmap", href="#basic-heatmap", external_link=true),
+            
+            # dbc_dropdownmenuitem("", href="", external_link=true),
+        ],
+        in_navbar=true, label="Section", caret=true, direction="left"),
+    ], 
+    sticky="top", expand=true, brand="Allnix", brand_href="https://github.com/ykyang",
+    )
+
+    content = [
+        dbc_container([html_h3("3D scatter plot", id="3d-scatter-plot"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/3d-scatter-plots/#3d-scatter-plot"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(_3d_scatter_plot()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
+
+        
+    ]
+
+
+    # during development, it is convenient to reverse
+    # so the new one is at the top
+    content = reverse(content)
+
+    pushfirst!(content, navbar)
+
+    app.layout = dbc_container(content)
+
+    return app
+end
+
+function _3d_scatter_plot()
+    url = "https://raw.githubusercontent.com/plotly/datasets/master/3d-scatter.csv"
+    body = HTTP.get(url).body
+    csv = CSV.File(body)
+    #@show csv
+    df = DataFrame(csv)
+    #@show df
+    
+
+    traces = Vector{AbstractTrace}([
+        scatter3d(
+            x = df[!,"x1"], y = df[!,"y1"], z = df[!,"z1"],
+            mode = "markers",
+            marker = Dict(
+                :size => 12,
+                :opacity => 1.0, #0.8,
+                :line => Dict(
+                    #:color => "rgba(217,217,217,0.14)",
+                    :color => "rgba(217,217,217,1)",
+                    :width => 0.5,
+                ),
+            ),
+        ),
+        scatter3d(
+            x = df[!,"x2"], y = df[!,"y2"], z = df[!,"z2"],
+            mode = "markers",
+            marker = Dict(
+                :color => "rgb(127,127,127)",
+                :size => 12,
+                :opacity => 1.0, #0.8,
+                :symbol => "circle", # ???
+                :line => Dict(
+                    :color => "rgb(204,204,204)",
+                    :width => 1,
+                ),
+            )
+        )
+    ])
+    layout = Layout(
+        margin = Dict(
+            :l => 0, :r => 0, :b => 0, :t => 0,
+        ),
+        showlegend = false,
+        width = 800,
+        height = 600,
+
+    )
 
     return traces, layout
 end
