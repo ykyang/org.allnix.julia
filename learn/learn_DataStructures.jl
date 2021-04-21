@@ -10,12 +10,11 @@ struct Node
     id::Int64
 end
 # https://discourse.julialang.org/t/proper-way-to-overload-operators/19872
-# short form
-#Base.:(==)(x::Node,y::Node) = x.id == y.id
-# long from
+Base.:(<)(x::Node, y::Node) = x.id < y.id
 function Base.:(==)(x::Node,y::Node) 
     return x.id == y.id
 end
+
 
 function learn_Set()
     set = Set{Int64}()
