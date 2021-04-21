@@ -10,7 +10,11 @@ import DataStructures
 # export Cell
 # export EMPTY
 
+"""
+    Cell
 
+Cell type of a maze
+"""
 @enum Cell begin
     EMPTY
     BLOCKED
@@ -19,6 +23,11 @@ import DataStructures
     PATH
 end
 
+"""
+    Node
+
+Record path in a maze
+"""
 mutable struct Node
     point::Tuple{Int64,Int64}  # MazeLocation
     parent::Union{Node,Nothing}
@@ -58,16 +67,19 @@ mutable struct Maze
 end
 
 """
+    dfs(initial, goal_test, successors)
+
+Depth-first search
 
 ...
 # Arguments
-- `initial`:
-- `goal_test`:
-- `successors`:
+- `initial`: Starting point in the maze
+- `goal_test`: Function to test if goal has reached
+- `successors`: Function to get a list of next locations to try
 ...
 """
 function dfs(
-    initial, # MazeLocation, Tuple{Int64,Int64}
+    initial::Tuple{Int64,Int64}, # MazeLocation, 
     goal_test, # function to test if goal reached
     successors, # function that takes MazeLocation and returns a list of next MazeLocations
     )
@@ -174,6 +186,13 @@ function is_goal(goal, here)
     return (goal[1] == here[1]) && (goal[2] == here[2])
 end
 
+"""
+    mark_path!(grid, node::Node; start=nothing, goal=nothing)
+
+Mark PATH to `grid` starting from `node` and go back up to its `parent`
+until the parent is `nothing`.  The `node` is usually pointed to `goal` of
+the `grid`.
+"""
 function mark_path!(grid, node::Node; start=nothing, goal=nothing)
     if isnothing(goal)
         grid[node.point...] = PATH
