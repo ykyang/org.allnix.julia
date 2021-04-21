@@ -11,21 +11,28 @@ struct Node
 end
 # https://discourse.julialang.org/t/proper-way-to-overload-operators/19872
 Base.:(<)(x::Node, y::Node) = x.id < y.id
-function Base.:(==)(x::Node,y::Node) 
-    return x.id == y.id
-end
+Base.:(==)(x::Node,y::Node) = x.id == y.id
 
 
+"""
+    learn_Set()
+
+Learn how to use `Set`.  Common Set functions
+
+```
+isempty(s::Set) = isempty(s.dict)
+length(s::Set)  = length(s.dict)
+in(x, s::Set) = haskey(s.dict, x)
+push!(s::Set, x) = (s.dict[x] = nothing; s)
+pop!(s::Set, x) = (pop!(s.dict, x); x)
+pop!(s::Set, x, default) = (x in s ? pop!(s, x) : default)
+empty!(s::Set)
+```
+"""
 function learn_Set()
+    # push!, pop!
     set = Set{Int64}()
-
-    # isempty(s::Set) = isempty(s.dict)
-    # length(s::Set)  = length(s.dict)
-    # in(x, s::Set) = haskey(s.dict, x)
-    # push!(s::Set, x) = (s.dict[x] = nothing; s)
-    # pop!(s::Set, x) = (pop!(s.dict, x); x)
-    # pop!(s::Set, x, default) = (x in s ? pop!(s, x) : default)
-
+    
     push!(set, 1)
     push!(set, 13)
 
@@ -37,10 +44,18 @@ function learn_Set()
     @test 1 == x
     @test !in(1, set)
 
-    # Node
-    @test Node(1) == Node(1) # test Base.:(==) override
+    # empty!
+    set = Set{Int64}()
+    @test isempty(set)
+    push!(set, 7)
+    @test !isempty(set)
+    x = empty!(set)
+    @test x === set
+    @test isempty(set)
 
+    # Node
     set = Set{Node}()
+
     push!(set, Node(1))
     push!(set, Node(13))
     @test in(Node(1), set)
@@ -49,6 +64,8 @@ function learn_Set()
     x = pop!(set, Node(13))
     @test Node(13) == x
     @test !in(Node(13), set)
+
+
 end
 
 function learn_Stack()
