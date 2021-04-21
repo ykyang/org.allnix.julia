@@ -20,8 +20,8 @@ import DataStructures
 end
 
 mutable struct Node
-    state  # MazeLocation
-    parent # Node
+    point::Tuple{Int64,Int64}  # MazeLocation
+    parent::Union{Node,Nothing}
     cost::Float64
     heuristic::Float64
 
@@ -31,20 +31,29 @@ mutable struct Node
         #me.heuristic = 0.0;
         me
     )
-    Node(state) = (
+    Node(point) = (
         me = new();
-        me.state = state;
+        me.point = point;
+        me.parent = nothing;
+        me
+    )
+    Node(point,parent) = (
+        me = new();
+        me.point = point;
+        me.parent = parent;
         me
     )
 end
+#Base.:(<)(x::Node, y::Node) = x.id < y.id
+Base.:(==)(x::Node,y::Node) = x.point == y.point
 
 mutable struct Maze
     Maze() = (
         me = new();
         me
     )
-    start::Vector{Int64}
-    goal::Vector{Int64}
+    start::Tuple{Int64,Int64}
+    goal::Tuple{Int64,Int64}
     grid::Array{Cell,2}
 end
 
@@ -58,7 +67,7 @@ end
 ...
 """
 function dfs(
-    initial, # MazeLocation
+    initial, # MazeLocation, Tuple{Int64,Int64}
     goal_test, # function to test if goal reached
     successors, # function that takes MazeLocation and returns a list of next MazeLocations
     )
@@ -68,7 +77,27 @@ function dfs(
     frontier = ds.Stack{Node}()
     push!(frontier, Node(initial))
 
+    explored = Set{Tuple{Int64,Int64}}() # Use Node.state may speed things up
+    push!(explored, initial)
 
+    while !isempty(frontier)
+        current_node = pop!(frontier) # Tuple{Int64,Int64}
+        current_pt = current_node.point
+        if goal_test(current_pt)
+            return current_node # break
+        end
+        
+        for nextPoint in successors(current_pt)
+            if in(nextPoint, explored)
+                continue
+            end
+            push!(explored, nextPoint)
+            push!(frontier, Node(nextPoint, current_node))
+        end
+
+        # @show explored
+        # empty!(explored)
+    end
 
     return nothing
 end
@@ -92,7 +121,7 @@ function new_maze(row_count, col_count, start, goal, sparseness)
 end
 
 function new_maze()
-    return new_maze(10, 10, [1,1], [10,10], 0.2)
+    return new_maze(10, 10, (1,1), (10,10), 0.2)
 end
 
 function random_fill!(grid, sparseness) 
@@ -145,7 +174,18 @@ function is_goal(goal, here)
     return (goal[1] == here[1]) && (goal[2] == here[2])
 end
 
+function mark_path!(grid, node::Node; start=nothing, goal=nothing)
+    if isnothing(goal)
+        grid[node.point...] = PATH
+    end
 
+    while !isnothing(node.parent)
+        node = node.parent
+        if node.point != start        
+            grid[node.point...] = PATH
+        end
+    end
+end
 
 
 function Base.show(io::IO, x::ch2.Cell)
@@ -172,7 +212,7 @@ Convert enumeration `Cell` to an one character string.
 function Base.string(x::ch2.Cell)
     # TODO: use Swicth.jl
     if x == ch2.EMPTY
-        return " "
+        return "□"
     elseif x == ch2.BLOCKED
         return "X"
     elseif x == ch2.START

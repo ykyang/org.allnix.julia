@@ -10,11 +10,11 @@ println("x = $(string(x)), y = $(string(y))")
 
 maze = ch2.new_maze() #new_maze(10,10, [1,1], [10,10], 0.2)
 #@show maze
-display(maze.grid)
+#display(maze.grid)
 
 #node = ch2.Node()
 locations = ch2.successors(maze.grid, (2,2))
-@show locations
+#@show locations
 
 # pass this to dfs(..., successors)
 successors(here) = ch2.successors(maze.grid, here)
@@ -22,7 +22,14 @@ successors(here) = ch2.successors(maze.grid, here)
 is_goal(here) = ch2.is_goal(maze.goal, here)
 
 node = ch2.dfs((1,1), is_goal, successors)
-
-@show node
+if isnothing(node)
+    println("Path not found")
+    display(maze.grid)
+else
+    ch2.mark_path!(maze.grid, node, start=maze.start, goal=maze.goal)
+    #@show maze
+    display(maze.grid)
+end
+#@show node
 
 nothing
