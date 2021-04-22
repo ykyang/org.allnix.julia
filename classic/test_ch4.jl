@@ -15,16 +15,31 @@ function test_Edge()
     @test e.u == r.v
 end
 
-function test_Graph()
-    g = cc.Graph{Int64,Int64}()
+# function test_Graph()
+#     g = cc.Graph{Int64,Int64}()
+#     @test isempty(g.vertices)
+#     @test isempty(g.edges)
+
+#     g = cc.Graph{Int64,cc.Edge}([1,2,3])
+#     @test 3 == length(g.vertices)
+#     @test [1,2,3] == g.vertices
+#     @test 3 == length(g.edges)
+# end
+
+function test_UnweightedGraph()
+    g = cc.UnweightedGraph{Int64,cc.Edge}()
+    #g = cc.UnweightedGraph{Int64,Int64}()
     @test isempty(g.vertices)
     @test isempty(g.edges)
 
-    g = cc.Graph{Int64,cc.Edge}([1,2,3])
+    g = cc.UnweightedGraph{Int64,cc.Edge}([1,2,3])
     @test 3 == length(g.vertices)
     @test [1,2,3] == g.vertices
     @test 3 == length(g.edges)
+    @show typeof(g)
+    cc.UnweightedGraph{Int64,cc.Edge} <: cc.Graph{Int64,cc.Edge}
 end
 
 test_Edge()
-test_Graph()
+# test_Graph()
+test_UnweightedGraph()

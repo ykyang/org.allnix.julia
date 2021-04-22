@@ -12,27 +12,66 @@ end
 Base.string(e::Edge) = "$(e.u) -> $(e.v)"
 Base.show(io::IO, x::Edge) = print(io, string(x))
     
-struct Graph{V,E}
+abstract type Graph{V,E} end
+
+# struct Graph{V,E}
+#     vertices::Vector{V}      # list of vertices
+#     # list of edges 
+#     # edges[i] -> list of edges that connects to vertices[i]
+#     edges::Vector{Vector{E}} 
+
+#     function Graph{V,E}() where {V,E}
+#         new{V,E}(Vector{V}(), Vector{Vector{E}}())
+#     end
+
+#     function Graph{V,E}(v::Vector{V}) where {V,E}
+#         me = new{V,E}(Vector{V}(), Vector{Vector{E}}())
+        
+#         append!(me.vertices, v)
+#         for i in 1:length(v)
+#             push!(me.edges, Vector{Vector{E}}())
+#         end
+
+#         return me
+#     end
+# end
+
+struct UnweightedGraph{V,E <: Edge} <: Graph{V,E}
     vertices::Vector{V}      # list of vertices
     # list of edges 
     # edges[i] -> list of edges that connects to vertices[i]
     edges::Vector{Vector{E}} 
 
-    function Graph{V,E}() where {V,E}
+    function UnweightedGraph{V,E}() where {V,E <: Edge}
         new{V,E}(Vector{V}(), Vector{Vector{E}}())
     end
-
-    function Graph{V,E}(v::Vector{V}) where {V,E}
-        me = new{V,E}(Vector{V}(), Vector{Vector{E}}())
+    # function UnweightedGraph{V,E}(v::Vector{V}) where {V,E}
+    #     me = new{V,E}(Vector{V}(), Vector{Vector{E}}())
         
-        append!(me.vertices, v)
-        for i in 1:length(v)
-            push!(me.edges, Vector{Vector{E}}())
-        end
+    #     append!(me.vertices, v)
+    #     for i in 1:length(v)
+    #         push!(me.edges, Vector{Vector{E}}())
+    #     end
 
-        return me
-    end
+    #     return me
+    # end
 end
 
-struct UnweightedGraph{V} <: Graph{V,Edge}
+function UnweightedGraph{V,E}(v::Vector{V}) where {V,E}
+    me = UnweightedGraph{V,E}() #new{V,E}(Vector{V}(), Vector{Vector{E}}())
+    
+    copy_vertices!(me, v, E)
+    # append!(me.vertices, v)
+    # for i in 1:length(v)
+    #     push!(me.edges, Vector{Vector{E}}())
+    # end
+
+    return me
+end
+
+function copy_vertices!(me::G, v::Vector, E) where {G <: Graph}
+    append!(me.vertices, v)
+    for i in 1:length(v)
+        push!(me.edges, Vector{Vector{E}}())
+    end
 end
