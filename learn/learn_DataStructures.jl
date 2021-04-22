@@ -18,9 +18,59 @@ end
 Base.:(<)(x::Node, y::Node) = x.id < y.id
 Base.:(==)(x::Node,y::Node) = x.id == y.id
 
+function learn_PriorityQueue()
+    # Low -> high priority
+    que = PriorityQueue{Int64,Int64}() # key, value, low -> high priority
+    @test isempty(que)
+
+    enqueue!(que, 1, 100)
+    @test !isempty(que)
+    @test 1 == length(que)
+
+    enqueue!(que, 3, 300)
+    @test 2 == length(que)
+
+    # Get key only
+    x = dequeue!(que)
+    @test 1 == length(que)
+    @test 1 == x
+
+    # Get (key,value)
+    x = dequeue_pair!(que)
+    @test isempty(que)
+    @test 3 == x[1]
+    @test 300 == x[2]
+
+    # -------------------- #
+    # High -> low priority #
+    # -------------------- #
+    que = PriorityQueue{Int64,Int64}(Base.Order.Reverse)
+    @test isempty(que)
+    enqueue!(que, 1, 100)
+    @test !isempty(que)
+    @test 1 == length(que)
+
+    enqueue!(que, 3, 300)
+    @test 2 == length(que)
+
+    enqueue!(que, 7, 700)
+    @test 3 == length(que)
+
+    # Get key only
+    x = dequeue!(que)
+    @test 2 == length(que)
+    @test 7 == x
+
+    # Get (key,value)
+    x = dequeue_pair!(que)
+    @test 1 == length(que)
+    @test 3 == x[1]
+    @test 300 == x[2]
+end
+
 """
     learn_Queue()
-    
+
 Use `methodswith(Queue)` to see methods for `Queue`.
 """
 function learn_Queue()
@@ -125,7 +175,9 @@ end
 
 
 
-#learn_Stack()
-#learn_Set()
-learn_Queue()
+A = learn_PriorityQueue()
+#A = learn_Queue()
+#A = learn_Set()
+#A = learn_Stack()
 
+A
