@@ -2,11 +2,11 @@
 # https://livebook.manning.com/book/classic-computer-science-problems-in-java/chapter-2/
 
 
-module ch2
-export Maze, Node
-export dfs
-import DataStructures
-using DataStructures
+
+# export Maze, Node
+# export dfs
+#import DataStructures
+#using DataStructures
 
 # export Cell
 # export EMPTY
@@ -94,7 +94,6 @@ function a_star(initial, goal_test, next_points, heuristic)
 
         for next_pt in next_points(current_pt)
             next_cost = current_node.cost + 1
-
             
             if !in(next_pt,keys(explored)) # has not visited next_pt or
                 explored[next_pt] = next_cost
@@ -315,11 +314,11 @@ function mark_path!(grid, node::Node; start=nothing, goal=nothing)
 end
 
 
-function Base.show(io::IO, x::ch2.Cell)
+function Base.show(io::IO, x::Cell)
     print(io, string(x))
 end
 
-function Base.display(x::Array{ch2.Cell})
+function Base.display(x::Array{Cell})
     if ndims(x) == 2
         for i in 1:size(x)[1]
             for j in 1:size(x)[2]
@@ -336,22 +335,20 @@ end
 
 Convert enumeration `Cell` to an one character string.
 """
-function Base.string(x::ch2.Cell)
+function Base.string(x::Cell)
     # TODO: use Swicth.jl
-    if x == ch2.EMPTY
+    if x == EMPTY
         return  "□" #"◻" #"▢" #"□"
-    elseif x == ch2.BLOCKED
+    elseif x == BLOCKED
         return "■" #"■" #"▮" #"■" #"◾" #"■" # "X" #"■" #"▮"
-    elseif x == ch2.START
+    elseif x == START
         return "►" #"S"
-    elseif x == ch2.GOAL
+    elseif x == GOAL
         return "◎" #"G"
-    elseif x == ch2.PATH
+    elseif x == PATH
         return "●" #"*" #"◘" #"*"
     end
 
     return "?"
 end
 
-
-end
