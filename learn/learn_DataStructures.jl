@@ -4,8 +4,13 @@
 # TODO: Combine learn_SortedDict.jl, learn_SortedSet.jl into here
 
 using Test
-import DataStructures
+#import DataStructures
+using DataStructures
 
+"""
+Example custom struct for testing with containers.
+
+"""
 struct Node
     id::Int64
 end
@@ -13,20 +18,58 @@ end
 Base.:(<)(x::Node, y::Node) = x.id < y.id
 Base.:(==)(x::Node,y::Node) = x.id == y.id
 
+"""
+    learn_Queue()
+    
+Use `methodswith(Queue)` to see methods for `Queue`.
+"""
+function learn_Queue()
+    #ds = DataStructures
+
+    que = Queue{Int64}()
+    @test isempty(que)
+
+    enqueue!(que, 7)
+    @test !isempty(que)
+    @test 1 == length(que)
+    @test 7 == first(que)
+    @test 7 == last(que)
+
+    enqueue!(que, 13)
+    @test 2 == length(que)
+    @test 7 == first(que)
+    @test 13 == last(que)
+
+    x = dequeue!(que)
+    @test 7 == x
+    @test 1 == length(que)
+    @test 13 == first(que)
+    @test 13 == last(que)
+end
+
 
 """
     learn_Set()
 
 Learn how to use `Set`.  Common Set functions
 
-```
-isempty(s::Set) = isempty(s.dict)
-length(s::Set)  = length(s.dict)
-in(x, s::Set) = haskey(s.dict, x)
-push!(s::Set, x) = (s.dict[x] = nothing; s)
-pop!(s::Set, x) = (pop!(s.dict, x); x)
-pop!(s::Set, x, default) = (x in s ? pop!(s, x) : default)
-empty!(s::Set)
+```julia
+julia> methodswith(Set)
+[1] length(s::Set) in Base at set.jl:55
+[2] sizehint!(s::Set, newsz) in Base at set.jl:74
+[3] copy(s::Set) in Base at set.jl:68
+[4] delete!(s::Set, x) in Base at set.jl:66
+[5] empty!(s::Set) in Base at set.jl:75
+[6] filter!(f, s::Set) in Base at set.jl:390
+[7] in(x, s::Set) in Base at set.jl:56
+[8] isempty(s::Set) in Base at set.jl:54
+[9] iterate(s::Set, i...) in Base at set.jl:78
+[10] pop!(s::Set) in Base at set.jl:61
+[11] pop!(s::Set, x) in Base at set.jl:58
+[12] pop!(s::Set, x, default) in Base at set.jl:59
+[13] push!(s::Set, x) in Base at set.jl:57
+[14] setdiff!(s::Set, t::Set) in Base at set.jl:87
+[15] show(io::IO, s::Set) in Base at set.jl:39
 ```
 """
 function learn_Set()
@@ -83,4 +126,6 @@ end
 
 
 #learn_Stack()
-learn_Set()
+#learn_Set()
+learn_Queue()
+
