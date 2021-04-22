@@ -53,6 +53,14 @@ mutable struct Node
         me.parent = parent;
         me
     )
+    Node(point,parent,cost,heuristic) = (
+        me = new();
+        me.point = point;
+        me.parent = parent;
+        me.cost = cost;
+        me.heuristic = heuristic;
+        me
+    )
 end
 #Base.:(<)(x::Node, y::Node) = x.id < y.id
 Base.:(==)(x::Node,y::Node) = x.point == y.point
@@ -65,6 +73,45 @@ mutable struct Maze
     start::Tuple{Int64,Int64}
     goal::Tuple{Int64,Int64}
     grid::Array{Cell,2}
+end
+
+function a_star(initial, goal_test, next_points, heuristic)
+    node = nothing
+    # value = Node.cost + Node.heuristic
+    frontier = PriorityQueue{Node,Float64}() # value from low -> high
+    node = Node(initial, nothing, 0, heuristic(initial))
+    enqueue!(frontier, node, node.cost+node.heuristic)
+
+    explored = Dict{Tuple{Int64,Int64}, Float64}() # Node.point,Node.cost
+
+    while !isempty(frontier)
+        current_node = dequeue!(frontier)
+        current_pt = current_node.point
+
+        if goal_test(current_pt)
+            return current_node
+        end
+
+        for next_pt in next_points(current_pt)
+            next_cost = current_node.cost + 1
+
+            
+            if !in(next_pt,keys(explored)) # has not visited next_pt or
+                explored[next_pt] = next_cost
+                node = Node(next_pt, current_node, next_cost, heuristic(next_pt))
+                enqueue!(frontier, node, node.cost+node.heuristic)
+            elseif next_cost < explored[next_pt] # next_pt is lower cost
+                explored[next_pt] = next_cost
+                node = Node(next_pt, current_node, next_cost, heuristic(next_pt))
+                frontier[node] = node.cost+node.heuristic
+            end
+        end
+
+        #empty!(frontier)
+    end
+
+    # solution not found
+    return nothing
 end
 
 """
@@ -160,6 +207,17 @@ function dfs(
 
     # no solution
     return nothing
+end
+
+"""
+
+TODO: relax the parameter type
+"""
+function manhattan_distance(point::Tuple{Int64,Int64}, goal::Tuple{Int64,Int64})
+    delta = @. abs(point - goal) # abs.(point .- goal)
+    distance = sum(delta)
+
+    return distance
 end
 
 function new_maze(row_count, col_count, start, goal, sparseness)
