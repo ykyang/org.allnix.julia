@@ -19,53 +19,62 @@ Base.:(<)(x::Node, y::Node) = x.id < y.id
 Base.:(==)(x::Node,y::Node) = x.id == y.id
 
 function learn_PriorityQueue()
-    # Low -> high priority
-    que = PriorityQueue{Int64,Int64}() # key, value, low -> high priority
+    # ------------------ #
+    # Value: Low -> High #
+    # ------------------ #
+    que = PriorityQueue{String,Int64}() # (key,value), value: low -> high
     @test isempty(que)
 
-    enqueue!(que, 1, 100)
+    enqueue!(que, "z", 100) # z,100
     @test !isempty(que)
     @test 1 == length(que)
 
-    enqueue!(que, 3, 300)
+    enqueue!(que, "w", 300) # w,300
     @test 2 == length(que)
 
     # Get key only
     x = dequeue!(que)
     @test 1 == length(que)
-    @test 1 == x
+    @test "z" == x
 
     # Get (key,value)
     x = dequeue_pair!(que)
     @test isempty(que)
-    @test 3 == x[1]
+    @test "w" == x[1]
     @test 300 == x[2]
 
-    # -------------------- #
-    # High -> low priority #
-    # -------------------- #
-    que = PriorityQueue{Int64,Int64}(Base.Order.Reverse)
+    # ------------------ #
+    # Value: High -> Low #
+    # ------------------ #
+    que = PriorityQueue{String,Int64}(Base.Order.Reverse) # (key,value), value: high -> low
     @test isempty(que)
-    enqueue!(que, 1, 100)
+    enqueue!(que, "z", 100) # z,100
     @test !isempty(que)
     @test 1 == length(que)
 
-    enqueue!(que, 3, 300)
+    enqueue!(que, "p", 300) # p,300
     @test 2 == length(que)
 
-    enqueue!(que, 7, 700)
+    enqueue!(que, "w", 700) # w,700
     @test 3 == length(que)
 
     # Get key only
-    x = dequeue!(que)
+    x = dequeue!(que) # w,700
     @test 2 == length(que)
-    @test 7 == x
+    @test "w" == x
 
     # Get (key,value)
-    x = dequeue_pair!(que)
+    x = dequeue_pair!(que) # p,300
     @test 1 == length(que)
-    @test 3 == x[1]
+    @test "p" == x[1]
     @test 300 == x[2]
+
+    # TODO
+    # ---------
+    # Use custom type as key::Node #
+    # ---------------------------- #
+    #que = PriorityQueue{Node,Int64}()
+    #enqueue! 
 end
 
 """
