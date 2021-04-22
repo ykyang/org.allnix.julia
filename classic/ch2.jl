@@ -6,6 +6,7 @@ module ch2
 export Maze, Node
 export dfs
 import DataStructures
+using DataStructures
 
 # export Cell
 # export EMPTY
@@ -67,6 +68,52 @@ mutable struct Maze
 end
 
 """
+    bfs(initial::Tuple{Int64,Int64}, goal_test, next_ponts)
+
+Solve a maze using breadth-first search algorithm.  Returns the `Node` at the 
+goal or nothing is no solution found.  Use the parent of `Node` to trace back 
+to the start.
+
+...
+# Arguments
+- `initial`: Starting point in the maze
+- `goal_test`: Function`(Tuple{Int64,Int64})` to test if the goal has reached
+- `next_points`: Function`(Tuple{Int64,Int64}) -> Vector{Tuple{Int64,Int64}}` to get next points to move to
+...
+"""
+function bfs(initial::Tuple{Int64,Int64}, goal_test, next_points)
+    frontier = Queue{Node}()
+    enqueue!(frontier, Node(initial)) # starts with initial guess
+
+    # Positions where we have been to
+    explored = Set{Tuple{Int64,Int64}}()
+    push!(explored, initial)
+
+    while !isempty(frontier)
+        current_node = dequeue!(frontier)
+        current_pt = current_node.point
+
+        if goal_test(current_pt)
+            return current_node
+        end
+
+        for next_pt in next_points(current_pt)
+            if in(next_pt, explored)
+                continue
+            end
+
+            push!(explored, next_pt)
+            enqueue!(frontier, Node(next_pt, current_node))
+        end
+
+        #empty!(frontier)
+    end
+    
+    # no solution
+    return nothing
+end
+
+"""
     dfs(initial, goal_test, successors)
 
 Depth-first search
@@ -89,11 +136,11 @@ function dfs(
     frontier = ds.Stack{Node}()
     push!(frontier, Node(initial))
 
-    explored = Set{Tuple{Int64,Int64}}() # Use Node.state may speed things up
+    explored = Set{Tuple{Int64,Int64}}()
     push!(explored, initial)
 
     while !isempty(frontier)
-        current_node = pop!(frontier) # Tuple{Int64,Int64}
+        current_node = pop!(frontier) # Node
         current_pt = current_node.point
         if goal_test(current_pt)
             return current_node # break
@@ -111,6 +158,7 @@ function dfs(
         # empty!(explored)
     end
 
+    # no solution
     return nothing
 end
 
@@ -182,6 +230,8 @@ function successors(grid, here)
     return locations
 end
 
+next_points(grid, pt) = successors(grid, pt)
+
 function is_goal(goal, here)
     return (goal[1] == here[1]) && (goal[2] == here[2])
 end
@@ -231,15 +281,15 @@ Convert enumeration `Cell` to an one character string.
 function Base.string(x::ch2.Cell)
     # TODO: use Swicth.jl
     if x == ch2.EMPTY
-        return "□"
+        return  "□" #"◻" #"▢" #"□"
     elseif x == ch2.BLOCKED
-        return "X"
+        return "■" #"■" #"▮" #"■" #"◾" #"■" # "X" #"■" #"▮"
     elseif x == ch2.START
-        return "S"
+        return "►" #"S"
     elseif x == ch2.GOAL
-        return "G"
+        return "◎" #"G"
     elseif x == ch2.PATH
-        return "*"
+        return "●" #"*" #"◘" #"*"
     end
 
     return "?"
