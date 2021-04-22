@@ -27,6 +27,8 @@ end
 """
     Node
 
+TODO: make this immutable
+
 Record path in a maze
 """
 mutable struct Node

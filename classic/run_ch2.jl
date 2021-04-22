@@ -4,7 +4,7 @@ using Test
 
 import .Classic
 cc = Classic
-#using .ch2
+
 
 function run_astar()
     maze = cc.new_maze(10, 10, (1,1), (10,10), 0.2)
