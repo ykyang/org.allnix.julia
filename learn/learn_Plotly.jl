@@ -3682,7 +3682,8 @@ function chapter_3d_surface_plots(; app=nothing)
     navbar = dbc_navbarsimple([
         dbc_dropdownmenu([
             dbc_dropdownmenuitem("Topographical 3D surface plot", href="#topographical-3d-surface-plot", external_link=true),
-            
+            dbc_dropdownmenuitem("Surface plot with contours", href="#surface-plot-with-contours", external_link=true),
+            dbc_dropdownmenuitem("Multiple 3D surface plots", href="#multiple-3d-surface-plots", external_link=true),
             # dbc_dropdownmenuitem("", href="", external_link=true),
         ],
         in_navbar=true, label="Section", caret=true, direction="left"),
@@ -3700,7 +3701,23 @@ function chapter_3d_surface_plots(; app=nothing)
             ),
         ], className="p-3 my-2 border rounded",),
 
+        dbc_container([html_h3("Surface plot with contours", id="surface-plot-with-contours"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/3d-surface-plots/#surface-plot-with-contours"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(surface_plot_with_contours()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
         
+        dbc_container([html_h3("Multiple 3D surface plots", id="multiple-3d-surface-plots"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/3d-surface-plots/#multiple-3d-surface-plots"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(multiple_3d_surface_plots()...),
+                config = Dict(),
+            ),
+        ], className="p-3 my-2 border rounded",),
     ]
 
 
@@ -3722,13 +3739,100 @@ function topographical_3d_surface_plot()
     #@show csv
     df = DataFrame(csv)
     z = convert(Matrix{Float64}, df[!,2:25])
-    #@show names(df)
-    
+        
 
     traces = Vector{AbstractTrace}([
         surface(
             z = z
         )
+    ])
+    layout = Layout(
+        title = "Mt Bruno Elevation",
+        autosize = false,
+        width = 500,
+        height = 500,
+        margin = Dict(
+            :l => 65, :r => 50, :b => 65, :t => 90,
+        ),
+    )
+
+    return traces, layout
+end
+
+function surface_plot_with_contours()
+    url = "https://raw.githubusercontent.com/plotly/datasets/master/api_docs/mt_bruno_elevation.csv"
+    body = HTTP.get(url).body
+    csv = CSV.File(body)
+    #@show csv
+    df = DataFrame(csv)
+    z = convert(Matrix{Float64}, df[!,2:25])
+    
+    traces = Vector{AbstractTrace}([
+        surface(
+            z = z,
+            contours = Dict(
+                :z => Dict(
+                    :show => true,
+                    :usecolormap => true,
+                    :highlightcolor => "#42f462",
+                    :project => Dict(:z => true), # contour lines at the ceiling and floor
+                )
+            ),
+        )
+    ])
+    layout = Layout(
+        title = "Mt Bruno Elevaion With Projected Contours",
+        scene = Dict(
+            :camera => Dict(
+                :eye => Dict(:x => 1.87, :y => 0.88, :z => -0.64),
+            ),
+        ),
+        autosize = false,
+        width = 500, height = 500,
+        margin = Dict(
+            :l => 65, :r => 50, :b => 65, :t => 90,
+        ),
+    )
+
+    return traces, layout
+end
+
+function multiple_3d_surface_plots()
+    z = [
+        [8.83,8.89,8.81,8.87,8.9,8.87],
+        [8.89,8.94,8.85,8.94,8.96,8.92],
+        [8.84,8.9,8.82,8.92,8.93,8.91],
+        [8.79,8.85,8.79,8.9,8.94,8.92],
+        [8.79,8.88,8.81,8.9,8.95,8.92],
+        [8.8,8.82,8.78,8.91,8.94,8.92],
+        [8.75,8.78,8.77,8.91,8.95,8.92],
+        [8.8,8.8,8.77,8.91,8.95,8.94],
+        [8.74,8.81,8.76,8.93,8.98,8.99],
+        [8.89,8.99,8.92,9.1,9.13,9.11],
+        [8.97,8.97,8.91,9.09,9.11,9.11],
+        [9.04,9.08,9.05,9.25,9.28,9.27],
+        [9,9.01,9,9.2,9.23,9.2],
+        [8.99,8.99,8.98,9.18,9.2,9.19],
+        [8.93,8.97,8.97,9.18,9.2,9.18]
+    ]
+
+    z1 = hcat(z...)
+
+    traces = Vector{AbstractTrace}([
+        surface( # 1
+            z = z1,
+        ),
+        surface( # 2
+            z = z1 .+ 1,
+            showscale = false, # otherwise there will be overlapping of the same scale
+            opacity = 0.8,
+        ),
+        surface( # 3
+            z = z1 .- 1,
+            showscale = false,
+            opacity = 0.8,
+        )
+
     ])
     layout = Layout()
 
