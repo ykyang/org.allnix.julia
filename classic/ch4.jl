@@ -37,6 +37,11 @@ struct WeightedEdge <: Edge
 end
 
 Base.:(<)(x::WeightedEdge, y::WeightedEdge) = error("Unsupported operation")
+# for sum(), Java.totalWeight()
+Base.:(+)(x::WeightedEdge, y::WeightedEdge) = weight(x) + weight(y)
+Base.:(+)(x::Float64, y::WeightedEdge) = x + weight(y)
+
+
 function weight(e::WeightedEdge)
     e.weight
 end
@@ -123,13 +128,30 @@ function vertex_at(g::Graph{V,E}, index::Int64) where {V,E<:Edge}
     return g.vertices[index]
 end
 
+function vertex_at(g::Graph{V,E}, v::V) where {V,E<:Edge}
+    return g.vertices[index_of(v)]
+end
+
 function Base.show(io::IO, g::Graph)
     for v in g.vertices
-        print(io, "$v -> $(neighbor_of(g, v))")
+        print(io, "$v -> [")
+        neighbors = neighbor_of(g,v)
+        for neighbor in neighbor_of(g,v)
+            print(io, "$neighbor")
+            
+            if neighbor != neighbors[end]
+                print(io, ", ")
+            end
+        end
+        print(io, "]")
+
+        #print(io, "$v -> $(neighbor_of(g, v))")
         
         println(io)
     end 
 end
+
+
 
 struct UnweightedGraph{V,E<:Edge} <: Graph{V,E}
     vertices::Vector{V}            # list of vertices
@@ -169,4 +191,28 @@ end
 
 function add!(g::WeightedGraph{V,E}, u::V, v::V, w) where {V,E<:WeightedEdge}
     add!(g, index_of(g, u), index_of(g, v), w)
+end
+function Base.show(io::IO, g::WeightedGraph)
+    for v in g.vertices
+        print(io, "$v -> [")
+        edges = edges_of(g, v)
+        for edge in edges
+            print(io, "($(vertex_at(g, edge[2])), $(weight(edge)))")
+            if edge != edges[end]
+                print(io, ", ")
+            end
+        end
+        # neighbors = neighbor_of(g,v)
+        # for neighbor in neighbor_of(g,v)
+        #     print(io, "($neighbor, )")
+        #     if neighbor != neighbors[end]
+        #         print(io, ", ")
+        #     end
+        # end
+        print(io, "]")
+
+        #print(io, "$v -> $(neighbor_of(g, v))")
+        
+        println(io)
+    end 
 end

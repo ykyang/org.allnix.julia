@@ -102,25 +102,6 @@ function test_SimpleEdge()
     @test e[2] == r[1]
 end
 
-function test_WeightedEdge()
-    cc = Classic
-
-    e = cc.WeightedEdge((3,7),13.0)
-    @test 3 == e[1]
-    @test 7 == e[2]
-    @test 13 == cc.weight(e)
-
-    e = cc.WeightedEdge(3,7,13.0)
-    @test 3 == e[1]
-    @test 7 == e[2]
-    @test 13 == cc.weight(e)
-
-    e = cc.reverse(e)
-    @test 3 == e[2]
-    @test 7 == e[1]
-    @test 13 == cc.weight(e)
-end
-
 function test_UnweightedGraph()
     cc = Classic
 
@@ -168,7 +149,7 @@ function test_bfs()
         @test !isempty(edges)
     end
 
-    #show(g)
+    show(g)
 
     is_goal(pt) = cc.is_goal("Miami", pt)
     neighbor_of(v) = cc.neighbor_of(g, v)
@@ -178,6 +159,34 @@ function test_bfs()
     #println("Shortest route: $(cc.node_to_path(node))")
 
     nothing
+end
+
+function test_WeightedEdge()
+    cc = Classic
+
+    e = cc.WeightedEdge((3,7),13.0)
+    @test 3 == e[1]
+    @test 7 == e[2]
+    @test 13 == cc.weight(e)
+
+    e = cc.WeightedEdge(3,7,13.0)
+    @test 3 == e[1]
+    @test 7 == e[2]
+    @test 13 == cc.weight(e)
+
+    e = cc.reverse(e)
+    @test 3 == e[2]
+    @test 7 == e[1]
+    @test 13 == cc.weight(e)
+
+    # sum() and +operator
+    edges = Vector{cc.WeightedEdge}([
+        cc.WeightedEdge(3,7,13.0),
+        cc.WeightedEdge(4,8,17.0),
+        cc.WeightedEdge(5,9,19.0)
+    ])
+    @test 49 == sum(edges)
+    
 end
 
 function test_WeightedGraph()
@@ -202,12 +211,23 @@ function test_WeightedGraph()
     @test 0 == length(g.edges_lists[3])
 end
 
+function test_mst()
+    cc = Classic
+
+    g = cc.WeightedGraph{String,cc.WeightedEdge}()
+    cities = init!(g)
+    @test length(cities) == length(g.vertices)
+    @test length(cities) == length(g.edges_lists)
+
+    show(g)
+end
 
 test_SimpleEdge()
-test_WeightedEdge()
-# test_Graph()
 test_UnweightedGraph()
-test_WeightedGraph()
 test_bfs()
+
+test_WeightedEdge()
+test_WeightedGraph()
+test_mst()
 
 println("Test completed!")
