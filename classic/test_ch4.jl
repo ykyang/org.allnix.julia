@@ -43,11 +43,13 @@ function init!(g::cc.Graph{V,E}) where {V,E<:cc.Edge}
     return cities
 end
 
-function test_Edge()
-    e = cc.Edge(2, 7)
+function test_SimpleEdge()
+    e = cc.SimpleEdge(2, 7)
     @test 2 == e.u
     @test 7 == e.v
     @test "2 -> 7" == string(e)
+    @test 2 == e[1]
+    @test 7 == e[2]
 
     r = cc.reverse(e)
     @test e.v == r.u
@@ -69,21 +71,21 @@ function test_UnweightedGraph()
     @test_throws TypeError cc.UnweightedGraph{Int64,Int64}()
 
     # V::Int64, E::Edge
-    g = cc.UnweightedGraph{Int64,cc.Edge}()
+    g = cc.UnweightedGraph{Int64,cc.SimpleEdge}()
     @test isempty(g.vertices)
     @test isempty(g.edges_lists)
 
-    g = cc.UnweightedGraph{Int64,cc.Edge}([1,2,3])
+    g = cc.UnweightedGraph{Int64,cc.SimpleEdge}([1,2,3])
     @test 3 == length(g.vertices)
     @test [1,2,3] == g.vertices
     @test 3 == length(g.edges_lists)
 
     # V::String, E::Edge
-    g = cc.UnweightedGraph{String,cc.Edge}()
+    g = cc.UnweightedGraph{String,cc.SimpleEdge}()
     @test isempty(g.vertices)
     @test isempty(g.edges_lists)
 
-    g = cc.UnweightedGraph{String,cc.Edge}(["apple", "orange", "guava"])
+    g = cc.UnweightedGraph{String,cc.SimpleEdge}(["apple", "orange", "guava"])
     @test 3 == length(g.vertices)
     @test ["apple", "orange", "guava"] == g.vertices
     @test 3 == length(g.edges_lists)
@@ -98,7 +100,7 @@ end
 Sovle shortest route of `UnweightedGraph`
 """
 function test_bfs()
-    g = cc.UnweightedGraph{String,cc.Edge}()
+    g = cc.UnweightedGraph{String,cc.SimpleEdge}()
     cities = init!(g)
     @test length(cities) == length(g.vertices)
     @test length(cities) == length(g.edges_lists)
@@ -119,7 +121,10 @@ function test_bfs()
     nothing
 end
 
-#test_Edge()
+
+
+test_SimpleEdge()
 # test_Graph()
 test_UnweightedGraph()
 test_bfs()
+

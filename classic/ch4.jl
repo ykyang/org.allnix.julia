@@ -1,12 +1,28 @@
 # https://livebook.manning.com/book/classic-computer-science-problems-in-java/chapter-4/
 
-struct Edge
+abstract type Edge end
+
+struct SimpleEdge <: Edge
     u::Int64
     v::Int64
 end
 
-function reverse(e::Edge)
-    return Edge(e.v, e.u)
+struct WeightedEdge <: Edge
+    u::Int64
+    v::Int64
+    weight::Float64
+end
+
+function Base.getindex(edge::Edge, i::Int64) #where {E<:Edge}
+    if i == 1
+        return edge.u
+    else
+        return edge.v
+    end
+end
+
+function reverse(e::E) where {E<:Edge}
+    return E(e.v, e.u)
 end
 
 Base.string(e::Edge) = "$(e.u) -> $(e.v)"
@@ -39,7 +55,7 @@ function add!(g::Graph{V,E}, u::V, v::V) where {V,E<:Edge}
 end
 
 function add!(g::Graph{V,E}, u::Int64, v::Int64) where {V,E<:Edge}
-    add!(g, Edge(u,v))
+    add!(g, E(u,v))
 end
 
 function add!(g::Graph{V,E}, edge::Edge) where {V,E<:Edge}
