@@ -145,9 +145,8 @@ to the start.
 - `next_points`: Function`(Tuple{Int64,Int64}) -> Vector{Tuple{Int64,Int64}}` to get next points to move to
 ...
 """
-function bfs(initial::Tuple{Int64,Int64}, goal_test, next_points)
-    P = Tuple{Int64,Int64}
-    #frontier = Queue{Node{Tuple{Int64,Int64}}}()
+function bfs(initial::P, goal_test, next_points) where {P} # point type
+    # P = Tuple{Int64,Int64} # point type
     frontier = Queue{Node{P}}()
     enqueue!(frontier, Node{P}(initial)) # starts with initial guess
 
@@ -179,37 +178,37 @@ function bfs(initial::Tuple{Int64,Int64}, goal_test, next_points)
     return nothing
 end
 
-function bfs(initial::P, goal_test, next_points) where {P} # point type
-    frontier = Queue{Node}()
-    enqueue!(frontier, Node(initial)) # starts with initial guess
+# function bfs(initial::Tuple{Int64,Int64}, goal_test, next_points)
+#     frontier = Queue{Node}()
+#     enqueue!(frontier, Node(initial)) # starts with initial guess
 
-    # Positions where we have been to
-    explored = Set{Tuple{Int64,Int64}}()
-    push!(explored, initial)
+#     # Positions where we have been to
+#     explored = Set{Tuple{Int64,Int64}}()
+#     push!(explored, initial)
 
-    while !isempty(frontier)
-        current_node = dequeue!(frontier)
-        current_pt = current_node.point
+#     while !isempty(frontier)
+#         current_node = dequeue!(frontier)
+#         current_pt = current_node.point
 
-        if goal_test(current_pt)
-            return current_node
-        end
+#         if goal_test(current_pt)
+#             return current_node
+#         end
 
-        for next_pt in next_points(current_pt)
-            if in(next_pt, explored)
-                continue
-            end
+#         for next_pt in next_points(current_pt)
+#             if in(next_pt, explored)
+#                 continue
+#             end
 
-            push!(explored, next_pt)
-            enqueue!(frontier, Node(next_pt, current_node))
-        end
+#             push!(explored, next_pt)
+#             enqueue!(frontier, Node(next_pt, current_node))
+#         end
 
-        #empty!(frontier)
-    end
+#         #empty!(frontier)
+#     end
     
-    # no solution
-    return nothing
-end
+#     # no solution
+#     return nothing
+# end
 
 
 """
