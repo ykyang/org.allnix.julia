@@ -74,6 +74,11 @@ function add!(g::Graph{V,E}, edge::Edge) where {V,E<:Edge}
     nothing
 end
 
+function edges_of(g::Graph{V,E}, v::V) where {V,E<:Edge}
+    index = index_of(g, v)
+    return edges_of(g, index)
+end
+
 function edges_of(g::Graph{V,E}, index::Int64)  where {V,E<:Edge}
     return g.edges_lists[index]
 end
@@ -85,6 +90,26 @@ This is why cities cannot have the same name.
 """
 function index_of(g::Graph{V,E}, v::V) where {V,E<:Edge}
     findfirst(x->x==v, g.vertices)
+end
+
+function neighbor_of(g::Graph{V,E}, v::V) where {V,E<:Edge}
+    index = index_of(g, v)
+    return neighbor_of(g, index)
+end
+
+function neighbor_of(g::Graph{V,E}, index::Int64) where {V,E<:Edge}
+    edges = g.edges_lists[index]
+    
+    neighbors = Vector{V}()
+    for edge in edges
+        push!(neighbors, vertex_at(g, edge.v))
+    end
+
+    return neighbors
+end
+
+function vertex_at(g::Graph{V,E}, index::Int64) where {V,E<:Edge}
+    return g.vertices[index]
 end
 
 
@@ -99,4 +124,13 @@ function Base.append!(g::Graph{V,E}, vertices) where {V,E<:Edge} # is <:Edge nec
     for i in 1:length(vertices)
         push!(g.edges_lists, Vector{Vector{E}}())
     end
+end
+
+function Base.show(io::IO, g::Graph)
+    for v in g.vertices
+        print(io, "$v -> $(neighbor_of(g, v))")
+        
+        println(io)
+    end
+    
 end

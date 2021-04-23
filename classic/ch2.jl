@@ -33,7 +33,7 @@ Record path in a maze
 """
 mutable struct Node{P}
     point::P #Tuple{Int64,Int64}  # MazeLocation
-    parent::Union{Node,Nothing}
+    parent::Union{Node{P},Nothing}
     cost::Float64
     heuristic::Float64
 
@@ -157,8 +157,9 @@ function bfs(initial::P, goal_test, next_points) where {P} # point type
     while !isempty(frontier)
         current_node = dequeue!(frontier)
         current_pt = current_node.point
-
+        #@show current_pt
         if goal_test(current_pt)
+            #@show current_pt
             return current_node
         end
 
@@ -343,8 +344,12 @@ end
 next_points(grid, pt) = successors(grid, pt)
 
 function is_goal(goal, here)
-    return (goal[1] == here[1]) && (goal[2] == here[2])
+    #return (goal[1] == here[1]) && (goal[2] == here[2])
+    #@show goal, here
+    return goal == here
 end
+
+#function is_goal(goal::V, here::V)
 
 """
     mark_path!(grid, node::Node; start=nothing, goal=nothing)
@@ -366,6 +371,17 @@ function mark_path!(grid, node::Node; start=nothing, goal=nothing)
     end
 end
 
+function node_to_path(node::Node{P}) where {P}
+    path = Vector{P}()
+    push!(path, node.point)
+    while !isnothing(node.parent)
+        node = node.parent
+        #push!(path, node.point)
+        insert!(path, 1, node.point)
+    end
+
+    return path
+end
 
 function Base.show(io::IO, x::Cell)
     print(io, string(x))
