@@ -31,12 +31,12 @@ function test_UnweightedGraph()
 
     g = cc.UnweightedGraph{Int64,cc.Edge}()
     @test isempty(g.vertices)
-    @test isempty(g.edges)
+    @test isempty(g.edges_lists)
 
     g = cc.UnweightedGraph{Int64,cc.Edge}([1,2,3])
     @test 3 == length(g.vertices)
     @test [1,2,3] == g.vertices
-    @test 3 == length(g.edges)
+    @test 3 == length(g.edges_lists)
 
     # Learn types
     @test cc.UnweightedGraph{Int64,cc.Edge} <: cc.Graph{Int64,cc.Edge}

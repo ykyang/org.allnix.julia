@@ -37,8 +37,8 @@ abstract type Graph{V,E} end
 # end
 
 struct UnweightedGraph{V,E<:Edge} <: Graph{V,E}
-    vertices::Vector{V}      # list of vertices
-    edges::Vector{Vector{E}} # edges[i] -> list of edges that connects to vertices[i]
+    vertices::Vector{V}            # list of vertices
+    edges_lists::Vector{Vector{E}} # edges_lists[i] -> list of edges that connects to vertices[i]
 
     function UnweightedGraph{V,E}() where {V,E<:Edge} # is E<:Edge necessary
         new(Vector{V}(), Vector{Vector{E}}())        
@@ -54,13 +54,49 @@ end
 
 """
 
+This is why cities cannot have the same name.
+"""
+function add!(g::Graph{V,E}, u::V, v::V) where {V,E<:Edge}
+    add!(g, index_of(g, u), index_of(g, v))
+end
+
+function add!(g::Graph{V,E}, u::Int64, v::Int64) where {V,E<:Edge}
+    add!(g, Edge(u,v))
+end
+
+function add!(g::Graph{V,E}, edge::Edge) where {V,E<:Edge}
+    edges = edges_of(g, edge.u) #g.edges_lists[edge.u]
+    push!(edges, edge)
+
+    edges = edges_of(g, edge.v) #g.edges_lists[edge.v]
+    push!(edges, reverse(edge))
+
+    nothing
+end
+
+function edges_of(g::Graph{V,E}, index::Int64)  where {V,E<:Edge}
+    return g.edges_lists[index]
+end
+
+
+"""
+
+This is why cities cannot have the same name.
+"""
+function index_of(g::Graph{V,E}, v::V) where {V,E<:Edge}
+    findfirst(x->x==v, g.vertices)
+end
+
+
+"""
+
 Append vertices to a graph.  Creates empty edge lists for each vertex.
 """
-function Base.append!(g::Graph{V,E}, vertices) where {V,E<:Edge}
+function Base.append!(g::Graph{V,E}, vertices) where {V,E<:Edge} # is <:Edge necessary, could be more generic later
     append!(g.vertices, vertices)
 
     # One list of edges for each vertex
     for i in 1:length(vertices)
-        push!(g.edges, Vector{Vector{E}}())
+        push!(g.edges_lists, Vector{Vector{E}}())
     end
 end
