@@ -97,10 +97,10 @@ end
 
 
 
-run_astar()
+#run_astar()
 #run_cell()
 #run_dfs()
-#run_bfs()
+run_bfs()
 
 nothing
 

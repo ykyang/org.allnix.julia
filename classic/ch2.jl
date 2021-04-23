@@ -31,38 +31,54 @@ TODO: make this immutable
 
 Record path in a maze
 """
-mutable struct Node
-    point::Tuple{Int64,Int64}  # MazeLocation
+mutable struct Node{P}
+    point::P #Tuple{Int64,Int64}  # MazeLocation
     parent::Union{Node,Nothing}
     cost::Float64
     heuristic::Float64
 
-    Node() = ( # incomplete initialization
-        me = new();
-        #me.cost = 0.0;
-        #me.heuristic = 0.0;
-        me
-    )
-    Node(point) = (
-        me = new();
-        me.point = point;
-        me.parent = nothing;
-        me
-    )
-    Node(point,parent) = (
-        me = new();
-        me.point = point;
-        me.parent = parent;
-        me
-    )
-    Node(point,parent,cost,heuristic) = (
-        me = new();
-        me.point = point;
-        me.parent = parent;
-        me.cost = cost;
-        me.heuristic = heuristic;
-        me
-    )
+    # Node() = ( # incomplete initialization
+    #     me = new();
+    #     #me.cost = 0.0;
+    #     #me.heuristic = 0.0;
+    #     me
+    # )
+    function Node{P}() where {P}
+        me = new()
+        return me
+    end
+    # Node(point) = (
+    #     me = new();
+    #     me.point = point;
+    #     me.parent = nothing;
+    #     me
+    # )
+    function Node{P}(point::P) where {P}
+          me = new();
+          me.point = point;
+          me.parent = nothing;
+          me
+    end
+    # Node(point,parent) = (
+    #     me = new();
+    #     me.point = point;
+    #     me.parent = parent;
+    #     me
+    # )
+    function Node{P}(point::P, parent::Node{P}) where {P}
+          me = new();
+          me.point = point;
+          me.parent = parent;
+          me
+    end
+    # Node(point,parent,cost,heuristic) = (
+    #     me = new();
+    #     me.point = point;
+    #     me.parent = parent;
+    #     me.cost = cost;
+    #     me.heuristic = heuristic;
+    #     me
+    # )
 end
 #Base.:(<)(x::Node, y::Node) = x.id < y.id
 Base.:(==)(x::Node,y::Node) = x.point == y.point
@@ -130,6 +146,40 @@ to the start.
 ...
 """
 function bfs(initial::Tuple{Int64,Int64}, goal_test, next_points)
+    P = Tuple{Int64,Int64}
+    #frontier = Queue{Node{Tuple{Int64,Int64}}}()
+    frontier = Queue{Node{P}}()
+    enqueue!(frontier, Node{P}(initial)) # starts with initial guess
+
+    # Positions where we have been to
+    explored = Set{P}()
+    push!(explored, initial)
+
+    while !isempty(frontier)
+        current_node = dequeue!(frontier)
+        current_pt = current_node.point
+
+        if goal_test(current_pt)
+            return current_node
+        end
+
+        for next_pt in next_points(current_pt)
+            if in(next_pt, explored)
+                continue
+            end
+
+            push!(explored, next_pt)
+            enqueue!(frontier, Node{P}(next_pt, current_node))
+        end
+
+        #empty!(frontier)
+    end
+    
+    # no solution
+    return nothing
+end
+
+function bfs(initial::P, goal_test, next_points) where {P} # point type
     frontier = Queue{Node}()
     enqueue!(frontier, Node(initial)) # starts with initial guess
 
@@ -160,6 +210,7 @@ function bfs(initial::Tuple{Int64,Int64}, goal_test, next_points)
     # no solution
     return nothing
 end
+
 
 """
     dfs(initial, goal_test, successors)
@@ -209,6 +260,7 @@ function dfs(
     # no solution
     return nothing
 end
+
 
 """
 
