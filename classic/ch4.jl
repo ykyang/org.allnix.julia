@@ -38,19 +38,15 @@ abstract type Graph{V,E} end
 
 struct UnweightedGraph{V,E<:Edge} <: Graph{V,E}
     vertices::Vector{V}      # list of vertices
-    # list of edges 
-    # edges[i] -> list of edges that connects to vertices[i]
-    edges::Vector{Vector{E}} 
+    edges::Vector{Vector{E}} # edges[i] -> list of edges that connects to vertices[i]
 
-    #function UnweightedGraph{V,E}() where {V,E<:Edge}
     function UnweightedGraph{V,E}() where {V,E<:Edge} # is E<:Edge necessary
-        #new{V,E}(Vector{V}(), Vector{Vector{E}}())
         new(Vector{V}(), Vector{Vector{E}}())        
     end
 end
 
 function UnweightedGraph{V,E}(v::Vector{V}) where {V,E<:Edge}
-    me = UnweightedGraph{V,E}() #new{V,E}(Vector{V}(), Vector{Vector{E}}())
+    me = UnweightedGraph{V,E}()
     append!(me, v)
     
     return me
@@ -58,7 +54,7 @@ end
 
 """
 
-Append vertices to a graph.
+Append vertices to a graph.  Creates empty edge lists for each vertex.
 """
 function Base.append!(g::Graph{V,E}, vertices) where {V,E<:Edge}
     append!(g.vertices, vertices)
