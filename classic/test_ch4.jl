@@ -27,8 +27,9 @@ end
 # end
 
 function test_UnweightedGraph()
+    @test_throws TypeError cc.UnweightedGraph{Int64,Int64}()
+
     g = cc.UnweightedGraph{Int64,cc.Edge}()
-    #g = cc.UnweightedGraph{Int64,Int64}()
     @test isempty(g.vertices)
     @test isempty(g.edges)
 
@@ -36,8 +37,10 @@ function test_UnweightedGraph()
     @test 3 == length(g.vertices)
     @test [1,2,3] == g.vertices
     @test 3 == length(g.edges)
-    @show typeof(g)
-    cc.UnweightedGraph{Int64,cc.Edge} <: cc.Graph{Int64,cc.Edge}
+
+    # Learn types
+    @test cc.UnweightedGraph{Int64,cc.Edge} <: cc.Graph{Int64,cc.Edge}
+    @test isa(cc.UnweightedGraph{Int64,cc.Edge}(), cc.Graph{Int64,cc.Edge})
 end
 
 test_Edge()
