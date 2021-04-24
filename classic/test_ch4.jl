@@ -212,14 +212,25 @@ function test_WeightedGraph()
 end
 
 function test_mst()
+    print("""
+    # ---------- #
+    # test_mst() #
+    # ---------- #
+    """)
     cc = Classic
 
-    g = cc.WeightedGraph{String,cc.WeightedEdge}()
-    cities = init!(g)
-    @test length(cities) == length(g.vertices)
-    @test length(cities) == length(g.edges_lists)
+    city_graph = cc.WeightedGraph{String,cc.WeightedEdge}()
+    cities = init!(city_graph)
+    @test length(cities) == length(city_graph.vertices)
+    @test length(cities) == length(city_graph.edges_lists)
 
-    show(g)
+    show(city_graph)
+
+    mst_path = cc.mst(city_graph, 1)
+
+    cc.print_weighted_path(city_graph, mst_path)
+    @test 14 == length(mst_path)
+    println("Total Weight: $(sum(mst_path))")
 end
 
 test_SimpleEdge()
@@ -230,4 +241,8 @@ test_WeightedEdge()
 test_WeightedGraph()
 test_mst()
 
-println("Test completed!")
+print("""
+# --------------- #
+# Test completed! #
+# --------------- #
+""")

@@ -37,6 +37,7 @@ struct WeightedEdge <: Edge
 end
 
 Base.:(<)(x::WeightedEdge, y::WeightedEdge) = error("Unsupported operation")
+Base.:(==)(x::WeightedEdge, y::WeightedEdge) = x.vertices == y.vertices #error("Unsupported operation")
 # for sum(), Java.totalWeight()
 Base.:(+)(x::WeightedEdge, y::WeightedEdge) = weight(x) + weight(y)
 Base.:(+)(x::Float64, y::WeightedEdge) = x + weight(y)
@@ -215,4 +216,43 @@ function Base.show(io::IO, g::WeightedGraph)
         
         println(io)
     end 
+end
+
+function mst(g::WeightedGraph{V,E}, start) where {V,E<:WeightedEdge}
+    vertex_count = length(g.vertices)
+
+    result = Vector{WeightedEdge}()
+    if !(1 <= start <= vertex_count)
+        return result
+    end
+
+    que = PriorityQueue{WeightedEdge,Float64}()
+    visited = zeros(Bool, vertex_count) #Vector{Bool}(undef, vertex_count)
+    function visit(index)
+        visited[index] = true
+        for edge in edges_of(g, index)
+            if !visited[edge[2]] # neighbor not yet visited
+                enqueue!(que, edge, weight(edge))
+            end
+        end
+    end
+
+    visit(start)
+    while !isempty(que)
+        edge = dequeue!(que)
+        if visited[edge[2]]
+            continue
+        end
+
+        push!(result, edge)
+        visit(edge[2])
+    end
+
+    return result
+end
+
+function print_weighted_path(g::WeightedGraph, edges::Vector{WeightedEdge})
+    for edge in edges
+        println("$(vertex_at(g, edge[1])) $(weight(edge)) > $(vertex_at(g, edge[2]))")
+    end
 end
