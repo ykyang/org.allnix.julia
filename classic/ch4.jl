@@ -254,15 +254,15 @@ function mst(g::WeightedGraph{V,E}, start::Int64) where {V,E<:WeightedEdge}
     return result
 end
 
-function print_weighted_path(g::WeightedGraph, edges::Vector{WeightedEdge})
-    for edge in edges
-        println("$(vertex_at(g, edge[1])) $(weight(edge)) > $(vertex_at(g, edge[2]))")
-    end
-end
+# function print_weighted_path(g::WeightedGraph, edges::Vector{WeightedEdge})
+#     for edge in edges
+#         println("$(vertex_at(g, edge[1])) $(weight(edge)) > $(vertex_at(g, edge[2]))")
+#     end
+# end
 
 function Base.print(io::IO, g::WeightedGraph, edges::Vector{WeightedEdge})
     for edge in edges
-        println("$(vertex_at(g, edge[1])) $(weight(edge)) > $(vertex_at(g, edge[2]))")
+        println(io, "$(vertex_at(g, edge[1])) $(weight(edge)) > $(vertex_at(g, edge[2]))")
     end
 end
 

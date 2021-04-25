@@ -1,8 +1,8 @@
 include("Classic.jl")
 
 using Test, DataStructures
-#using .Classic
-import .Classic
+using .Classic
+#import .Classic
 #cc = Classic
 
 function init!(g::Classic.Graph{V,E}) where {V,E<:Classic.Edge}
@@ -87,7 +87,7 @@ function init!(g::Classic.WeightedGraph{V,E}) where {V,E<:Classic.WeightedEdge}
     return cities
 end
 
-function test_SimpleEdge()
+function test_SimpleEdge(io::IO)
     cc = Classic
 
     e = cc.SimpleEdge(2, 7)
@@ -102,7 +102,7 @@ function test_SimpleEdge()
     @test e[2] == r[1]
 end
 
-function test_UnweightedGraph()
+function test_UnweightedGraph(io::IO)
     cc = Classic
 
     @test_throws TypeError cc.UnweightedGraph{Int64,Int64}()
@@ -137,7 +137,7 @@ end
 
 Sovle shortest route of `UnweightedGraph`
 """
-function test_bfs()
+function test_bfs(io::IO)
     cc = Classic
 
     g = cc.UnweightedGraph{String,cc.SimpleEdge}()
@@ -161,7 +161,7 @@ function test_bfs()
     nothing
 end
 
-function test_WeightedEdge()
+function test_WeightedEdge(io::IO)
     cc = Classic
 
     e = cc.WeightedEdge((3,7),13.0)
@@ -189,7 +189,7 @@ function test_WeightedEdge()
     
 end
 
-function test_WeightedGraph()
+function test_WeightedGraph(io::IO)
     cc = Classic
 
     @test_throws TypeError Classic.WeightedGraph{Int64,Int64}()
@@ -211,7 +211,7 @@ function test_WeightedGraph()
     @test 0 == length(g.edges_lists[3])
 end
 
-function test_mst()
+function test_mst(io::IO)
     cc = Classic
 
     city_graph = cc.WeightedGraph{String,cc.WeightedEdge}()
@@ -224,15 +224,15 @@ function test_mst()
     mst_path = cc.mst(city_graph, 1)
 
     #cc.print_weighted_path(city_graph, mst_path)
-    print(city_graph, mst_path)
+    print(io, city_graph, mst_path)
     @test 14 == length(mst_path)
     #println("Total Weight: $(sum(mst_path))")
 end
 
-function test_DijkstraNode()
+function test_DijkstraNode(io::IO)
     cc = Classic
 
-    node = cc.DijkstraNode(13, 0.1)
+    node = DijkstraNode(13, 0.1)
     @test 13 == node.index 
     @test 0.1 == node.distance
 
@@ -253,7 +253,7 @@ function test_DijkstraNode()
     @test 2.3 == node.distance
 end
 
-function test_dijkstra()
+function test_dijkstra(io::IO)
     cc = Classic
 
     city_graph = cc.WeightedGraph{String,cc.WeightedEdge}()
@@ -267,12 +267,14 @@ function test_dijkstra()
     #     path_db::Dict{Int64,WeightedEdge}
     # end
     dijkstra_result = cc.dijkstra(city_graph, "Los Angeles")
-    @show dijkstra_result
+    println(io, dijkstra_result)
+    #@show dijkstra_result
 
     #ditance_db = Dict{V,Float64}()
     distance_db = cc.array_to_db(city_graph, dijkstra_result.distances)
-    println("Distance from Los Angeles:")
-    @show distance_db
+    println(io, "Distance from Los Angeles:")
+    println(io, distance_db)
+    #@show distance_db
 
     # path::Vector{E}
     path = cc.path_db_to_path(
@@ -283,28 +285,31 @@ function test_dijkstra()
     #@show path
 
     #cc.print_weighted_path(city_graph, path)
-    print(stdout, city_graph, path)
-    println("Total Weight: $(sum(path))")
+    print(io, stdout, city_graph, path)
+    println(io, "Total Weight: $(sum(path))")
     # TODO show better
 
     @test nothing != dijkstra_result
 end
 
+io = devnull
+#io = stdout
+
 @testset "Unweighted Graph" begin
-    test_SimpleEdge()
-    test_UnweightedGraph()
-    test_bfs()
+    test_SimpleEdge(io)
+    test_UnweightedGraph(io)
+    test_bfs(io)
 end
 
 @testset "Weighted Graph" begin
-    test_WeightedEdge()
-    test_WeightedGraph()
-    test_mst()
+    test_WeightedEdge(io)
+    test_WeightedGraph(io)
+    test_mst(io)
 end
 
 @testset "Dijkstra" begin
-    test_DijkstraNode()
-    test_dijkstra()
+    test_DijkstraNode(io)
+    test_dijkstra(io)
 end
 
 nothing
