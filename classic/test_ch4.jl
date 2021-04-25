@@ -1,6 +1,6 @@
 include("Classic.jl")
 
-using Test
+using Test, DataStructures
 #using .Classic
 import .Classic
 #cc = Classic
@@ -149,7 +149,7 @@ function test_bfs()
         @test !isempty(edges)
     end
 
-    show(g)
+    #show(g)
 
     is_goal(pt) = cc.is_goal("Miami", pt)
     neighbor_of(v) = cc.neighbor_of(g, v)
@@ -212,11 +212,6 @@ function test_WeightedGraph()
 end
 
 function test_mst()
-    print("""
-    # ---------- #
-    # test_mst() #
-    # ---------- #
-    """)
     cc = Classic
 
     city_graph = cc.WeightedGraph{String,cc.WeightedEdge}()
@@ -224,25 +219,74 @@ function test_mst()
     @test length(cities) == length(city_graph.vertices)
     @test length(cities) == length(city_graph.edges_lists)
 
-    show(city_graph)
+    #show(city_graph)
 
     mst_path = cc.mst(city_graph, 1)
 
-    cc.print_weighted_path(city_graph, mst_path)
+    #cc.print_weighted_path(city_graph, mst_path)
     @test 14 == length(mst_path)
-    println("Total Weight: $(sum(mst_path))")
+    #println("Total Weight: $(sum(mst_path))")
 end
 
-test_SimpleEdge()
-test_UnweightedGraph()
-test_bfs()
+function test_DijkstraNode()
+    cc = Classic
 
-test_WeightedEdge()
-test_WeightedGraph()
-test_mst()
+    node = cc.DijkstraNode(13, 0.1)
+    @test 13 == node.index 
+    @test 0.1 == node.distance
 
-print("""
-# --------------- #
-# Test completed! #
-# --------------- #
-""")
+    que = PriorityQueue{cc.DijkstraNode,Float64}()
+    enqueue!(que, cc.DijkstraNode(17, 1.2), 1.2)
+    enqueue!(que, cc.DijkstraNode(19, 2.3), 2.3)
+    @test 2 == length(que)
+    
+    # the new node is considered duplicated because
+    # its index is 17 even its distance is different
+    # this is implemented by isequal
+    @test_throws ArgumentError enqueue!(que, cc.DijkstraNode(17, 3.3), 1.1)
+
+    @test 2 == length(que)
+    node = dequeue!(que)
+    @test 1.2 == node.distance
+    node = dequeue!(que)
+    @test 2.3 == node.distance
+end
+
+function test_dijkstra()
+    cc = Classic
+
+    city_graph = cc.WeightedGraph{String,cc.WeightedEdge}()
+    cities = init!(city_graph)
+    @test length(cities) == length(city_graph.vertices)
+    @test length(cities) == length(city_graph.edges_lists)
+   
+    dijkstra_result = cc.dijkstra(city_graph, "Los Angeles")
+    @show dijkstra_result
+    # TODO show better
+    
+    @test nothing != dijkstra_result
+end
+
+@testset "Unweighted Graph" begin
+    test_SimpleEdge()
+    test_UnweightedGraph()
+    test_bfs()
+end
+
+@testset "Weighted Graph" begin
+    test_WeightedEdge()
+    test_WeightedGraph()
+    test_mst()
+end
+
+@testset "Dijkstra" begin
+    test_DijkstraNode()
+    test_dijkstra()
+end
+
+nothing
+# print("""
+# # --------------- #
+# # Test completed! #
+# # --------------- #
+# """)

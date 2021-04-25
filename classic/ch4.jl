@@ -218,7 +218,7 @@ function Base.show(io::IO, g::WeightedGraph)
     end 
 end
 
-function mst(g::WeightedGraph{V,E}, start) where {V,E<:WeightedEdge}
+function mst(g::WeightedGraph{V,E}, start::Int64) where {V,E<:WeightedEdge}
     vertex_count = length(g.vertices)
 
     result = Vector{WeightedEdge}()
@@ -228,7 +228,10 @@ function mst(g::WeightedGraph{V,E}, start) where {V,E<:WeightedEdge}
 
     que = PriorityQueue{WeightedEdge,Float64}()
     visited = zeros(Bool, vertex_count) #Vector{Bool}(undef, vertex_count)
-    function visit(index)
+
+    # Internal function has access to local variables
+    # such as `visited`.
+    function visit(index) 
         visited[index] = true
         for edge in edges_of(g, index)
             if !visited[edge[2]] # neighbor not yet visited
@@ -256,3 +259,68 @@ function print_weighted_path(g::WeightedGraph, edges::Vector{WeightedEdge})
         println("$(vertex_at(g, edge[1])) $(weight(edge)) > $(vertex_at(g, edge[2]))")
     end
 end
+
+struct DijkstraNode
+    index::Int64
+    distance::Float64
+    # function DijkstraNode(index, distance)
+    #     new(index, distance)
+    # end
+end
+Base.:(<)(x::DijkstraNode, y::DijkstraNode) = error("Unsupported operation")
+# x.distance < y.distance
+Base.:(==)(x::DijkstraNode, y::DijkstraNode) = x.distance == y.distance #error("Unsupported operation") #x.index == y.index #error("Unsupported operation") 
+Base.isequal(x::DijkstraNode, y::DijkstraNode) = isequal(x.index, y.index) #x.index == y.index #error("Unsupported operation") 
+Base.hash(x::DijkstraNode, h::UInt64=UInt64(13)) = hash(x.index,h)
+
+struct DijkstraResult
+    distances::Vector{Float64}
+    path_db::Dict{Int64,WeightedEdge}
+end
+
+function dijkstra(g::WeightedGraph{V,E}, start::V) where {V,E<:WeightedEdge}
+    start_ind = index_of(g, start)
+    vertex_count = length(g.vertices)
+
+    # TODO: initialization to what?
+    distances = Vector{Float64}(undef, vertex_count)
+    distances[start_ind] = 0
+    visited = zeros(Bool, vertex_count)
+    visited[start_ind] = true
+
+    path_db = Dict{Int64,WeightedEdge}()
+    que = PriorityQueue{DijkstraNode,Float64}()
+    enqueue!(que, DijkstraNode(start_ind, 0), 0)
+
+    while !isempty(que)
+        node = dequeue!(que)
+        distance2node = distances[node.index]
+
+        for edge in edges_of(g, node.index)
+            next_index = edge[2] # neighbor
+            
+            distance_to_next_index1 = distances[next_index] # undef || current distance
+            distance_to_next_index2 = distance2node + weight(edge) # new distance
+
+            if !visited[next_index] 
+                visited[next_index] = true
+                distances[next_index] = distance_to_next_index2 # so undef is fine
+                # Record the edge that has the shortest distance to next node
+                path_db[next_index] = edge
+                enqueue!(que, DijkstraNode(next_index, distance_to_next_index2), distance_to_next_index2)
+            elseif distance_to_next_index2 < distance_to_next_index1
+                visited[next_index] = true # not necessary
+                distances[next_index] = distance_to_next_index2 # so undef is fine
+                # Record the edge that has the shortest distance to next node
+                path_db[next_index] = edge
+                delete!(que, DijkstraNode(next_index, distance_to_next_index1))
+                enqueue!(que, DijkstraNode(next_index, distance_to_next_index2), distance_to_next_index2)
+            end
+        end
+
+        #empty!(que) #avoid infinite loop during construction
+    end
+
+    return DijkstraResult(distances, path_db)
+end
+
