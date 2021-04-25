@@ -18,6 +18,66 @@ end
 Base.:(<)(x::Node, y::Node) = x.id < y.id
 Base.:(==)(x::Node,y::Node) = x.id == y.id
 
+"""
+Demonstrate `id` alone identify the uniqueness of a node and `value` is used
+to compare magnitude.
+"""
+struct Node2
+    id::Int64
+    value::Float64
+end
+Base.:(<)(x::Node2, y::Node2) = x.value < y.value
+Base.:(==)(x::Node2,y::Node2) = x.value == y.value
+# isequal is used for ID
+Base.isequal(x::Node2,y::Node2) = isequal(x.id, y.id) #error("Unsupported operation") #x.id == y.id
+Base.hash(x::Node2, h::UInt64=UInt64(13)) = hash(x.id,h)
+
+
+function learn_Node2()
+    # N{id,value}
+    N = Node2 # save some typing
+    
+
+    # (<)
+    @test N(3, 3.3) < N(2, 4.4)
+    @test N(3, 3.3) <= N(2, 3.3)
+    @test N(2, 4.4) > N(3, 3.3)
+    @test N(2, 4.4) >= N(3, 4.4)
+
+    # (==)
+    @test N(3, 3.3) != N(4, 4.4) # value !=
+    @test N(3, 3.3) == N(4, 3.3) # value ==
+
+    # hash(), isequal uses ID for uniqueness
+    db = Dict{N,Int64}()
+    @test isempty(db)
+    db[N(3, 3.3)] = 3
+    @test 1 == length(db)
+    db[N(3, 4.4)] = 4     # same key as above
+    @test 1 == length(db) # so still 1 element
+    @test 4 == db[N(3, 5.5)]
+    db[N(4, 6.6)] = 6     # add one element
+    @test 2 == length(db)
+
+    # (===)
+    @test N(3, 3.3) === N(3, 3.3) # immutables are compared at bit level
+    
+
+    nothing
+end
+
+function learn_Dict()
+    db = Dict{Node2,Int64}()
+    # @show db
+
+    db[Node2(1,2)] = 13
+    db[Node2(1,3)] = 14
+    @test 14 == db[Node2(1,2)]
+    #@show getindex(db, Node2(1,2))
+
+    @show db
+end
+
 function learn_PriorityQueue()
     # ------------------ #
     # Value: Low -> High #
@@ -73,8 +133,9 @@ function learn_PriorityQueue()
     # ---------
     # Use custom type as key::Node #
     # ---------------------------- #
-    #que = PriorityQueue{Node,Int64}()
-    #enqueue! 
+    que = PriorityQueue{Node2,Float64}()
+    enqueue!(que, Node2(1,2), 3.0)
+    enqueue!(que, Node2(1,3), 4.0)
 end
 
 """
@@ -182,11 +243,15 @@ function learn_Stack()
     @test 1 == pop!(stack)
 end
 
+@testset "Node2" begin
+    learn_Node2()
+end
 
-
-A = learn_PriorityQueue()
+#learn_Dict()
+#A = learn_PriorityQueue()
 #A = learn_Queue()
 #A = learn_Set()
 #A = learn_Stack()
 
-A
+#A
+nothing
