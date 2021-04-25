@@ -224,6 +224,7 @@ function test_mst()
     mst_path = cc.mst(city_graph, 1)
 
     #cc.print_weighted_path(city_graph, mst_path)
+    print(city_graph, mst_path)
     @test 14 == length(mst_path)
     #println("Total Weight: $(sum(mst_path))")
 end
@@ -260,10 +261,32 @@ function test_dijkstra()
     @test length(cities) == length(city_graph.vertices)
     @test length(cities) == length(city_graph.edges_lists)
    
+    # Just a reminder
+    # struct DijkstraResult
+    #     distances::Vector{Float64}
+    #     path_db::Dict{Int64,WeightedEdge}
+    # end
     dijkstra_result = cc.dijkstra(city_graph, "Los Angeles")
     @show dijkstra_result
+
+    #ditance_db = Dict{V,Float64}()
+    distance_db = cc.array_to_db(city_graph, dijkstra_result.distances)
+    println("Distance from Los Angeles:")
+    @show distance_db
+
+    # path::Vector{E}
+    path = cc.path_db_to_path(
+            city_graph, dijkstra_result.path_db, 
+            cc.index_of(city_graph, "Los Angeles"),
+            cc.index_of(city_graph, "Boston")
+        )
+    #@show path
+
+    #cc.print_weighted_path(city_graph, path)
+    print(stdout, city_graph, path)
+    println("Total Weight: $(sum(path))")
     # TODO show better
-    
+
     @test nothing != dijkstra_result
 end
 

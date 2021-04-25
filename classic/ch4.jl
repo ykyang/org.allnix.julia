@@ -260,6 +260,13 @@ function print_weighted_path(g::WeightedGraph, edges::Vector{WeightedEdge})
     end
 end
 
+function Base.print(io::IO, g::WeightedGraph, edges::Vector{WeightedEdge})
+    for edge in edges
+        println("$(vertex_at(g, edge[1])) $(weight(edge)) > $(vertex_at(g, edge[2]))")
+    end
+end
+
+
 struct DijkstraNode
     index::Int64
     distance::Float64
@@ -267,9 +274,10 @@ struct DijkstraNode
     #     new(index, distance)
     # end
 end
-Base.:(<)(x::DijkstraNode, y::DijkstraNode) = error("Unsupported operation")
-# x.distance < y.distance
-Base.:(==)(x::DijkstraNode, y::DijkstraNode) = x.distance == y.distance #error("Unsupported operation") #x.index == y.index #error("Unsupported operation") 
+# make sure not mis-use these 2 functions
+Base.:(<)(x::DijkstraNode, y::DijkstraNode) = error("Unsupported operation")# x.distance < y.distance
+Base.:(==)(x::DijkstraNode, y::DijkstraNode) = error("Unsupported operation") #x.distance == y.distance #error("Unsupported operation") #x.index == y.index
+# to make Dict and PriorityQueue behavior the way we wanted
 Base.isequal(x::DijkstraNode, y::DijkstraNode) = isequal(x.index, y.index) #x.index == y.index #error("Unsupported operation") 
 Base.hash(x::DijkstraNode, h::UInt64=UInt64(13)) = hash(x.index,h)
 
@@ -324,3 +332,36 @@ function dijkstra(g::WeightedGraph{V,E}, start::V) where {V,E<:WeightedEdge}
     return DijkstraResult(distances, path_db)
 end
 
+"""
+
+Convert the distance array to distance map.
+"""
+function array_to_db(g::WeightedGraph{V,E}, distances::Vector{Float64}) where {V,E<:WeightedEdge}
+    db = Dict{V,Float64}()
+
+    for (i,dist) in enumerate(distances)
+        db[vertex_at(g,i)] = dist
+    end
+
+    return db
+end
+
+function path_db_to_path(g::WeightedGraph{V,E}, path_db::Dict{Int64,E}, start::Int64, finish::Int64) where {V,E<:WeightedEdge}
+    path = Vector{E}()
+    
+    if isempty(path_db)
+        return path
+    end
+
+    edge = path_db[finish]
+    push!(path, edge)
+    while edge[1] != start
+        edge = path_db[edge[1]]
+        push!(path, edge)
+    end
+
+    path = Base.reverse(path)
+
+    return path
+
+end
