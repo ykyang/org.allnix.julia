@@ -1,12 +1,12 @@
 include("Classic.jl")
 
 using Test, DataStructures
-using .Classic
-#import .Classic
+#using .Classic
+import .Classic as cc
 #cc = Classic
 
 function init!(g::Classic.Graph{V,E}) where {V,E<:Classic.Edge}
-    cc = Classic
+    #cc = Classic
 
     cities = Vector{String}(["Seattle", "San Francisco",  
     "Los Angeles", "Riverside", "Phoenix", "Chicago", "Boston",
@@ -47,7 +47,7 @@ function init!(g::Classic.Graph{V,E}) where {V,E<:Classic.Edge}
 end
 
 function init!(g::Classic.WeightedGraph{V,E}) where {V,E<:Classic.WeightedEdge}
-    cc = Classic
+    #cc = Classic
 
     cities = Vector{String}(["Seattle", "San Francisco",  
     "Los Angeles", "Riverside", "Phoenix", "Chicago", "Boston",
@@ -88,7 +88,7 @@ function init!(g::Classic.WeightedGraph{V,E}) where {V,E<:Classic.WeightedEdge}
 end
 
 function test_SimpleEdge(io::IO)
-    cc = Classic
+    #cc = Classic
 
     e = cc.SimpleEdge(2, 7)
     @test 2 == e[1]
@@ -103,7 +103,7 @@ function test_SimpleEdge(io::IO)
 end
 
 function test_UnweightedGraph(io::IO)
-    cc = Classic
+    #cc = Classic
 
     @test_throws TypeError cc.UnweightedGraph{Int64,Int64}()
     @test cc.UnweightedGraph{Int64,cc.SimpleEdge}() isa Any
@@ -138,7 +138,7 @@ end
 Sovle shortest route of `UnweightedGraph`
 """
 function test_bfs(io::IO)
-    cc = Classic
+    #cc = Classic
 
     g = cc.UnweightedGraph{String,cc.SimpleEdge}()
     cities = init!(g)
@@ -162,7 +162,7 @@ function test_bfs(io::IO)
 end
 
 function test_WeightedEdge(io::IO)
-    cc = Classic
+    #cc = Classic
 
     e = cc.WeightedEdge((3,7),13.0)
     @test 3 == e[1]
@@ -190,7 +190,7 @@ function test_WeightedEdge(io::IO)
 end
 
 function test_WeightedGraph(io::IO)
-    cc = Classic
+    #cc = Classic
 
     @test_throws TypeError Classic.WeightedGraph{Int64,Int64}()
     @test cc.WeightedGraph{Int64,cc.WeightedEdge}() isa Any # @test_nothrows
@@ -212,7 +212,7 @@ function test_WeightedGraph(io::IO)
 end
 
 function test_mst(io::IO)
-    cc = Classic
+    #cc = Classic
 
     city_graph = cc.WeightedGraph{String,cc.WeightedEdge}()
     cities = init!(city_graph)
@@ -230,9 +230,9 @@ function test_mst(io::IO)
 end
 
 function test_DijkstraNode(io::IO)
-    cc = Classic
+    #cc = Classic
 
-    node = DijkstraNode(13, 0.1)
+    node = cc.DijkstraNode(13, 0.1)
     @test 13 == node.index 
     @test 0.1 == node.distance
 
@@ -254,7 +254,7 @@ function test_DijkstraNode(io::IO)
 end
 
 function test_dijkstra(io::IO)
-    cc = Classic
+    #cc = Classic
 
     city_graph = cc.WeightedGraph{String,cc.WeightedEdge}()
     cities = init!(city_graph)
