@@ -1,8 +1,8 @@
-include("Classic.jl")
+#include("Classic.jl")
 
 using Test, DataStructures
-#using .Classic
-import .Classic as cc
+using Classic
+import Classic as cc
 #cc = Classic
 
 function init!(g::Classic.Graph{V,E}) where {V,E<:Classic.Edge}
@@ -232,7 +232,7 @@ end
 function test_DijkstraNode(io::IO)
     #cc = Classic
 
-    node = cc.DijkstraNode(13, 0.1)
+    node = DijkstraNode(13, 0.1)
     @test 13 == node.index 
     @test 0.1 == node.distance
 
