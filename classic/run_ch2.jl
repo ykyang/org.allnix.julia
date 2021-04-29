@@ -1,9 +1,11 @@
-include("Classic.jl")
-
 using Test
 
-import .Classic
-cc = Classic
+using Dash, DashHtmlComponents, DashCoreComponents, DashBootstrapComponents
+using PlotlyJS
+using DataFrames
+
+using Classic
+#cc = Classic
 
 
 function run_astar()
@@ -81,26 +83,117 @@ function run_dfs()
     #@show node
 end
 
-function test_manhattan_distance()
-    goal = (12,13)
-    pt = (1,1)
-    @test 23 == cc.manhattan_distance(pt, goal)
-    
-    goal = (1,1)
-    pt = (12,13)
-    @test 23 == cc.manhattan_distance(pt, goal)
+function run_bfs_gui()
+    maze = new_maze(10, 10, (1,1), (10,10), 0.2)
 
-    goal = (1,1)
-    pt = (-12,-13)
-    @test 27 == cc.manhattan_distance(pt, goal)
+    # create functions for bfs()
+    is_goal(pt)     = Classic.is_goal(maze.goal, pt)
+    next_points(pt) = Classic.next_points(maze.grid, pt)
+
+    node = bfs((1,1), is_goal, next_points)
+
+    if isnothing(node)
+        println("Path not found")
+        display(maze.grid) # print the unsovled maze
+    else
+        mark_path!(maze.grid, node, start=maze.start, goal=maze.goal)
+        display(maze.grid) # print the maze and the path
+    end
+
+    app = dash(external_stylesheets=[dbc_themes.SPACELAB])
+
+    navbar = dbc_navbarsimple([
+        dbc_dropdownmenu([
+            dbc_dropdownmenuitem("BFS", href="#bfs", external_link=true),
+            # dbc_dropdownmenuitem("", href="", external_link=true),
+        ],
+        in_navbar=true, label="Section", caret=true, direction="left"),
+    ], 
+    sticky="top", expand=true, brand="WDVG", brand_href="https://www.wdvgco.com",
+    )
+    content =[
+        dbc_container([
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(bfs_heatmap(maze)...),
+                config = Dict(),
+            )
+        ], className="p-3 my-2 border rounded"),
+    ]
+    pushfirst!(content, navbar)
+    app.layout = dbc_container(content)
+
+    run_server(
+        app, 
+        "0.0.0.0", 
+        8055, 
+        debug=true, # enables hot reload and more
+    )
 end
 
+function bfs_heatmap(maze)
+    z = convert(Matrix{Int64}, maze.grid)
+    # z =  [[1, 20, 30], [20, 1, 60], [30, 60, 1]]
+    # z = hcat(z...)
 
+    # Normalize color scale
+    # Details at
+    # https://community.plotly.com/t/colors-for-discrete-ranges-in-heatmaps/7780/10
+    colorscale = [
+        [0, "rgb(250,250,250)"],
+        [1/4, "rgb(0,0,0)"],
+        [2/4, "rgb(250, 75, 0)"],
+        [3/4, "rgb(250, 75, 0)"],
+        [4/4, "rgb(0, 250, 100)"],
+    ]
+
+    traces = Vector{AbstractTrace}([
+        heatmap(
+            z = z,
+            zmin = 0,
+            zmax = 4,
+            colorscale = colorscale,
+            showscale = false,
+        )
+    ])
+    layout = Layout(
+        title = "Solve maze with BFS",
+        xaxis = Dict(
+            :ticks => "",
+            :showticklabels => false,
+        ),
+        yaxis = Dict(
+            :ticks => "",
+            :showticklabels => false,
+        ),
+        annotations = [],
+    )
+    annotations = layout["annotations"] # shortcut
+    annotation = Dict(
+        :x => 0,
+        :y => 0,
+        :text => "", #"S",
+        #:showtext => false,
+        :showarrow => false,
+    )
+    push!(annotations, annotation)
+    annotation = Dict(
+        :x => 9,
+        :y => 9,
+        :text => "", #"G",
+        :showarrow => false,
+    )
+    push!(annotations, annotation)
+
+    return traces, layout
+end
 
 #run_astar()
 #run_cell()
 #run_dfs()
-run_bfs()
+#run_bfs()
+
+run_bfs_gui()
 
 nothing
 
