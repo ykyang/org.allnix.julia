@@ -29,7 +29,9 @@ version = "0.12.5"
 
 [[Classic]]
 deps = ["DataStructures", "Debugger", "Logging", "Revise", "Test"]
-path = "dev/Classic"
+git-tree-sha1 = "9d4ae086b0cdbfed92bbb26673767708c2c8ca7d"
+repo-rev = "main"
+repo-url = "https://ykyang@github.com/ykyang/Classic.jl.git"
 uuid = "fea3ebb9-c65d-4d37-9e20-d2b6690d1d4a"
 version = "0.1.0"
 
