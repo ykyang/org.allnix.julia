@@ -98,12 +98,6 @@ git-tree-sha1 = "e2f47f6d8337369411569fd45ae5753ca10394c6"
 uuid = "83423d85-b0ee-5818-9007-b63ccbeb887a"
 version = "1.16.0+6"
 
-[[CategoricalArrays]]
-deps = ["DataAPI", "Future", "JSON", "Missings", "Printf", "Statistics", "StructTypes", "Unicode"]
-git-tree-sha1 = "18d7f3e82c1a80dd38c16453b8fd3f0a7db92f23"
-uuid = "324d7699-5711-5eae-9e2f-1d82baa6b597"
-version = "0.9.7"
-
 [[ChainRulesCore]]
 deps = ["Compat", "LinearAlgebra", "SparseArrays"]
 git-tree-sha1 = "bd0cc939d94b8bd736dce5bbbe0d635db9f94af7"
@@ -227,10 +221,10 @@ uuid = "9a962f9c-6df0-11e9-0e5d-c546b8b5ee8a"
 version = "1.6.0"
 
 [[DataFrames]]
-deps = ["CategoricalArrays", "Compat", "DataAPI", "Future", "InvertedIndices", "IteratorInterfaceExtensions", "LinearAlgebra", "Markdown", "Missings", "PooledArrays", "PrettyTables", "Printf", "REPL", "Reexport", "SortingAlgorithms", "Statistics", "TableTraits", "Tables", "Unicode"]
-git-tree-sha1 = "b0db5579803eabb33f1274ca7ca2f472fdfb7f2a"
+deps = ["Compat", "DataAPI", "Future", "InvertedIndices", "IteratorInterfaceExtensions", "LinearAlgebra", "Markdown", "Missings", "PooledArrays", "PrettyTables", "Printf", "REPL", "Reexport", "SortingAlgorithms", "Statistics", "TableTraits", "Tables", "Unicode"]
+git-tree-sha1 = "66ee4fe515a9294a8836ef18eea7239c6ac3db5e"
 uuid = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
-version = "0.22.5"
+version = "1.1.1"
 
 [[DataStructures]]
 deps = ["Compat", "InteractiveUtils", "OrderedCollections"]
@@ -845,9 +839,9 @@ version = "0.4.7"
 
 [[Missings]]
 deps = ["DataAPI"]
-git-tree-sha1 = "f8c673ccc215eb50fcadb285f522420e29e69e1c"
+git-tree-sha1 = "4ea90bd5d3985ae1f9a908bd4500ae88921c5ce7"
 uuid = "e1d29d7a-bbdc-5cf2-9ac0-f12de2c33e28"
-version = "0.4.5"
+version = "1.0.0"
 
 [[Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
@@ -1076,15 +1070,15 @@ version = "1.2.1"
 
 [[Preferences]]
 deps = ["TOML"]
-git-tree-sha1 = "ea79e4c9077208cd3bc5d29631a26bc0cff78902"
+git-tree-sha1 = "00cfd92944ca9c760982747e9a1d0d5d86ab1e5a"
 uuid = "21216c6a-2e73-6563-6e65-726566657250"
-version = "1.2.1"
+version = "1.2.2"
 
 [[PrettyTables]]
 deps = ["Crayons", "Formatting", "Markdown", "Reexport", "Tables"]
-git-tree-sha1 = "574a6b3ea95f04e8757c0280bb9c29f1a5e35138"
+git-tree-sha1 = "b60494adf99652d220cdef46f8a32232182cc22d"
 uuid = "08abe8d2-0d0c-5749-adfa-8a2ac140af0d"
-version = "0.11.1"
+version = "1.0.1"
 
 [[Printf]]
 deps = ["Unicode"]
@@ -1212,10 +1206,10 @@ version = "0.9.3"
 uuid = "6462fe0b-24de-5631-8697-dd941f90decc"
 
 [[SortingAlgorithms]]
-deps = ["DataStructures", "Random", "Test"]
-git-tree-sha1 = "03f5898c9959f8115e30bc7226ada7d0df554ddd"
+deps = ["DataStructures"]
+git-tree-sha1 = "2ec1962eba973f383239da22e75218565c390a96"
 uuid = "a2af1166-a08f-5f64-846c-94a0d3cef48c"
-version = "0.3.1"
+version = "1.0.0"
 
 [[SparseArrays]]
 deps = ["LinearAlgebra", "Random"]
