@@ -151,12 +151,33 @@ function learn_timestamp()
         @debug "Time stampped logger"
     end
 end
+
+function my_logging()
+    # const date_format = "yyyy-mm-dd HH:MM:SS" # if global
+    date_format = "yyyy-mm-dd HH:MM:SS.sss"
+
+    timestamp_logger(logger) = TransformerLogger(logger) do log
+        date_str = Dates.format(now(), date_format)
+        merge(log, (; message = "$date_str $(log.message)"))
+    end
+
+    logger = TeeLogger(
+        ConsoleLogger(stdout, Logging.Warn) |> timestamp_logger,
+        MinLevelLogger(FileLogger("allnix.log", append=false, always_flush=true), Logging.Info) |> timestamp_logger,
+    )
+    global_logger(logger)
+
+    @info "File only"
+    @warn "Console and file"
+end
+
 #learn_ActiveFilteredLogger()
 #learn_EarlyFilteredLogger()
 #learn_MinLevelLogger()
 #learn_TransformerLogger()
 #learn_FileLogger()
 #learn_FormatLogger()
-learn_timestamp()
+#learn_timestamp()
+my_logging()
 
 nothing
