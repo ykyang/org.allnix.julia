@@ -25,13 +25,43 @@ function learn_basic_task_operations()
 end
 
 function learn_Channel()
-    orders = Channel{Int}(32)
-    products = Channel{Tuple}(32)
-    shipmentss = Channel{Int}(32)
+    order_chn = Channel{Int}(32)
+    ship_chn= Channel{Tuple}(32)
 
-    
+    n = 10
+
+    take_order = function()
+        for order_id in 1:n
+            println("Received order $order_id")
+            put!(order_chn, order_id)
+        end
+    end
+
+    manufacture = function()
+        for order_id in order_chn
+            
+            manufacture_time = rand()
+            sleep(manufacture_time)
+            println("Order $order_id manufactured in $manufacture_time")
+            put!(ship_chn, (order_id, manufacture_time))
+        end
+    end
+
+    ship = function()
+        for (order_id,manufacture_time) in ship_chn
+            println("Shipped $order_id")
+        end
+    end
+
+    @async ship()
+    @async manufacture()
+    @async take_order()
 end
 
-learn_basic_task_operations()
+
+
+
+#learn_basic_task_operations()
+learn_Channel()
 
 nothing
