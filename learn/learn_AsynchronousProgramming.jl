@@ -1,5 +1,7 @@
 # https://docs.julialang.org/en/v1/manual/asynchronous-programming/
 
+using FileWatching
+
 function learn_basic_task_operations()
     # 3 ways to async
 
@@ -74,10 +76,11 @@ function learn_file_task()
     readfile = function()
         #st = watch_file("output.txt", 1)
         #println("Timeout: $(st.timedout)")
-        st = (timedout=false,)
-        while !st.timedout
-            println("Here")
+        st = (changed=true,)
+        while st.changed
+            println("Wait for file changes")
             st = watch_file("output.txt", 10)
+            println("Changed: $(st.changed)")
             #if st.changed
                 open("output.txt", "r") do io
                     for line in eachline(io)
@@ -91,10 +94,13 @@ function learn_file_task()
     end 
 
 
-    @async writefile()
-    @async readfile()
-    #readfile()
-    
+    write_task = Task(writefile)
+    read_task = Task(readfile)
+    schedule(write_task)
+    schedule(read_task)
+
+    wait(read_task)
+    wait(write_task)
 end
 
 
