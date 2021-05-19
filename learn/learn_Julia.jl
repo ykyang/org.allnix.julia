@@ -1,7 +1,8 @@
 # Learn basic Julia stuff
-module MyJulia
 using Test
 
+module MyJulia
+using Test
 # Learn operator overloading
 mutable struct Node
     id::Int64
@@ -24,6 +25,8 @@ Base.:(<)(x::Node, y::Node) = x.id < y.id # Base.isless(x::Node, y::Node) = x.id
 function Base.:(==)(x::Node,y::Node) 
     return x.id == y.id
 end
+# used by sort()
+Base.isless(x::Node, y::Node) = error("Unsupported operation")
 
 # isequal => ===
 #Base.isequal(x::Node, y::Node) = x.id == y.id
@@ -46,4 +49,27 @@ end # module MyJulia
 
 mj = MyJulia
 
-mj.learn_Node()
+#mj.learn_Node()
+
+function learn_resize!()
+    x = [1,2,3]
+    y = x
+    @test y === x
+    @test 3 == length(y)
+
+    resize!(x, 1)
+    @test y === x
+    @test 1 == length(y)
+    @test 1 == y[1]
+
+    resize!(x, 0)
+    @test y === x
+    @test isempty(y)
+    
+end
+
+@testset "Basic" begin
+    learn_resize!()
+end
+
+nothing
