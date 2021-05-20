@@ -60,44 +60,86 @@ function learn_Channel()
     @async take_order()
 end
 
-function learn_file_task()
-    n = 100
+"""
+
+@async does not seem to work, see same function in `learn_Threads.jl`
+"""
+function learn_write_read_file()
+    n = 5000000
+    done = Threads.Atomic{Bool}(false)
 
     writefile = function()
         open("output.txt", "w") do io
             for i in 1:n
-                sleep(0.1)
+                #sleep(0.1)
                 println(io, "Hello! Number $i")
-                flush(io)
+                #flush(io)
             end
         end
+
+        Threads.atomic_or!(done, true)
+        println("Done writing")
     end
 
     readfile = function()
-        #st = watch_file("output.txt", 1)
-        #println("Timeout: $(st.timedout)")
-        st = (changed=true,)
-        while st.changed
-            println("Wait for file changes")
-            st = watch_file("output.txt", 10)
-            println("Changed: $(st.changed)")
-            #if st.changed
-                open("output.txt", "r") do io
-                    for line in eachline(io)
-                        println("Read $line")
-                    end
-                end
-            #end
-            
-            println("Timedout: $(st.timedout)")
+        while !isfile("output.txt")
+            sleep(0.1)
         end
-    end 
+        
+        pos = 0
+        first_line = ""
+        final_line = ""
+
+        while !done[]
+            sleep(0.2)
+            open("output.txt", "r") do io
+                skip(io, pos)
+                
+                first_line = readline(io)
+                for line in eachline(io)
+                    final_line = line
+                end
+
+                pos = position(io)
+            end
+
+            # When first_line is blank meaning no update on the file between
+            # opening.
+            println("First line: $first_line")
+            println("Final line: $final_line")
+        end
+
+        # do one more time here?
+    end
+    # readfile = function()
+    #     #st = watch_file("output.txt", 1)
+    #     #println("Timeout: $(st.timedout)")
+    #     st = (changed=true,)
+    #     while st.changed
+    #         println("Wait for file changes")
+    #         st = watch_file("output.txt", 3)
+    #         println("Changed: $(st.changed)")
+    #         #if st.changed
+    #             open("output.txt", "r") do io
+    #                 line = nothing
+    #                 for line in eachline(io)
+    #                     #println("Read $line")
+    #                 end
+    #                 println("Final Line: $line")
+    #             end
+    #         #end
+            
+    #         println("Timedout: $(st.timedout)")
+    #     end
+    # end 
 
 
     write_task = Task(writefile)
     read_task = Task(readfile)
-    schedule(write_task)
+    
     schedule(read_task)
+    schedule(write_task)
+    
 
     wait(read_task)
     wait(write_task)
@@ -107,6 +149,6 @@ end
 
 #learn_basic_task_operations()
 #learn_Channel()
-learn_file_task()
+learn_write_read_file()
 
 nothing
