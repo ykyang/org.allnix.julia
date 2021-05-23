@@ -74,6 +74,8 @@ function learn_write_read_file()
                 #sleep(0.1)
                 println(io, "Hello! Number $i")
                 #flush(io)
+                # must use yield() for this to work
+                yield()  
             end
         end
 
@@ -91,7 +93,7 @@ function learn_write_read_file()
         final_line = ""
 
         while !done[]
-            sleep(0.2)
+            sleep(0.2) # won't work without sleep
             open("output.txt", "r") do io
                 skip(io, pos)
                 
@@ -107,33 +109,15 @@ function learn_write_read_file()
             # opening.
             println("First line: $first_line")
             println("Final line: $final_line")
+
+            # no need for yield(), guessing because sleep() above
+            #yield()
         end
 
         # do one more time here?
     end
-    # readfile = function()
-    #     #st = watch_file("output.txt", 1)
-    #     #println("Timeout: $(st.timedout)")
-    #     st = (changed=true,)
-    #     while st.changed
-    #         println("Wait for file changes")
-    #         st = watch_file("output.txt", 3)
-    #         println("Changed: $(st.changed)")
-    #         #if st.changed
-    #             open("output.txt", "r") do io
-    #                 line = nothing
-    #                 for line in eachline(io)
-    #                     #println("Read $line")
-    #                 end
-    #                 println("Final Line: $line")
-    #             end
-    #         #end
-            
-    #         println("Timedout: $(st.timedout)")
-    #     end
-    # end 
 
-
+    
     write_task = Task(writefile)
     read_task = Task(readfile)
     
