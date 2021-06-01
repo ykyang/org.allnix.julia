@@ -3,9 +3,48 @@ using Test
 using LightGraphs
 using GraphPlot
 
+## Getting Started
+
 # https://juliagraphs.org/LightGraphs.jl/latest/#Basic-library-examples
 function learn_basic_library_examples(io::IO)
+    # A path that connect 1 vertex to the next
+    g = path_graph(6)
+    @test 6 == nv(g)
+    @test 5 == ne(g)
+    
+    add_edge!(g, 1, 6) # connect first and last
+    @test 6 == nv(g)
+    @test 6 == ne(g)
 end
+
+
+## Making and Modifying Graphs
+
+# https://juliagraphs.org/LightGraphs.jl/latest/generators/#Graph-Generators
+function learn_graph_generators(io::IO)
+    # 1 - 2 # first dimension
+    # |   |
+    # 3 - 4
+    # |   |
+    # 5 - 6
+    g = grid([2,3], periodic=false)
+    @test 6 == nv(g)
+    @test 7 == ne(g)
+
+    plt = gplot(g, nodelabel=1:nv(g), edgelabel=1:ne(g))
+    display(plt)    
+
+    # Numbering follow the 1st dimension first then 2nd dimension
+    g = grid([10,5], periodic=false)
+    plt = gplot(g, nodelabel=1:nv(g))
+    display(plt)    
+end
+
+## Reading/Writing Graphs
+
+## Operators
+
+
 
 function learn()
     g = path_graph(0)
@@ -140,11 +179,13 @@ end
 io = stdout
 #io = devnull
 
+#learn_basic_library_examples(io)
+learn_graph_generators(io)
 #learn()
 #pl = learn_Basics()
 #learn_graph_properties(io)
 #learn_basic_operations(io)
 #learn_set_interface(io)
-learn_dag(io)
+#learn_dag(io)
 
 nothing
