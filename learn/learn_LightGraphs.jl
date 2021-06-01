@@ -3,6 +3,10 @@ using Test
 using LightGraphs
 using GraphPlot
 
+# https://juliagraphs.org/LightGraphs.jl/latest/#Basic-library-examples
+function learn_basic_library_examples(io::IO)
+end
+
 function learn()
     g = path_graph(0)
 
@@ -31,8 +35,9 @@ function learn_Basics()
     plt = gplot(G, nodelabel=1:3)
     display(plt)
 
+    # Adjacency matrix
     A = [
-        0 1 1
+        0 1 1 # node 1 connects to 2, 3
         1 0 1
         1 1 0
     ]
@@ -41,7 +46,105 @@ function learn_Basics()
 
     @test G == G2
 end
+
+# https://nbviewer.jupyter.org/github/JuliaGraphs/JuliaGraphsTutorials/blob/master/Basics.ipynb#Graph-properties
+function learn_graph_properties(io::IO)
+    G = smallgraph("house")
+    nvertices = nv(G)
+    nedges = ne(G)
+
+    # Get vertices
+    for v in vertices(G)
+        println(io, "vertex $v")
+    end
+
+    # Get edges
+    for e in edges(G)
+        u = src(e)
+        v = dst(e)
+        println(io, "edge $u - $v")
+    end
+
+    plt = gplot(G, nodelabel=1:nvertices, edgelabel=1:nedges)
+    display(plt)
+end
+
+# https://nbviewer.jupyter.org/github/JuliaGraphs/JuliaGraphsTutorials/blob/master/Basics.ipynb#Basic-operations
+function learn_basic_operations(io::IO)
+    G = Graph()
+    add_vertices!(G, 3)
+    add_vertices!(G, 2)
+
+    add_edge!(G, 1, 2)
+    add_edge!(G, 1, 3)
+    add_edge!(G, 2, 4)
+    add_edge!(G, 3, 4)
+    add_edge!(G, 3, 5)
+    add_edge!(G, 4, 5)
+
+    plt = gplot(G, nodelabel=1:nv(G), edgelabel=1:ne(G))
+    display(plt)
+
+    # add vertex
+    add_vertex!(G)
+    add_edge!(G, 5, 6)
+
+    plt = gplot(G, nodelabel=1:nv(G), edgelabel=1:ne(G))
+    display(plt)
+
+    # remove vertex
+    rem_vertex!(G, 1)
+    plt = gplot(G, nodelabel=1:nv(G), edgelabel=1:ne(G))
+    display(plt)
+end
+
+function learn_set_interface(io::IO)
+    skeleton = Graph(11)
+    add_edge!(skeleton, 1, 2)
+    add_edge!(skeleton, 2, 3)
+    add_edge!(skeleton, 3, 4)
+    add_edge!(skeleton, 4, 5)
+    add_edge!(skeleton, 3, 6)
+    add_edge!(skeleton, 3, 7)
+    add_edge!(skeleton, 3, 8)
+    add_edge!(skeleton, 3, 9)
+    add_edge!(skeleton, 9, 10)
+    add_edge!(skeleton, 9, 11)
+
+    plt = gplot(skeleton)
+    display(plt)
+
+    □ = Graph(4)
+    add_edge!(□, 1, 2)
+    add_edge!(□, 1, 3)
+    add_edge!(□, 2, 4)
+    add_edge!(□, 3, 4)
+
+    plt = gplot(cartesian_product(□, skeleton))
+    display(plt)
+end
+
+# https://nbviewer.jupyter.org/github/JuliaGraphs/JuliaGraphsTutorials/blob/master/DAG-Julia-Pkgs.ipynb
+function learn_dag(io)
+    G = smallgraph("house")
+    
+    plt = gplot(G, nodelabel=1:nv(G), edgelabel=1:ne(G))
+    display(plt)
+
+    @show gdistances(G, 5)
+end
+
+function learn_MetaGraphs(io)
+end
+
+io = stdout
+#io = devnull
+
 #learn()
-pl = learn_Basics()
+#pl = learn_Basics()
+#learn_graph_properties(io)
+#learn_basic_operations(io)
+#learn_set_interface(io)
+learn_dag(io)
 
 nothing
