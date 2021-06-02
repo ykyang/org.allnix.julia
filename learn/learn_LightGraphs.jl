@@ -44,7 +44,11 @@ end
 
 ## Operators
 
+## Plotting Graphs
 
+## Path and Traversal
+
+## Distance
 
 function learn()
     g = path_graph(0)
