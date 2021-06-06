@@ -18,6 +18,7 @@ app = chapter_heatmaps(app=app)
 #app = chapter_3d_scatter_plots(app=app)
 #app = chapter_3d_surface_plots(app=app)
 
+try
 run_server(
     app, 
     "0.0.0.0", 
@@ -25,3 +26,6 @@ run_server(
     debug=true,  # enables hot reload and more
     #debug=false, # enable ctrl-c
 )
+catch e
+    @show e
+end

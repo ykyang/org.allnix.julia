@@ -3,9 +3,108 @@ using Test
 using LightGraphs
 using GraphPlot
 
+
+## Getting Started
+
 # https://juliagraphs.org/LightGraphs.jl/latest/#Basic-library-examples
 function learn_basic_library_examples(io::IO)
+    # A path that connect 1 vertex to the next
+    g = path_graph(6)
+    @test 6 == nv(g)
+    @test 5 == ne(g)
+    
+    add_edge!(g, 1, 6) # connect first and last
+    @test 6 == nv(g)
+    @test 6 == ne(g)
 end
+
+
+## Making and Modifying Graphs
+
+# https://juliagraphs.org/LightGraphs.jl/latest/generators/#Graph-Generators
+function learn_graph_generators(io::IO)
+    # 1 - 2 # first dimension
+    # |   |
+    # 3 - 4
+    # |   |
+    # 5 - 6
+    g = grid([2,3], periodic=false)
+    @test 6 == nv(g)
+    @test 7 == ne(g)
+
+    plt = gplot(g, nodelabel=1:nv(g), edgelabel=1:ne(g))
+    display(plt)    
+
+    # Numbering follow the 1st dimension first then 2nd dimension
+    g = grid([10,5], periodic=false)
+    plt = gplot(g, nodelabel=1:nv(g))
+    display(plt)    
+end
+
+## Reading/Writing Graphs
+
+## Operators
+
+## Plotting Graphs
+
+## Path and Traversal
+function learn_dijkstra_shortest_paths(dp)
+    g = grid([2,2], periodic=false)
+
+    # weight matrix
+    w = [
+        0 2 2 0;    # distance of v1 to v1-v4
+        2 0 0 100;  # distance of v2 to v1-v4
+        2 0 0 50;
+        0 100 50 0;
+    ] 
+
+    edgelabel = Vector{String}(undef, ne(g))
+    for (i,e) in enumerate(edges(g))
+        #@show i, e
+        edgelabel[i] = string(w[e.src, e.dst])
+    end
+    ds = dijkstra_shortest_paths(g, 1, w)
+    #@show ds
+    #@show ds.dists
+
+    plt = gplot(g, nodelabel=1:nv(g), edgelabel=edgelabel)
+    display(plt)
+
+    return ds
+end
+
+function learn_dijkstra_shortest_paths_2(dp)
+    g = grid([2,2], periodic=false)
+    
+    # Assign permeability to each grid block (vertex)
+    k = Float64.([100 100 50 1]) .* 0.01
+
+    # Calculate transmissibility
+    R = Matrix{Float64}(undef, nv(g), nv(g)) # resistance
+    for edge in edges(g)
+        src = edge.src
+        dst = edge.dst
+        r = 0.5*(1/k[src] + 1/k[dst])
+        R[src,dst] = r
+        R[dst,src] = r # symmetric
+    end
+
+    edgelabel = Vector{String}(undef, ne(g))
+    for (i,e) in enumerate(edges(g))
+        edgelabel[i] = string(R[e.src, e.dst])
+    end
+
+    ds = dijkstra_shortest_paths(g, 1, R)
+    @info "Distance from Vertex 1 to: $(ds.dists)"
+
+    if dp
+        plt = gplot(g, nodelabel=1:nv(g), edgelabel=edgelabel)
+        display(plt)
+    end
+end
+
+## Distance
 
 function learn()
     g = path_graph(0)
@@ -137,14 +236,27 @@ end
 function learn_MetaGraphs(io)
 end
 
+default_logger = global_logger()
+global_logger(ConsoleLogger(stdout, Logging.Info))
+
 io = stdout
 #io = devnull
 
+# Display Plot
+dp = true
+dp = false 
+
+
+#learn_basic_library_examples(io)
+#learn_graph_generators(io)
+#ds = learn_dijkstra_shortest_paths(dp)
+learn_dijkstra_shortest_paths_2(dp)
 #learn()
 #pl = learn_Basics()
 #learn_graph_properties(io)
 #learn_basic_operations(io)
 #learn_set_interface(io)
-learn_dag(io)
+#learn_dag(io)
 
+global_logger(default_logger) # Restore global logger
 nothing
