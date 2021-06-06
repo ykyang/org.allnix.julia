@@ -14,13 +14,17 @@ app = dash(external_stylesheets=[
 #app = chapter_pie_charts(app=app)
 #app = chapter_bubble_charts(app=app)
 #app = chapter_contour_plots(app=app)
-#app = chapter_heatmaps(app=app)
+app = chapter_heatmaps(app=app)
 #app = chapter_3d_scatter_plots(app=app)
-app = chapter_3d_surface_plots(app=app)
+#app = chapter_3d_surface_plots(app=app)
 
+try
 run_server(
     app, 
     "0.0.0.0", 
     8050, 
     debug=true, # enables hot reload and more
 )
+catch e
+    @show e
+end

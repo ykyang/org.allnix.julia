@@ -1,5 +1,6 @@
 # https://github.com/oxinabox/LoggingExtras.jl
 
+using Logging
 using LoggingExtras
 using Dates
 
@@ -171,6 +172,34 @@ function my_logging()
     @warn "Console and file"
 end
 
+# Simple, clean logging with color coded "Info"
+function learn_console_logger()
+    # Save a copy
+    default_logger = global_logger()
+    @info "Default global logger"
+
+    cout_logger = ConsoleLogger(stdout, Logging.Info) 
+    global_logger(cout_logger)
+    @info "cout_logger"
+
+    # Restore
+    global_logger(default_logger)
+end
+
+# SimpleLogger prints the line number.
+function learn_simple_logger()
+    # Save a copy
+    default_logger = global_logger()
+    @info "Default global logger"
+
+    logger = SimpleLogger(stdout, Logging.Info)
+    global_logger(logger)
+    @info "SimpleLogger"
+
+    # Restore
+    global_logger(default_logger)
+end
+
 #learn_ActiveFilteredLogger()
 #learn_EarlyFilteredLogger()
 #learn_MinLevelLogger()
@@ -178,6 +207,8 @@ end
 #learn_FileLogger()
 #learn_FormatLogger()
 #learn_timestamp()
-my_logging()
+#my_logging()
+#learn_console_logger()
+learn_simple_logger()
 
 nothing

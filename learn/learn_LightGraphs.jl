@@ -3,6 +3,7 @@ using Test
 using LightGraphs
 using GraphPlot
 
+
 ## Getting Started
 
 # https://juliagraphs.org/LightGraphs.jl/latest/#Basic-library-examples
@@ -47,6 +48,61 @@ end
 ## Plotting Graphs
 
 ## Path and Traversal
+function learn_dijkstra_shortest_paths(dp)
+    g = grid([2,2], periodic=false)
+
+    # weight matrix
+    w = [
+        0 2 2 0;    # distance of v1 to v1-v4
+        2 0 0 100;  # distance of v2 to v1-v4
+        2 0 0 50;
+        0 100 50 0;
+    ] 
+
+    edgelabel = Vector{String}(undef, ne(g))
+    for (i,e) in enumerate(edges(g))
+        #@show i, e
+        edgelabel[i] = string(w[e.src, e.dst])
+    end
+    ds = dijkstra_shortest_paths(g, 1, w)
+    #@show ds
+    #@show ds.dists
+
+    plt = gplot(g, nodelabel=1:nv(g), edgelabel=edgelabel)
+    display(plt)
+
+    return ds
+end
+
+function learn_dijkstra_shortest_paths_2(dp)
+    g = grid([2,2], periodic=false)
+    
+    # Assign permeability to each grid block (vertex)
+    k = Float64.([100 100 50 1]) .* 0.01
+
+    # Calculate transmissibility
+    R = Matrix{Float64}(undef, nv(g), nv(g)) # resistance
+    for edge in edges(g)
+        src = edge.src
+        dst = edge.dst
+        r = 0.5*(1/k[src] + 1/k[dst])
+        R[src,dst] = r
+        R[dst,src] = r # symmetric
+    end
+
+    edgelabel = Vector{String}(undef, ne(g))
+    for (i,e) in enumerate(edges(g))
+        edgelabel[i] = string(R[e.src, e.dst])
+    end
+
+    ds = dijkstra_shortest_paths(g, 1, R)
+    @info "Distance from Vertex 1 to: $(ds.dists)"
+
+    if dp
+        plt = gplot(g, nodelabel=1:nv(g), edgelabel=edgelabel)
+        display(plt)
+    end
+end
 
 ## Distance
 
@@ -180,11 +236,21 @@ end
 function learn_MetaGraphs(io)
 end
 
+default_logger = global_logger()
+global_logger(ConsoleLogger(stdout, Logging.Info))
+
 io = stdout
 #io = devnull
 
+# Display Plot
+dp = true
+dp = false 
+
+
 #learn_basic_library_examples(io)
-learn_graph_generators(io)
+#learn_graph_generators(io)
+#ds = learn_dijkstra_shortest_paths(dp)
+learn_dijkstra_shortest_paths_2(dp)
 #learn()
 #pl = learn_Basics()
 #learn_graph_properties(io)
@@ -192,4 +258,5 @@ learn_graph_generators(io)
 #learn_set_interface(io)
 #learn_dag(io)
 
+global_logger(default_logger) # Restore global logger
 nothing
