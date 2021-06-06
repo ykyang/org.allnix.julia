@@ -26,7 +26,7 @@ end
 
 
 learn_split()
-learn_Fix2()
+
 
 
 nothing
