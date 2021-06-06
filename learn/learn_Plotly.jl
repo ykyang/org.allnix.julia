@@ -3313,7 +3313,10 @@ function chapter_heatmaps(; app=nothing)
         ],
         in_navbar=true, label="Section", caret=true, direction="left"),
     ], 
-    sticky="top", expand=true, brand="Allnix", brand_href="https://github.com/ykyang",
+    sticky="top", 
+    #expand=true, 
+    fluid=true,
+    brand="Allnix", brand_href="https://github.com/ykyang",
     )
 
     content = [
@@ -3324,7 +3327,7 @@ function chapter_heatmaps(; app=nothing)
                 figure = Plot(basic_heatmap()...),
                 config = Dict(),
             ),
-        ], className="p-3 my-2 border rounded",),
+        ], className="p-3 my-2 border rounded", fluid=true),
 
         dbc_container([html_h3("Heatmap with categorical axis labels", id="heatmap-with-categorical-axis-labels"),
             dbc_badge("Origin", color="info", href="https://plotly.com/javascript/heatmaps/#heatmap-with-categorical-axis-labels"),
@@ -3361,7 +3364,11 @@ function chapter_heatmaps(; app=nothing)
 
     pushfirst!(content, navbar)
 
-    app.layout = dbc_container(content)
+    app.layout = dbc_container(
+            content, 
+            fluid=true,  # expand with window
+            #fluid=false, # not expand with window
+        )
 
     return app
 end
@@ -3372,10 +3379,25 @@ function basic_heatmap()
 
     traces = Vector{AbstractTrace}([
         heatmap(
+            x = [0, 1, 3, 4],
+            y = [0, 1, 3, 4],
             z = z,
+            showscale = true,
         )
     ])
-    layout = Layout()
+    layout = Layout(
+        xaxis=Dict(
+            :range=>[0, 4],
+        ),
+        yaxis=Dict(
+            :range=>[0, 4],
+            # https://stackoverflow.com/questions/31033791/plotly-same-scale-for-x-and-y-axis
+            :scaleanchor=>"x", 
+            :scaleratio=>1,
+        ),
+        width  = 500,
+        height = 500,
+    )
 
     return traces, layout
 end

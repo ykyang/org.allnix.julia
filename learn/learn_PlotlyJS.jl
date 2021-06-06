@@ -1,3 +1,4 @@
+# See learn_Plotly.jl for more examples
 # http://juliaplots.org/PlotlyJS.jl/stable/
 
 using PlotlyJS, HTTP, CSV
