@@ -1,13 +1,18 @@
 using DataFrames
 #using UrlDownload
 using CSV, HTTP
+import Downloads
 using Test
 
 function learn_download()
     url = "https://raw.githubusercontent.com/Arkoniak/UrlDownload.jl/master/data/ext.csv"
-    #csv = urldownload(url) # does not work, complain DataFrame(CSV.File{false}) not exist.
-    body = HTTP.get(url).body
-    csv = CSV.File(body)
+    
+    #body = HTTP.get(url).body
+
+    # Use Julia Downloads
+    io = IOBuffer()
+    Downloads.download(url, io)
+    csv = CSV.File(take!(io))
     df = DataFrame(csv)
 
     @test [1,3] == df[!,:x]
