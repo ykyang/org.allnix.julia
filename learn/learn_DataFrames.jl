@@ -4,22 +4,7 @@ using CSV, HTTP
 import Downloads
 using Test
 
-function learn_download()
-    url = "https://raw.githubusercontent.com/Arkoniak/UrlDownload.jl/master/data/ext.csv"
-    
-    #body = HTTP.get(url).body
-
-    # Use Julia Downloads
-    io = IOBuffer()
-    Downloads.download(url, io)
-    csv = CSV.File(take!(io))
-    df = DataFrame(csv)
-
-    @test [1,3] == df[!,:x]
-    @test [2,4] == df[!,:y]
-
-    return df
-end
+# See learn_Downloads.jl for how to download
 
 """
 This is not supported in 1.0
@@ -39,8 +24,24 @@ function unsupported_DataFrame()
     #return df
 end
 
-function learn_DataFrame()
-        
+function learn_constructor()
+    
+    # Like this one the most
+    df = DataFrame( # Pair constructor
+        "a" => 1:2, 
+        "b" => 0  , # auto fill  
+    )
+    # 2×2 DataFrame
+    #  Row │ a      b
+    #      │ Int64  Int64
+    # ─────┼──────────────
+    #    1 │     1      0
+    #    2 │     2      0
+    # DataFrame([:a => 1:2, :b => 13]) # vector of Pairs constructor
+    @test [1,2] == df[!,:a]
+    @test [0,0] == df[!,:b]
+
+
     df = DataFrame((a=[1, 2], b=[3, 4])) # Tables.jl table constructor
     # 2×2 DataFrame
     #  Row │ a      b
@@ -63,16 +64,7 @@ function learn_DataFrame()
     @test [1,2] == df[!,:a]
     @test [0,0] == df[!,:b]
   
-    df = DataFrame("a" => 1:2, "b" => 0) # Pair constructor
-    # 2×2 DataFrame
-    #  Row │ a      b
-    #      │ Int64  Int64
-    # ─────┼──────────────
-    #    1 │     1      0
-    #    2 │     2      0
-    # DataFrame([:a => 1:2, :b => 13]) # vector of Pairs constructor
-    @test [1,2] == df[!,:a]
-    @test [0,0] == df[!,:b]
+    
 
     df = DataFrame([:a => 1:2, :b => 0]) # vector of Pairs constructor
     # 2×2 DataFrame
@@ -139,32 +131,34 @@ function learn_DataFrame()
 end
 
 """
-Replace the constructor that takes types
+Create a empty DataFrame then fill row-by-row.
 """
-function learn_VectorVector()
-    col_type = [Vector{Float64}(), Vector{String}(), Vector{Int64}()]
-    col_name = ["cond", "name", "count"]
-    df = DataFrame(col_type, col_name)
+function learn_empty_constructor()
+    # Create empty data frame
+    df = DataFrame(
+        [Float64[], String[], Int64[]],  # column data type
+        ["cond", "name", "count"]        # column names
+    )
     
-    row = [13.0, "H-1", 5]
-    push!(df, row)
-    row = [17.0, "H-2", 7]
-    push!(df, row)
+    # Add rows
+    push!(df, [13.0, "H-1", 5])
+    push!(df, [17.0, "H-2", 7])
 
-    @test [13.0, 17.0] == df[!, "cond"]
+    # Test
+    @test [ 13.0,  17.0] == df[!, "cond"]
     @test ["H-1", "H-2"] == df[!, "name"]
-    @test [5,7] == df[!, :count]
+    @test [    5,     7] == df[!, :count]
 end
 
 
 
 
 function construct_by_constructor()
-    df = DataFrame([
+    df = DataFrame(
         "name"  => ["Liam", "Sophie", "Jacob"],
         "score" => [8.0, 8.0, 12.0],
         "note"  => ["4.17 below the mean", "4.17 below the mean", "0.17 below the mean"]
-    ])
+    )
 
     return df
 end
@@ -172,11 +166,11 @@ end
 
 https://stackoverflow.com/questions/51240161/how-to-insert-a-column-in-a-julia-dataframe-at-specific-position-without-referr
 """
-function add_a_column()
-    df = DataFrame([
+function learn_add_column()
+    df = DataFrame(
         "name"  => ["Liam", "Sophie", "Jacob"],
         "score" => [8.0, 8.0, 12.0],
-    ])
+    )
 
     insertcols!(
         df, 
@@ -185,30 +179,28 @@ function add_a_column()
         makeunique = true
     )
 
-    return df
+    @test ["4.17 below the mean", "4.17 below the mean", "0.17 below the mean"] == df[!,"note"]
 end
 
-function get_a_column()
-    df = construct_by_constructor()
-    col = df[!,"name"]
+function learn_get_column()
+    df = DataFrame(
+        "name"  => ["Liam", "Sophie", "Jacob"],
+        "score" => [8.0, 8.0, 12.0],
+        "note"  => ["4.17 below the mean", "4.17 below the mean", "0.17 below the mean"]
+    )
 
-    return col
+    @test ["Liam", "Sophie", "Jacob"] == df[!, "name"] # by ref
+    @test ["Liam", "Sophie", "Jacob"] == df[:, "name"] # by value
 end
 
-#df = learn_download()
-#df = construct_by_push_row()
-#df = construct_by_constructor()
-#df = add_a_column()
-#col = get_a_column()
 @testset "Base" begin
-    learn_download()
     unsupported_DataFrame()
     construct_by_constructor()
-    add_a_column()
-    get_a_column()
+    learn_add_column()
+    learn_get_column()
 
-    learn_DataFrame()
-    learn_VectorVector()
+    learn_constructor()
+    learn_empty_constructor()
 end
 
 nothing
