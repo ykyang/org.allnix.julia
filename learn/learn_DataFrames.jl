@@ -9,19 +9,13 @@ using Test
 """
 This is not supported in 1.0
 
-see `learn_VectorVector()` for work around
+See learn_empty_constructor()
 """
 function unsupported_DataFrame()
     @test_throws ArgumentError DataFrame(
             [String, Float64, String],
             ["name", "score", "note"]
     )
-
-    # push!(df, ["Liam", 8.0, "4.17 below the mean"])
-    # push!(df, ["Sophie", 8.0, "4.17 below the mean"])
-    # push!(df, ["Jacob", 12.0, "0.17 below the mean"])
-
-    #return df
 end
 
 function learn_constructor()
@@ -150,18 +144,6 @@ function learn_empty_constructor()
     @test [    5,     7] == df[!, :count]
 end
 
-
-
-
-function construct_by_constructor()
-    df = DataFrame(
-        "name"  => ["Liam", "Sophie", "Jacob"],
-        "score" => [8.0, 8.0, 12.0],
-        "note"  => ["4.17 below the mean", "4.17 below the mean", "0.17 below the mean"]
-    )
-
-    return df
-end
 """
 
 https://stackoverflow.com/questions/51240161/how-to-insert-a-column-in-a-julia-dataframe-at-specific-position-without-referr
@@ -195,7 +177,7 @@ end
 
 @testset "Base" begin
     unsupported_DataFrame()
-    construct_by_constructor()
+
     learn_add_column()
     learn_get_column()
 
