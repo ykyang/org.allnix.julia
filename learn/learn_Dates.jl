@@ -1,8 +1,10 @@
 # See Julia Dates
 # https://docs.julialang.org/en/v1/stdlib/Dates/#stdlib-dates-api-1
 
+# TODO: remove logging using test instead
+using Test
 using Logging
-logger = SimpleLogger(stdout, Logging.Info)
+logger = ConsoleLogger(stdout, Logging.Info)
 global_logger(logger)
 
 using Dates
@@ -25,6 +27,9 @@ delta_day = Date(2020,10,31) - Date(2020, 10,20)
 @info @show typeof(delta_day)
 @info @show typeof(delta_day.value)
 
+delta_day = DateTime(2020,10,31) - DateTime(2020, 10,20) # milliseconds
+delta_day = convert(Day, DateTime(2020,10,31) - DateTime(2020, 10,20)) # milliseconds
+
 
 d = DateTime(2020, 12, 25)
 d = d + Dates.Millisecond(86400*1000)
@@ -41,8 +46,12 @@ d = Date(2019, 03, 20)
 for ind in 1:730
     global d
     str = Dates.format(d, "d-u-Y")
-    println("DATE \"$str\"")
+    #println("DATE \"$str\"")
     d += Day(1)
 end
+
+@test DateTime("2019-2-1T00:00:00") == DateTime(2019, 2, 1)
+
+@test DateTime(2020, 12, 29) > DateTime(2020, 12, 25)
 
 nothing # suppress last line printout

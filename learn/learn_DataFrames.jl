@@ -175,6 +175,25 @@ function learn_get_column()
     @test ["Liam", "Sophie", "Jacob"] == df[:, "name"] # by value
 end
 
+function learn_hcat() # https://dataframes.juliadata.org/stable/lib/functions/#Base.hcat
+    df1 = DataFrame(A=1:3, B=1:3)
+    df2 = DataFrame(A=4:6, B=4:6)
+
+    df3 = hcat(df1, df2, makeunique=true) # copycols = true
+    @test df3.A !== df1.A
+    df3 = hcat(df1, df2, makeunique=true, copycols=false) # by ref so ...
+    @test df3.A === df1.A 
+
+    @test_throws ArgumentError hcat(df1, df2, makeunique=false) # Duplicate variable names
+    
+
+    df1 = DataFrame(A=1:3, B=1:3)
+    df2 = DataFrame(A=4:6,        C=4:6, D=5:7)
+    df3 = hcat(df1, df2[!, [2, 3]])
+    @test df3.A == df1.A
+    @test df3.C == df2.C
+end
+
 @testset "Base" begin
     unsupported_DataFrame()
 
@@ -183,6 +202,8 @@ end
 
     learn_constructor()
     learn_empty_constructor()
+
+    learn_hcat()
 end
 
 nothing
