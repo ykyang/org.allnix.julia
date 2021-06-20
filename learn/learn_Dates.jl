@@ -157,6 +157,7 @@ function learn_adjuster()
     @test Ans == [Date("2014-04-08"), Date("2014-05-13"), Date("2014-06-10"), Date("2014-07-08"), Date("2014-08-12"), Date("2014-09-09"), Date("2014-10-14"), Date("2014-11-11")] == [Date("2014-04-08"), Date("2014-05-13"), Date("2014-06-10"), Date("2014-07-08"), Date("2014-08-12"), Date("2014-09-09"), Date("2014-10-14"), Date("2014-11-11")]
 end
 
+# https://docs.julialang.org/en/v1/stdlib/Dates/#Period-Types
 function learn_period_types()
     @test 1 == Year(1).value
     @test Year(3) == Year(1) + Year(2)
@@ -171,6 +172,14 @@ function learn_period_types()
 
     @test 10 == Millisecond(10).value
     @test 10 == Dates.value(Millisecond(10))
+end
+
+# https://docs.julialang.org/en/v1/stdlib/Dates/#Rounding
+function learn_rounding()
+    @test Date(1985,8,1) == floor(Date(1985,8,16), Month)
+    @test DateTime(2013,2,13,0,45,0) == ceil(DateTime(2013,2,13,0,31,20), Minute(15))
+    @test DateTime(2016,8,7) == round(DateTime(2016,8,6,20,15), Day)
+    # ISO 8601 standard, 0000-01-01T00:00:00 was chosen as base (or "rounding epoch") 
 end
 
 function learn_parse()
@@ -251,6 +260,7 @@ print_dates(io)
     learn_time_type_period_arithmetic()
     learn_adjuster()
     learn_period_types()
+    learn_rounding()
     learn_parse()
     learn_print()
     learn_arithemtic()
