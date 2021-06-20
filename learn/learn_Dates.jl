@@ -157,6 +157,22 @@ function learn_adjuster()
     @test Ans == [Date("2014-04-08"), Date("2014-05-13"), Date("2014-06-10"), Date("2014-07-08"), Date("2014-08-12"), Date("2014-09-09"), Date("2014-10-14"), Date("2014-11-11")] == [Date("2014-04-08"), Date("2014-05-13"), Date("2014-06-10"), Date("2014-07-08"), Date("2014-08-12"), Date("2014-09-09"), Date("2014-10-14"), Date("2014-11-11")]
 end
 
+function learn_period_types()
+    @test 1 == Year(1).value
+    @test Year(3) == Year(1) + Year(2)
+    
+    @test 5       == div(Year(10), Year(2))
+    @test Year(5) == div(Year(10), 2) # Year(10) ÷ 2
+    @test Year(5) == Year(10) / 2
+    @test 5       == Year(10) / Year(2)
+
+    @test Year(3) == div(Year(10), 3)
+    @test_throws InexactError Year(10) / 3
+
+    @test 10 == Millisecond(10).value
+    @test 10 == Dates.value(Millisecond(10))
+end
+
 function learn_parse()
     @test Date(2021,6,18) == Date("06/18/2021", DateFormat("m/d/y"))
     @test Date(2021,6,18) == Date("06/18/2021", dateformat"m/d/y")
@@ -233,11 +249,12 @@ print_dates(io)
     learn_accessor()
     learn_query()
     learn_time_type_period_arithmetic()
-    #learn_adjuster()
+    learn_adjuster()
+    learn_period_types()
     learn_parse()
     learn_print()
     learn_arithemtic()
 
-    learn_adjuster() # remove and uncomment above once done
+    
 end
 nothing # suppress last line printout
