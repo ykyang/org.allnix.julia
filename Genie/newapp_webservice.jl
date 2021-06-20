@@ -2,6 +2,7 @@ using Genie
 Genie.newapp_webservice("MyGenieApp")
 
 
+# julia --project=@. bootstrap.jl -h
 # julia --project=@. bootstrap.jl s
 # 
 # Genie.loadapp()
