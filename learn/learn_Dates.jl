@@ -125,7 +125,36 @@ end
 
 # https://docs.julialang.org/en/v1/stdlib/Dates/#Adjuster-Functions
 function learn_adjuster()
-    @test false
+    @test Date(2014,7,14) ==         firstdayofweek(Date(2014,7,16))
+    @test "Monday"        == dayname(firstdayofweek(Date(2014,7,16)))
+
+    @test Date(2014,7,31) == lastdayofmonth(Date(2014,7,16))
+    @test Date(2014,9,30) == lastdayofquarter(Date(2014,7,16))
+
+    istuesday = x -> Tuesday == dayofweek(x)
+
+    # 2014-07-13 is a Sunday, the following Tuesday is 2014-07-15
+    @test Date(2014,7,15) == tonext(istuesday, Date(2014,7,13))
+    # Convenience method to do above
+    @test Date(2014,7,15) == tonext(Date(2014,7,13), Tuesday)
+
+    # Find the following Thanksgiving
+    @test Date(2014,11,27) == tonext(Date(2014,7,13)) do date
+        # Return true when it is the 4th Thursday of November, 
+        # that is Thanksgiving.
+        Thursday == dayofweek(date) &&
+        4        == dayofweekofmonth(date) && # 4th Thursday
+        November == month(date)
+    end
+
+    # filter
+    # Pittsburgh street cleaning: Every 2nd Tuesday from April to November
+    Ans = filter(Date(2014):Day(1):Date(2015)) do date
+        Tuesday == dayofweek(date) &&
+        April <= month(date) <= November &&
+        2 == dayofweekofmonth(date)
+    end
+    @test Ans == [Date("2014-04-08"), Date("2014-05-13"), Date("2014-06-10"), Date("2014-07-08"), Date("2014-08-12"), Date("2014-09-09"), Date("2014-10-14"), Date("2014-11-11")] == [Date("2014-04-08"), Date("2014-05-13"), Date("2014-06-10"), Date("2014-07-08"), Date("2014-08-12"), Date("2014-09-09"), Date("2014-10-14"), Date("2014-11-11")]
 end
 
 function learn_parse()
