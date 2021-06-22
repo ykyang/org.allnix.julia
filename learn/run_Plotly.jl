@@ -7,6 +7,7 @@ app = dash(external_stylesheets=[
     #"myassets/my.css"
     ])
 
+# Uncomment one of the following to run
 #app = chapter_configuration_options(app=app)
 #app = chapter_scatter_plots(app=app)
 #app = chapter_line_charts(app=app)
@@ -14,7 +15,7 @@ app = dash(external_stylesheets=[
 #app = chapter_pie_charts(app=app)
 #app = chapter_bubble_charts(app=app)
 #app = chapter_contour_plots(app=app)
-app = chapter_heatmaps(app=app)
+#app = chapter_heatmaps(app=app)
 #app = chapter_3d_scatter_plots(app=app)
 #app = chapter_3d_surface_plots(app=app)
 

@@ -2488,9 +2488,18 @@ function marker_size_color_and_symbol_as_an_array()
     return traces, layout
 end
 
+
+function chapter_histograms(; app=nothing)
+    if isnothing(app)
+        app = dash(external_stylesheets=[dbc_themes.SPACELAB])
+    end
+    
+    
+end
+
 """
 
-https://plotly.com/javascript/bubble-charts/
+https://plotly.com/javascript/contour-plots/
 """
 function chapter_contour_plots(; app=nothing)
     if isnothing(app)
