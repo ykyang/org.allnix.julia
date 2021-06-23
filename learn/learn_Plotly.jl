@@ -2503,6 +2503,7 @@ function chapter_histograms(; app=nothing)
     navbar = dbc_navbarsimple([
         dbc_dropdownmenu([
             dbc_dropdownmenuitem("Basic histogram", href="#basic-histogram", external_link=true),
+            dbc_dropdownmenuitem("Horizontal histogram", href="#horizontal-histogram", external_link=true),
         ], in_navbar=true, label="Section", caret=true, direction="left"),
     ],
     sticky="top", #expand=true,
@@ -2510,6 +2511,7 @@ function chapter_histograms(; app=nothing)
     brand="Allnix", brand_href="https://github.com/ykyang",
     )
 
+    # Bootstrap grid is 12 columns, therefore width=6
     content = [
         dbc_row([
             dbc_col(
@@ -2526,11 +2528,11 @@ function chapter_histograms(; app=nothing)
             ),
             dbc_col(
                 dbc_container([
-                    html_h3("Basic histogram", id="horizontal-histogram"),
+                    html_h3("Horizontal histogram", id="horizontal-histogram"),
                     dbc_badge("Origin", color="info", href="https://plotly.com/javascript/histograms/#basic-histogram"),
                     dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
                     dcc_graph(
-                        figure = Plot(simple_histogram()...),
+                        figure = Plot(horizontal_histogram()...),
                         config = Dict(),
                     )
                 ], className="p-3 my-2 border rounded", fluid=true),
@@ -2553,6 +2555,23 @@ function simple_histogram()
         histogram(
             x = x,
         ),
+    ]
+
+    layout = Layout()
+
+    return traces, layout
+end
+
+function horizontal_histogram()
+    y = rand(500)
+
+    traces = AbstractTrace[
+        histogram(
+            y = y,
+            marker = attr(color="pink"),
+            
+            
+        )
     ]
 
     layout = Layout()
