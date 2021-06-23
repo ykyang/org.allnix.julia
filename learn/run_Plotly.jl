@@ -14,6 +14,7 @@ app = dash(external_stylesheets=[
 #app = chapter_bar_charts(app=app)
 #app = chapter_pie_charts(app=app)
 #app = chapter_bubble_charts(app=app)
+app = chapter_histograms(app=app)
 #app = chapter_contour_plots(app=app)
 #app = chapter_heatmaps(app=app)
 #app = chapter_3d_scatter_plots(app=app)

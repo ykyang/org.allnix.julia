@@ -3,6 +3,7 @@
 using Dash, DashHtmlComponents, DashCoreComponents, DashBootstrapComponents
 using PlotlyJS, HTTP, CSV
 using DataFrames
+using Random
 
 """
 
@@ -2494,7 +2495,51 @@ function chapter_histograms(; app=nothing)
         app = dash(external_stylesheets=[dbc_themes.SPACELAB])
     end
     
-    
+    # https://stackoverflow.com/questions/4086107/fixed-page-header-overlaps-in-page-anchors
+    # Put this in my.css
+    # html {
+    # scroll-padding-top: 80px; /* height of sticky header */
+    # }
+    navbar = dbc_navbarsimple([
+        dbc_dropdownmenu([
+            dbc_dropdownmenuitem("Basic histogram", href="#basic-histogram", external_link=true),
+        ], in_navbar=true, label="Section", caret=true, direction="left"),
+    ],
+    sticky="top", #expand=true,
+    fluid=true,
+    brand="Allnix", brand_href="https://github.com/ykyang",
+    )
+
+    content = [
+        dbc_container([
+            html_h3("Basic histogram", id="basic-histogram"),
+            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/histograms/#basic-histogram"),
+            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+            dcc_graph(
+                figure = Plot(simple_histogram()...),
+                config = Dict(),
+            )
+        ], className="p-3 my-2 border rounded", fluid=true),
+    ]
+
+    pushfirst!(content, navbar)
+    app.layout = dbc_container(content, fluid=true)
+
+    return app
+end
+
+function simple_histogram()
+    x = rand(500)
+
+    traces = AbstractTrace[
+        histogram(
+            x = x,
+        ),
+    ]
+
+    layout = Layout()
+
+    return traces, layout
 end
 
 """
