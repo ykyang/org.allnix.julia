@@ -632,6 +632,7 @@ function layout_row_with_columns_2(;app=nothing)
     
     bg_style = Dict("backgroundColor"=>"#a3ffdd")
 
+    # 12 columns grid
     app.layout = html_div() do
         dbc_row(dbc_col("A single, half-width column", width=6, style=bg_style)),
         dbc_row(dbc_col("An automatically sized column", width="auto")),

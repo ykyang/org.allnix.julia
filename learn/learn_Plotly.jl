@@ -2511,15 +2511,33 @@ function chapter_histograms(; app=nothing)
     )
 
     content = [
-        dbc_container([
-            html_h3("Basic histogram", id="basic-histogram"),
-            dbc_badge("Origin", color="info", href="https://plotly.com/javascript/histograms/#basic-histogram"),
-            dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
-            dcc_graph(
-                figure = Plot(simple_histogram()...),
-                config = Dict(),
-            )
-        ], className="p-3 my-2 border rounded", fluid=true),
+        dbc_row([
+            dbc_col(
+                dbc_container([
+                    html_h3("Basic histogram", id="basic-histogram"),
+                    dbc_badge("Origin", color="info", href="https://plotly.com/javascript/histograms/#basic-histogram"),
+                    dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+                    dcc_graph(
+                        figure = Plot(simple_histogram()...),
+                        config = Dict(),
+                    )
+                ], className="p-3 my-2 border rounded", fluid=true),
+                width=6,
+            ),
+            dbc_col(
+                dbc_container([
+                    html_h3("Basic histogram", id="horizontal-histogram"),
+                    dbc_badge("Origin", color="info", href="https://plotly.com/javascript/histograms/#basic-histogram"),
+                    dbc_badge("Line: $(@__LINE__)", color="info", className="ml-1"),
+                    dcc_graph(
+                        figure = Plot(simple_histogram()...),
+                        config = Dict(),
+                    )
+                ], className="p-3 my-2 border rounded", fluid=true),
+                width=6
+            ),
+        ]),
+        
     ]
 
     pushfirst!(content, navbar)

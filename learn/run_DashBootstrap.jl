@@ -12,11 +12,11 @@ app = dash(external_stylesheets=[dbc_themes.SPACELAB])
 #app = button_group_example(app=app)
 #app = card_example(app=app)
 #app = layout_row_with_columns_1(app=app)
-#app = layout_row_with_columns_2(app=app)
+app = layout_row_with_columns_2(app=app)
 #app = layout_specify_order_and_offset(app=app)
 #app = layout_specify_width_for_different_screen_sizes(app=app)
 #app = nav_example(app=app)
-app = navbar_example(app=app)
+#app = navbar_example(app=app)
 
 run_server(
     app, 
