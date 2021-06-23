@@ -2523,7 +2523,7 @@ function chapter_histograms(; app=nothing)
                         figure = Plot(simple_histogram()...),
                         config = Dict(),
                     )
-                ], className="p-3 my-2 border rounded", fluid=true),
+                ], className="p-3 my-2 border rounded", ),
                 width=6,
             ),
             dbc_col(
@@ -2535,7 +2535,7 @@ function chapter_histograms(; app=nothing)
                         figure = Plot(horizontal_histogram()...),
                         config = Dict(),
                     )
-                ], className="p-3 my-2 border rounded", fluid=true),
+                ], className="p-3 my-2 border rounded", ),
                 width=6
             ),
         ]),
@@ -3470,7 +3470,7 @@ function basic_heatmap()
 
     traces = Vector{AbstractTrace}([
         heatmap(
-            x = [0, 1, 3, 4],
+            x = [0, 1, 3, 4], # boundary of grid in x-direction
             y = [0, 1, 3, 4],
             z = z,
             showscale = true,
