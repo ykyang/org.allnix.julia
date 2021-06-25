@@ -3,6 +3,7 @@ using DataFrames
 using CSV, HTTP
 import Downloads
 using Test
+using TerminalPager
 
 # See learn_Downloads.jl for how to download
 
@@ -194,6 +195,95 @@ function learn_hcat() # https://dataframes.juliadata.org/stable/lib/functions/#B
     @test df3.C == df2.C
 end
 
+function learn_transform_1()
+    # Assign same value back to the same column
+    df = simple_table()
+    transform!(df, "A" => x -> x, renamecols=false )
+    @test simple_table() == df
+    #pager(df)
+    # 10×3 DataFrame
+    # Row │ A        B        C
+    #     │ Float64  Float64  Float64
+    #─────┼───────────────────────────
+    #   1 │     1.0     11.0    101.0
+    #   2 │     2.0     12.0    102.0
+    #   3 │     3.0     13.0    103.0
+    #   4 │     4.0     14.0    104.0
+    #   5 │     5.0     15.0    105.0
+    #   6 │     6.0     16.0    106.0
+    #   7 │     7.0     17.0    107.0
+    #   8 │     8.0     18.0    108.0
+    #   9 │     9.0     19.0    109.0
+    #  10 │    10.0     20.0    110.0
+
+
+    # Assign same value to a new column
+    # Notice the () around the anonymous function
+    df = simple_table()
+    transform!(df, "A" => (x -> x) => "AA")
+    @test df[!,"A"] == df[!,:AA]
+
+    
+    # Create A2 = 2*A
+    df = simple_table()
+    transform!(df, "A" => (x -> x*2) => "A2")
+    @test df[!,"A"] .* 2 == df[!, "A2"]
+    
+
+    # Create ABC = A + B + C
+    df = simple_table()
+    transform!(df, ["A", "B", "C"] => ((a,b,c) -> a+b+c) => "ABC")
+    @test df[!, "A"] + df[!, "B"] + df[!, "C"] == df[!,"ABC"]   
+
+    # Same but use a function
+    df = simple_table()
+    transform!(df, ["A", "B", "C"] => 
+        function(a,b,c) 
+            return a+b+c
+        end 
+        => "ABC"
+    )
+    @test df[!, "A"] + df[!, "B"] + df[!, "C"] == df[!,"ABC"]   
+end
+
+function learn_filter_1()
+    #pager(simple_table())
+    # 10×3 DataFrame
+    # Row │ A        B        C
+    #     │ Float64  Float64  Float64
+    #─────┼───────────────────────────
+    #   1 │     1.0     11.0    101.0
+    #   2 │     2.0     12.0    102.0
+    #   3 │     3.0     13.0    103.0
+    #   4 │     4.0     14.0    104.0
+    #   5 │     5.0     15.0    105.0
+    #   6 │     6.0     16.0    106.0
+    #   7 │     7.0     17.0    107.0
+    #   8 │     8.0     18.0    108.0
+    #   9 │     9.0     19.0    109.0
+    #  10 │    10.0     20.0    110.0
+
+    df = simple_table()
+    filter!(row -> row["A"] <=5, df)
+    @test (5,3) == size(df)
+
+    # Same but use a function, use this for longer function
+    df = simple_table()
+    filter!(function(row)
+        return row["A"] <= 5
+    end, df)
+    @test (5,3) == size(df)
+end
+
+function simple_table()
+    df = DataFrame(
+        [1.0:1:10, 11.0:1:20, 101.0:1:110],
+        ["A", "B", "C"]
+    )
+
+    return df
+end
+
 @testset "Base" begin
     unsupported_DataFrame()
 
@@ -204,6 +294,9 @@ end
     learn_empty_constructor()
 
     learn_hcat()
+
+    learn_transform_1()
+    learn_filter_1()
 end
 
 nothing
