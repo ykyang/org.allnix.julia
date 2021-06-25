@@ -196,11 +196,7 @@ function learn_hcat() # https://dataframes.juliadata.org/stable/lib/functions/#B
 end
 
 function learn_transform_1()
-    # Assign same value back to the same column
-    df = simple_table()
-    transform!(df, "A" => x -> x, renamecols=false )
-    @test simple_table() == df
-    #pager(df)
+    #pager(simple_table())
     # 10×3 DataFrame
     # Row │ A        B        C
     #     │ Float64  Float64  Float64
@@ -215,6 +211,11 @@ function learn_transform_1()
     #   8 │     8.0     18.0    108.0
     #   9 │     9.0     19.0    109.0
     #  10 │    10.0     20.0    110.0
+
+    # Assign same value back to the same column
+    df = simple_table()
+    transform!(df, "A" => x -> x, renamecols=false )
+    @test simple_table() == df
 
 
     # Assign same value to a new column
@@ -231,6 +232,7 @@ function learn_transform_1()
     
 
     # Create ABC = A + B + C
+    # Notice the () around ((a,b,c) -> a+b+c), this is a must
     df = simple_table()
     transform!(df, ["A", "B", "C"] => ((a,b,c) -> a+b+c) => "ABC")
     @test df[!, "A"] + df[!, "B"] + df[!, "C"] == df[!,"ABC"]   
@@ -273,6 +275,21 @@ function learn_filter_1()
         return row["A"] <= 5
     end, df)
     @test (5,3) == size(df)
+
+    # Keep 3 <= A <= 7
+    df = simple_table()
+    filter!(row -> 3 <= row["A"] <= 7, df)
+    @test (5,3) == size(df)
+    @test [3,4,5,6,7] == df[!,"A"]
+
+    # Remove 3 <= A <= 7
+    df = simple_table()
+    filter!(row -> !(3 <= row["A"] <= 7), df)
+    @test (5,3) == size(df)
+    @test [1,2,8,9,10] == df[!,"A"]
+    @test [11,12,18,19,20] == df[!,"B"]
+    @test [101,102,108,109,110] == df[!,"C"]
+
 end
 
 function simple_table()
