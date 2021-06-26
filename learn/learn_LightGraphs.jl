@@ -2,6 +2,7 @@
 using Test
 using LightGraphs
 using GraphPlot
+using Compose
 
 
 ## Getting Started
@@ -23,11 +24,9 @@ end
 
 # https://juliagraphs.org/LightGraphs.jl/latest/generators/#Graph-Generators
 function learn_graph_generators(io::IO)
-    # 1 - 2 # first dimension
-    # |   |
-    # 3 - 4
-    # |   |
-    # 5 - 6
+    # 1 - 3 - 5
+    # |   |   |
+    # 2 - 4 - 6
     g = grid([2,3], periodic=false)
     @test 6 == nv(g)
     @test 7 == ne(g)
@@ -40,6 +39,26 @@ function learn_graph_generators(io::IO)
     plt = gplot(g, nodelabel=1:nv(g))
     display(plt)    
 end
+function learn_modifying_graphs()
+    # 1 - 3 - 5
+    # |   |   |
+    # 2 - 4 - 6
+   
+    # Remove an edge
+    g = grid([2,3], periodic=false)
+    @test 7 == ne(g)
+    @test has_edge(g, 5,6)
+   
+    @test rem_edge!(g, 5,6)
+    @test 6 == ne(g)
+    @test !has_edge(g, 5,6)
+
+    # Add existing edge does not change the graph
+    g = grid([2,3], periodic=false)
+    @test 7 == ne(g)
+    @test !add_edge!(g, 5,6)
+    @test 7 == ne(g)
+end
 
 ## Reading/Writing Graphs
 
@@ -48,6 +67,27 @@ end
 ## Plotting Graphs
 
 ## Path and Traversal
+function learn_bfs_tree()
+    # 1 - 3 - 5
+    # |   |   |
+    # 2 - 4 - 6
+    g = grid([2,3], periodic=false) 
+    #display(gplot(g, nodelabel=1:nv(g), edgelabel=1:ne(g)))
+
+    bfs = bfs_tree(g, 1)
+    # 6 <- 4 <- 2 <- 1 -> 3 -> 5
+    #display(gplot(bfs, nodelabel=1:nv(bfs), edgelabel=1:ne(bfs)))
+    draw(SVG("bfs_tree.svg", 16cm, 16cm), gplot(bfs, nodelabel=1:nv(bfs), edgelabel=1:ne(bfs)))
+
+    @test 6 == nv(bfs)
+    @test 5 == ne(bfs)
+
+    edge = first(edges(bfs)) 
+    @test edge isa LightGraphs.SimpleGraphs.SimpleEdge
+    @test 1 == src(edge)
+    @test 2 == dst(edge)    
+end
+
 function learn_dijkstra_shortest_paths(dp)
     g = grid([2,2], periodic=false)
 
@@ -236,8 +276,8 @@ end
 function learn_MetaGraphs(io)
 end
 
-default_logger = global_logger()
-global_logger(ConsoleLogger(stdout, Logging.Info))
+#default_logger = global_logger()
+#global_logger(ConsoleLogger(stdout, Logging.Info))
 
 io = stdout
 #io = devnull
@@ -246,17 +286,20 @@ io = stdout
 dp = true
 dp = false 
 
+@testset "Base" begin
+    #learn_basic_library_examples(io)
+    #learn_graph_generators(io)
+    learn_modifying_graphs()
+    #ds = learn_dijkstra_shortest_paths(dp)
+    learn_bfs_tree()
 
-#learn_basic_library_examples(io)
-#learn_graph_generators(io)
-#ds = learn_dijkstra_shortest_paths(dp)
-learn_dijkstra_shortest_paths_2(dp)
-#learn()
-#pl = learn_Basics()
-#learn_graph_properties(io)
-#learn_basic_operations(io)
-#learn_set_interface(io)
-#learn_dag(io)
-
-global_logger(default_logger) # Restore global logger
+    #learn_dijkstra_shortest_paths_2(dp)
+    #learn()
+    #pl = learn_Basics()
+    #learn_graph_properties(io)
+    #learn_basic_operations(io)
+    #learn_set_interface(io)
+    #learn_dag(io)
+end
+#global_logger(default_logger) # Restore global logger
 nothing
