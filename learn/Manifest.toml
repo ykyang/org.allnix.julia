@@ -994,12 +994,6 @@ git-tree-sha1 = "7937eda4681660b4d6aeeecc2f7e1c81c8ee4e2f"
 uuid = "e7412a2a-1a6e-54c0-be00-318e2571c051"
 version = "1.3.5+0"
 
-[[OilData]]
-deps = ["Dates"]
-path = "dev/OilData"
-uuid = "ed55d250-9399-4b64-848e-cd98e165462d"
-version = "0.1.0"
-
 [[OpenSSL_jll]]
 deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "15003dcb7d8db3c6c857fda14891a539a8f2705a"
