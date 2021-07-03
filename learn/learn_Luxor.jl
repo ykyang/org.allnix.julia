@@ -39,9 +39,31 @@ function learn_hello_world_3()
     return plt
 end
 
+# @draw, @drawsvg
+# Display in Code, Jupyter, Pluto
+
+
+function learn_hello_world_4()
+    plt = @png begin
+        setopacity(0.85)
+        steps = 20
+        gap = 2
+        for (n, θ) in enumerate(range(0, step=2π/steps, length=steps))
+            sethue([Luxor.julia_green,
+                Luxor.julia_red,
+                Luxor.julia_purple,
+                Luxor.julia_blue][mod1(n, 4)])
+            sector(Point(0, 0), 50, 250 + 2n, θ, θ + 2π/steps - deg2rad(gap), :fill)
+        end
+    end
+
+    return plt
+end
+
 #plt = learn_hello_world()
 #plt = learn_hello_world_2()
-plt = learn_hello_world_3()
+#plt = learn_hello_world_3()
+plt = learn_hello_world_4()
 
 display(plt)
 
