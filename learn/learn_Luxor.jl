@@ -1,3 +1,4 @@
+using Colors: Iterators
 using Luxor, IterTools
 using Colors
 
@@ -320,6 +321,84 @@ function learn_euclidean_eggs_2()
     end 800 800
 end
 
+function learn_euclidean_eggs_spiky()
+    plt = @svg begin
+        setlinejoin("round")
+        euclidean_egg(160, :path)
+        
+        path = pathtopoly()
+        
+        
+        # pathtopoly() -> Vector{Vector{Point}}
+        # the first item is all points but the last one is not connected to
+        # the first point
+        # the second item is 1 point which is the starting point
+        # by combining the 2, we crate a closed loop
+
+        pgon = collect(Iterators.flatten(path))
+        # pgon = vcat(path[1], path[2]) # same result as above
+        
+        pc = polycentroid(pgon)
+        circle(pc, 5, :fill)
+        
+        for pt in 1:2:length(pgon)
+            pgon[pt] = between(pc, pgon[pt], 0.5)
+        end
+        
+        poly(pgon, :stroke)
+    end
+
+    return plt
+end
+
+function learn_euclidean_eggs_offsetpoly()
+    plt = @svg begin
+        euclidean_egg(80, :path)
+        path = pathtopoly()
+        ## offsetpoly() does not like endpoint connects to first point
+        #pgon = collect(Iterators.flatten(path))
+        pgon = first(path)
+        pc = polycentroid(pgon)
+
+        for pt in 1:2:length(pgon)
+            pgon[pt] = between(pc, pgon[pt], 0.8)
+        end
+        poly(pgon, :stroke)
+        
+        for i in 30:-3:1
+            randomhue()
+            op = offsetpoly(pgon, i)
+            poly(op, :stroke, close=true)
+        end
+    end
+
+    return plt
+end
+
+function learn_euclidean_eggs_clipping()
+    plt = @svg begin
+        setopacity(0.5)
+
+        egg(a) = euclidean_egg(150, a)
+        sethue("gold")
+        egg(:fill)
+        egg(:clip)
+        @layer begin
+            for i in 360:-4:1
+                sethue(Colors.HSV(i, 1.0, 0.8))
+                rotate(pi/90)
+                ngon(O, i, 5, 0, :stroke)
+            end
+        end
+        clipreset()
+        setopacity(1)
+        setline(5)
+        sethue("red")
+        egg(:stroke)
+    end
+
+    return plt
+end
 # plt = learn_hello_world();               display(plt)
 # plt = learn_hello_circle();              display(plt)
 # plt = learn_hello_arrow();               display(plt) 
@@ -330,10 +409,11 @@ end
 # plt = learn_hello_jupyter(2, 0.95);      display(plt)
 # TODO: Not finished yet
 
-# plt = learn_tutorial_first_steps_1(); display(plt)
-# plt = learn_tutorial_first_steps_2(); display(plt)
-# plt = learn_euclidean_eggs();         display(plt)
-plt = learn_euclidean_eggs_2();       display(plt)
-
-
+# plt = learn_tutorial_first_steps_1();    display(plt)
+# plt = learn_tutorial_first_steps_2();    display(plt)
+# plt = learn_euclidean_eggs();            display(plt)
+# plt = learn_euclidean_eggs_2();          display(plt)
+# plt = learn_euclidean_eggs_spiky();      display(plt)
+# plt = learn_euclidean_eggs_offsetpoly(); display(plt)
+plt = learn_euclidean_eggs_clipping();   display(plt)
 nothing
