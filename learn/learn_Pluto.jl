@@ -32,10 +32,12 @@ Plotly scatter plot
 # ╔═╡ 2ab468f0-adce-4d2b-9f6f-bffe253f000b
 begin
 	l = Layout(
-        #title="Penguins",
-        #xaxis=attr(range=[0, 42.0], title="fish", showgrid=true),
-        #yaxis=attr(title="Weight", showgrid=true),
-        legend=attr(x=0.1, y=0.1)
+        title="Penguins",
+        xaxis=attr(title="fish", showgrid=true),
+        yaxis=attr(title="Weight", showgrid=true),
+        legend=attr(x=0.1, y=0.1),
+		width = 10,
+		height = 10,
     )
     trace1 = scatter(;x=1:4, y=[10, 15, 13, 17], mode="markers")
     trace2 = scatter(;x=2:5, y=[16, 5, 11, 9], mode="lines")
@@ -64,7 +66,7 @@ println("Power Level: $power_level")
 		sethue([Luxor.julia_red, Luxor.julia_purple, Luxor.julia_green][k])
 		Luxor.circle(i, S, :fill)
 	end
-end
+end 100 100
 
 # ╔═╡ Cell order:
 # ╠═c7de68ac-906c-4959-82ac-5fc8fe4870a5

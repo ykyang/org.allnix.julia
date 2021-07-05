@@ -1,6 +1,9 @@
-using Colors: Iterators
+#using Colors: Iterators
 using Luxor, IterTools
 using Colors
+using Test
+
+#import Luxor: text
 
 ## http://juliagraphics.github.io/Luxor.jl/stable/examples/#The-obligatory-%22Hello-World%22
 function learn_hello_world()
@@ -399,6 +402,88 @@ function learn_euclidean_eggs_clipping()
 
     return plt
 end
+
+## http://juliagraphics.github.io/Luxor.jl/stable/basics/
+function learn_basics()
+    P = Point(12,13)
+    @test 12 == P.x
+    @test 13 == P.y
+    @test P.x isa Float64
+    Q = Point(4,5)
+    @test P.x + Q.x == (P + Q).x
+    @test P.y + Q.y == (P + Q).y
+
+    @test 10 * P.x == (10*P).x
+    @test 10 * P.y == (10*P).y
+end
+
+## https://discourse.julialang.org/t/luxor-questions/41946/9
+ytext(t; kwargs...) = ytext(t, O, yflip; kwargs...)
+ytext(t, xpos, ypos; kwargs...) = ytext(t, Point(xpos, ypos); kwargs...)
+function ytext(t, pt::Point; kwargs...)
+    @layer begin
+        translate(pt) # must translate first
+        scale(1,-1)
+        text(t; kwargs...)
+    end
+end
+
+function learn_basics_triangle()
+    plt = @svg begin
+        background("white")
+        origin()
+
+        
+        # @layer begin
+        #     #rulers()
+        #     points = ngon(Point(0,0), 250, 3, 90/360*2pi, :fill, vertices=true)
+        #     poly(points, :stroke, close=true)
+        # end
+        @layer begin
+            scale(1,-1)
+            rulers()
+            sethue("gold")
+            # positive angle from +x to +y
+            points = ngon(Point(0,0), 250, 5, 90/360*2pi, :fill, vertices=true)
+            poly(points, :stroke, close=true)
+        end
+
+    end 500 500
+
+    return plt
+end
+function learn_basics_box(;text=Luxor.text)
+    plt = @svg begin
+        scale(1,-1)
+        rulers()
+        # circle(O, 20, :stroke)
+        l = 50
+        theta = 2pi/l
+        for dist in range(0, stop=100, length=l )
+            #@show theta
+        
+            #rotate(theta)
+            p = O + (dist,0)
+            box(p, 20, 20, :stroke)
+            
+            ## https://discourse.julialang.org/t/luxor-questions/41946/9
+            # @layer begin 
+            #     translate(p)
+            #     scale(1,-1)
+            #     text("$dist", valign=:middle, halign=:left)
+            # end
+
+            #text("$dist", p, valign=:middle, halign=:left)
+            rotate(theta)
+        end
+        
+        #text("TEST", Point(100,100))
+    end 500 500
+
+    return plt
+end
+
+## A few examples
 # plt = learn_hello_world();               display(plt)
 # plt = learn_hello_circle();              display(plt)
 # plt = learn_hello_arrow();               display(plt) 
@@ -409,11 +494,24 @@ end
 # plt = learn_hello_jupyter(2, 0.95);      display(plt)
 # TODO: Not finished yet
 
+
+## Tutorial
 # plt = learn_tutorial_first_steps_1();    display(plt)
 # plt = learn_tutorial_first_steps_2();    display(plt)
 # plt = learn_euclidean_eggs();            display(plt)
 # plt = learn_euclidean_eggs_2();          display(plt)
 # plt = learn_euclidean_eggs_spiky();      display(plt)
 # plt = learn_euclidean_eggs_offsetpoly(); display(plt)
-plt = learn_euclidean_eggs_clipping();   display(plt)
+# plt = learn_euclidean_eggs_clipping();   display(plt)
+
+## http://juliagraphics.github.io/Luxor.jl/stable/basics/
+
+@testset "Base" begin
+    learn_basics()
+end
+
+#plt = learn_basics_box(text=Luxor.text); display(plt)
+plt = learn_basics_box(text=ytext); display(plt)
+#plt = learn_basics_triangle(); display(plt)
+
 nothing
