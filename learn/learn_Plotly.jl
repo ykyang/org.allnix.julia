@@ -3951,3 +3951,81 @@ function multiple_3d_surface_plots()
 
     return traces, layout
 end
+
+"""
+
+https://plotly.com/javascript/3d-mesh/
+"""
+function chapter_3d_mesh_plots(; 
+    app=dash(external_stylesheets=[dbc_themes.SPACELAB])
+    )
+end
+
+function simple_3d_mesh_plot()
+    a = rand(50)
+    b = rand(50)
+    c = rand(50)
+
+    traces = AbstractTrace[
+        mesh3d(
+            opacity = 0.8,
+            color = "rgb(300,100,200)",
+            x = a, y = b, z = c,
+        ),
+    ]
+
+    layout = Layout()
+
+    return traces, layout
+end
+#savefig(Plot(simple_3d_mesh_plot()...), "plot.html")
+
+function _3d_mesh_plot_with_alphahull()
+    a = rand(50)
+    b = rand(50)
+    c = rand(50)
+
+    traces = AbstractTrace[
+        mesh3d(
+            alphahull = 0,
+            opacity = 0.8,
+            color = "rgb(200,100,300)",
+            x = a, y = b, z = c,
+        ),
+    ]
+
+    layout = Layout()
+
+    return traces, layout
+end
+#savefig(Plot(_3d_mesh_plot_with_alphahull()...), "plot.html")
+
+function _3d_mesh_tetrahedron()
+end
+
+function _3d_mesh_cube()
+    intensity = [0, 0.14285714285714285, 0.2857142857142857, 0.42857142857142855, 0.5714285714285714, 0.7142857142857143, 0.8571428571428571, 1]
+    intensity = range(0, 1, length=12)
+    traces = AbstractTrace[
+        mesh3d(
+            x = [0, 0, 1, 1, 0, 0, 1, 1],
+            y = [0, 1, 1, 0, 0, 1, 1, 0],
+            z = [0, 0, 0, 0, 1, 1, 1, 1],
+            i = [7, 0, 0, 0, 4, 4, 6, 6, 4, 0, 3, 2],
+            j = [3, 4, 1, 2, 5, 6, 5, 2, 0, 1, 6, 3],
+            k = [0, 7, 2, 3, 6, 7, 1, 1, 5, 5, 7, 6],
+            intensity = intensity,
+            intensitymode = "cell",
+            colorscale = [
+                [0, "rgb(255, 0, 255)"],
+                [0.5, "rgb(0, 255, 0)"],
+                [1, "rgb(0, 0, 255)"]
+            ]
+        )
+    ]
+
+    layout = Layout()
+
+    return traces, layout
+end
+savefig(Plot(_3d_mesh_cube()...), "plot.html")
