@@ -217,7 +217,7 @@ function learn_plotting_arrows_2()
         linecolor = lengths, arrowcolor = lengths,
         linewidth = 0.1, #arrowsize = Vec3(0.3,0.3,0.4),
         align = :center, axis = (type=Axis3,),
-        #quality = 100
+        quality = 50
     )
     #di = DataInspector(fig)
     display(fig)

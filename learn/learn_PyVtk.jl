@@ -2,21 +2,26 @@ using PyCall
 
 vtk = pyimport("vtk")
 
+colors = vtk.vtkNamedColors()
+
 cone = vtk.vtkConeSource()
-coneMapper = vtk.vtkPolyDataMapper()
-coneMapper.SetInputConnection(cone.GetOutputPort())
+mapper = vtk.vtkPolyDataMapper()
+mapper.SetInputConnection(cone.GetOutputPort())
 
-coneActor = vtk.vtkActor()
-coneActor.SetMapper(coneMapper)
+actor = vtk.vtkActor()
+actor.SetMapper(mapper)
+actor.GetProperty().SetDiffuseColor(colors.GetColor3d("bisque"))
+
+renderer = vtk.vtkRenderer()
 
 
-ren = vtk.vtkRenderer()
-ren.AddActor(coneActor)
 
 renWin = vtk.vtkRenderWindow()
-renWin.AddRenderer(ren)
-renWin.SetSize(300, 300)
-renWin.SetWindowName("Tutorial_Step1")
+renWin.AddRenderer(renderer)
+
+
+renderer.AddActor(actor)
+renderer.SetBackground(colors.GetColor3d("Salmon"))
 
 iren = vtk.vtkRenderWindowInteractor()
 iren.SetRenderWindow(renWin)
@@ -24,7 +29,9 @@ iren.SetRenderWindow(renWin)
 iren.Initialize()
 # We'll zoom in a little by accessing the camera and invoking a "Zoom"
 # method on it.
-ren.ResetCamera()
-ren.GetActiveCamera().Zoom(1.5)
+#ren.ResetCamera()
+#ren.GetActiveCamera().Zoom(1.5)
+renWin.SetSize(300, 300)
+renWin.SetWindowName("Cone")
 renWin.Render()
 iren.Start()
