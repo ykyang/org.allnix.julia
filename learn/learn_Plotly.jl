@@ -3731,7 +3731,7 @@ function chapter_3d_scatter_plots(; app=nothing)
     return app
 end
 
-function _3d_scatter_plot()
+function chapter_3d_scatter_plot()
     url = "https://raw.githubusercontent.com/plotly/datasets/master/3d-scatter.csv"
     body = HTTP.get(url).body
     csv = CSV.File(body)

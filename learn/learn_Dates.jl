@@ -190,6 +190,8 @@ function learn_parse()
     @test Date(0021,6,18) == Date("6/18/21",    dateformat"m/d/y")
 
     @test Date(2021,6,18) == Date("2021-Jun-18", dateformat"y-u-d")
+
+    @test DateTime(2021,6,18,15,38, 17) == DateTime("2021-Jun-18T15:38:17", DateFormat("y-u-dTHH:MM:SS"))
 end
 
 function learn_print()
@@ -213,7 +215,8 @@ end
 function learn_arithemtic()
     # +
     @test Date(2021,6,21) == Date(2021,6,18) + Day(3)
-    @test_throws MethodError Date(2021,6,18) + Millisecond(3*86400*1000)
+    #@test_throws MethodError Date(2021,6,18) + Millisecond(3*86400*1000)
+    @test Date(2021,6,21) == Date(2021,6,18) + Millisecond(3*86400*1000)
     @test Date(2021,6,21) == DateTime(2021,6,18) + Millisecond(3*86400*1000)
     
 

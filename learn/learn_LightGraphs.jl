@@ -85,7 +85,24 @@ function learn_bfs_tree()
     edge = first(edges(bfs)) 
     @test edge isa LightGraphs.SimpleGraphs.SimpleEdge
     @test 1 == src(edge)
-    @test 2 == dst(edge)    
+    @test 2 == dst(edge)
+
+    # 1 - 3   5
+    # |   |   |
+    # 2 - 4   6
+    g = grid([2,3], periodic=false) 
+
+    rem_edge!(g, 3,5)
+    rem_edge!(g, 4,6)
+
+    @test 6 == nv(bfs)
+    @test 5 == ne(bfs)
+
+    bfs = bfs_tree(g, 2)
+    @show collect(vertices(bfs))
+    @show collect(edges(bfs))
+    @test 6 == nv(bfs)
+    @test 3 == ne(bfs)
 end
 
 function learn_dijkstra_shortest_paths(dp)
@@ -105,11 +122,11 @@ function learn_dijkstra_shortest_paths(dp)
         edgelabel[i] = string(w[e.src, e.dst])
     end
     ds = dijkstra_shortest_paths(g, 1, w)
-    #@show ds
-    #@show ds.dists
+    @show ds
+    @show ds.dists
 
     plt = gplot(g, nodelabel=1:nv(g), edgelabel=edgelabel)
-    display(plt)
+    #display(plt)
 
     return ds
 end
@@ -290,7 +307,7 @@ dp = false
     #learn_basic_library_examples(io)
     #learn_graph_generators(io)
     learn_modifying_graphs()
-    #ds = learn_dijkstra_shortest_paths(dp)
+    ds = learn_dijkstra_shortest_paths(dp)
     learn_bfs_tree()
 
     #learn_dijkstra_shortest_paths_2(dp)
