@@ -4,9 +4,9 @@ using PyCall
 import Pkg
 
 # Change python
-py = joinpath(Conda.ROOTENV, "py38", "python.exe")
-ENV["PYTHON"] = py
-Pkg.build("PyCall")
+# py = joinpath(Conda.ROOTENV, "py38", "python.exe")
+# ENV["PYTHON"] = py
+# Pkg.build("PyCall")
 
 function learn_setup()
     @show PyCall.pyversion
@@ -65,7 +65,7 @@ end
 
 #build()
 
-#learn_setup()
+learn_setup()
 #learn_basic()
 #learn_qt()
 #learn_gtk()

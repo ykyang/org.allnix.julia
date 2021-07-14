@@ -1,4 +1,23 @@
+using Conda
 using PyCall
+
+
+# From Conda document,
+# NOTE: If you are installing Python packages for use with PyCall,
+# you must use the root environment.
+#
+# If there is an error loading vtk module,
+# then try use Conda root environment.
+#
+# This may allow using non-root-installed packages.
+#
+# https://github.com/JuliaPy/PyCall.jl/issues/730
+# ENV["PATH"] = Conda.bin_dir(Conda.ROOTENV) * ";" * ENV["PATH"]
+
+# Fix package must be in root env bug
+if isnothing(findfirst(Conda.bin_dir(Conda.ROOTENV), ENV["PATH"])) && Sys.iswindows()
+    ENV["PATH"] = Conda.bin_dir(Conda.ROOTENV) * ";" * ENV["PATH"]
+end
 
 vtk = pyimport("vtk")
 
