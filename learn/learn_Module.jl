@@ -4,16 +4,15 @@ using Test
 
 module Bar
     x = 13.0
-
+    
     function foo()
         return x
     end
-
 end
 
-import .Bar # . relative import path
+#import .Bar # . relative import path
 
-Bar.foo()
+@test 13 == Bar.foo()
 
 module A
     x = 17.0

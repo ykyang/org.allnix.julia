@@ -1,6 +1,10 @@
+#
+# Enclosed in Module to avoid loading vtk multiple times
+#
+module Vtk
+
 using Conda
 using PyCall
-
 
 # From Conda document,
 # NOTE: If you are installing Python packages for use with PyCall,
@@ -19,8 +23,10 @@ if isnothing(findfirst(Conda.bin_dir(Conda.ROOTENV), ENV["PATH"])) && Sys.iswind
     ENV["PATH"] = Conda.bin_dir(Conda.ROOTENV) * ";" * ENV["PATH"]
 end
 
+const vtk = pyimport("vtk")
+
 function learn_cone()
-    vtk = pyimport("vtk")
+    #vtk = pyimport("vtk")
 
     colors = vtk.vtkNamedColors()
 
@@ -58,7 +64,7 @@ function learn_cone()
 end
 
 function boxCallback(obj, event)
-    vtk = pyimport("vtk") # Is this OK?
+    #vtk = pyimport("vtk") # Is this OK?
     t = vtk.vtkTransform()
     obj.GetTransform(t)
     obj.GetProp3D().SetUserTransform(t)
@@ -67,7 +73,7 @@ function boxCallback(obj, event)
 end
 
 function learn_box()
-    vtk = pyimport("vtk")
+    #vtk = pyimport("vtk")
 
     colors = vtk.vtkNamedColors()
 
@@ -113,7 +119,7 @@ function learn_box()
     renwin.Render()
     interactor.Start()
 end
+end
 
-
-#learn_cone()
-learn_box()
+#Vtk.learn_cone()
+Vtk.learn_box()
