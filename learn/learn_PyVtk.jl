@@ -1,10 +1,29 @@
 #
 # Enclosed in Module to avoid loading vtk multiple times
 #
+# Learn using VTK in Julia
+#
 module Vtk
 
 using Conda
 using PyCall
+
+# Set up VTK in a separate Conda environment.
+#
+#   Conda.runconda(`create --name py38 python=3.8`)
+#   Conda.add("vtk", :py38)
+#   ENV["PYTHON"] = joinpath(Conda.ROOTENV, "envs", "py38", "python.exe")
+#   Pkg.build("PyCall")
+#
+# Use external Conda
+#   ENV["CONDA_JL_HOME"] = joinpath(ENV["USERPROFILE"], "local", "mambaforge")
+#   Pkg.build("Conda")
+# Exit Julia
+# Enter Julia
+#   using Conda
+#   ENV["PYTHON"] = joinpath(Conda.ROOTENV, "envs", "py38", "python.exe")
+#   Pkg.build("PyCall")
+# Exit Julia
 
 # From Conda document,
 # NOTE: If you are installing Python packages for use with PyCall,
@@ -17,12 +36,18 @@ using PyCall
 #
 # https://github.com/JuliaPy/PyCall.jl/issues/730
 # ENV["PATH"] = Conda.bin_dir(Conda.ROOTENV) * ";" * ENV["PATH"]
-
 # Fix package must be in root env bug
-if isnothing(findfirst(Conda.bin_dir(Conda.ROOTENV), ENV["PATH"])) && Sys.iswindows()
-    ENV["PATH"] = Conda.bin_dir(Conda.ROOTENV) * ";" * ENV["PATH"]
-end
 
+# if isnothing(findfirst(Conda.bin_dir(Conda.ROOTENV), ENV["PATH"])) && Sys.iswindows()
+#     ENV["PATH"] = Conda.bin_dir(Conda.ROOTENV) * ";" * ENV["PATH"]
+# end
+
+begin
+    path = Conda.bin_dir(dirname(PyCall.pyprogramname))
+    if isnothing(findfirst(path, ENV["PATH"])) && Sys.iswindows()
+        ENV["PATH"] = path * ";" * ENV["PATH"]
+    end
+end
 const vtk = pyimport("vtk")
 
 function learn_cone()
