@@ -43,6 +43,10 @@ using PyCall
 # end
 
 begin
+    # Keyword: VTK, Julia, import _vtkmodules_static, vtkmodules.all
+    #
+    # Add "...\envs\py38\Library\bin" to path
+    # VTK, numpy etc won't work without this
     path = Conda.bin_dir(dirname(PyCall.pyprogramname))
     if isnothing(findfirst(path, ENV["PATH"])) && Sys.iswindows()
         ENV["PATH"] = path * ";" * ENV["PATH"]
