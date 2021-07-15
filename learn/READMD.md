@@ -18,7 +18,10 @@ Choose a Python version that supports the VTK version desired.
 conda create --name=py38 python=3.8
 conda activate py38
 conda install vtk
+# or install paraview which comes with vtk
+# conda install paraview
 ```
+Alternatively, 
 
 In Julia install Conda and PyCall and re-build them to point to the external
 Conda above.

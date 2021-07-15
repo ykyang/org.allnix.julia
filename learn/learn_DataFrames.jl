@@ -145,6 +145,28 @@ function learn_empty_constructor()
     @test [    5,     7] == df[!, :count]
 end
 
+function learn_csv()
+    url = "https://archive.ics.uci.edu/ml/machine-learning-databases/auto-mpg/auto-mpg.data-original"
+    
+
+    # Download to a file
+    tmp = Downloads.download(url)
+    csv = CSV.File(
+        tmp,
+        delim = ' ',
+        ignorerepeated = true,
+        header = [
+            :mpg, :cylinders, :displacement, :horsepower,
+            :weight, :acceleration, :year, :origin, :name,  
+        ],
+        missingstring = "NA",
+    )
+    rm(tmp)
+    df = DataFrame(csv)
+
+    return df
+end
+
 """
 
 https://stackoverflow.com/questions/51240161/how-to-insert-a-column-in-a-julia-dataframe-at-specific-position-without-referr
@@ -309,11 +331,14 @@ end
 
     learn_constructor()
     learn_empty_constructor()
+    learn_csv()
 
     learn_hcat()
 
     learn_transform_1()
     learn_filter_1()
 end
+
+df = learn_csv()
 
 nothing

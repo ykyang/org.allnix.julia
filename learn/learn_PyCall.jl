@@ -63,6 +63,12 @@ function build()
     Pkg.build("PyCall")
 end
 
+function learn_tkinter()
+    tkinter = pyimport(:tkinter)
+
+    
+end
+
 #build()
 
 learn_setup()
@@ -70,6 +76,7 @@ learn_setup()
 #learn_qt()
 #learn_gtk()
 
+learn_tkinter()
 
 
 nothing

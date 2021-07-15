@@ -101,9 +101,10 @@ function boxCallback(obj, event)
     # event:InteractionEvent
 end
 
-function learn_box()
+function learn_box(;renderer=vtk.vtkRenderer(), renwin=vtk.vtkRenderWindow())
     #vtk = pyimport("vtk")
-
+    @show vtk.vtkVersion.GetVTKVersion()
+    
     colors = vtk.vtkNamedColors()
 
     # Create a Cone
@@ -116,11 +117,11 @@ function learn_box()
     coneActor.GetProperty().SetColor(colors.GetColor3d("BurlyWood"))
 
     # A renderer and render window
-    renderer = vtk.vtkRenderer()
+    #renderer = vtk.vtkRenderer()
     renderer.SetBackground(colors.GetColor3d("Blue"))
     renderer.AddActor(coneActor)
 
-    renwin = vtk.vtkRenderWindow()
+    #renwin = vtk.vtkRenderWindow()
     renwin.AddRenderer(renderer)
     
 
@@ -148,7 +149,15 @@ function learn_box()
     renwin.Render()
     interactor.Start()
 end
+
+
 end
 
 #Vtk.learn_cone()
+
+# renderer=Vtk.vtk.vtkRenderer()
+# renwin=Vtk.vtk.vtkRenderWindow()
+# Vtk.learn_box(renderer=renderer, renwin=renwin)
 Vtk.learn_box()
+
+
