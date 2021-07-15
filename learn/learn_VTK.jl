@@ -1,45 +1,163 @@
-# https://github.com/plotly/dash-vtk
-# Pkg.add(PackageSpec(url="https://github.com/plotly/dash-vtk.git"))
-# add "https://github.com/plotly/dash-vtk.git"
+#
+# Enclosed in Module to avoid loading vtk multiple times
+#
+# Learn using VTK in Julia
+#
+module Vtk
 
-using Dash, DashVtk, DashHtmlComponents
+using Conda
+using PyCall
 
-# app = dash()
+# Set up VTK in a separate Conda environment.
+#
+#   Conda.runconda(`create --name py38 python=3.8`)
+#   Conda.add("vtk", :py38)
+#   ENV["PYTHON"] = joinpath(Conda.ROOTENV, "envs", "py38", "python.exe")
+#   Pkg.build("PyCall")
+#
+# Use external Conda
+#   ENV["CONDA_JL_HOME"] = joinpath(ENV["USERPROFILE"], "local", "mambaforge")
+#   Pkg.build("Conda")
+# Exit Julia
+# Enter Julia
+#   using Conda
+#   ENV["PYTHON"] = joinpath(Conda.ROOTENV, "envs", "py38", "python.exe")
+#   Pkg.build("PyCall")
+# Exit Julia
 
-# app.layout = html_div(style = (width = "100%", height = "calc(100vh - 16px)",)) do
-#     vtk_view(
-#         vtk_geometryrepresentation(
-#             vtk_algorithm(
-#                 vtkClass = "vtkConeSource",
-#                 state = (resolution = 64, capping = false)
-#             )
-#         )
-#     )
+# From Conda document,
+# NOTE: If you are installing Python packages for use with PyCall,
+# you must use the root environment.
+#
+# If there is an error loading vtk module,
+# then try use Conda root environment.
+#
+# This may allow using non-root-installed packages.
+#
+# https://github.com/JuliaPy/PyCall.jl/issues/730
+# ENV["PATH"] = Conda.bin_dir(Conda.ROOTENV) * ";" * ENV["PATH"]
+# Fix package must be in root env bug
+
+# if isnothing(findfirst(Conda.bin_dir(Conda.ROOTENV), ENV["PATH"])) && Sys.iswindows()
+#     ENV["PATH"] = Conda.bin_dir(Conda.ROOTENV) * ";" * ENV["PATH"]
 # end
 
-xyz = Float64[]
-for i in 1:10000
-    push!(xyz, rand()) # x
-    push!(xyz, rand()) # y
-    push!(xyz, rand() * 0.01) # z
+begin
+    # Keyword: VTK, Julia, import _vtkmodules_static, vtkmodules.all
+    #
+    # Add "...\envs\py38\Library\bin" to path
+    # VTK, numpy etc won't work without this
+    path = Conda.bin_dir(dirname(PyCall.pyprogramname))
+    if isnothing(findfirst(path, ENV["PATH"])) && Sys.iswindows()
+        ENV["PATH"] = path * ";" * ENV["PATH"]
+    end
+end
+const vtk = pyimport("vtk")
+
+function learn_cone()
+    #vtk = pyimport("vtk")
+
+    colors = vtk.vtkNamedColors()
+
+    cone = vtk.vtkConeSource()
+    mapper = vtk.vtkPolyDataMapper()
+    mapper.SetInputConnection(cone.GetOutputPort())
+
+    actor = vtk.vtkActor()
+    actor.SetMapper(mapper)
+    actor.GetProperty().SetDiffuseColor(colors.GetColor3d("bisque"))
+
+    renderer = vtk.vtkRenderer()
+
+
+
+    renWin = vtk.vtkRenderWindow()
+    renWin.AddRenderer(renderer)
+
+
+    renderer.AddActor(actor)
+    renderer.SetBackground(colors.GetColor3d("Salmon"))
+
+    iren = vtk.vtkRenderWindowInteractor()
+    iren.SetRenderWindow(renWin)
+
+    iren.Initialize()
+    # We'll zoom in a little by accessing the camera and invoking a "Zoom"
+    # method on it.
+    #ren.ResetCamera()
+    #ren.GetActiveCamera().Zoom(1.5)
+    renWin.SetSize(300, 300)
+    renWin.SetWindowName("Cone")
+    renWin.Render()
+    iren.Start()
 end
 
-content = vtk_view(
-    children = [
-        vtk_geometryrepresentation(
-            property = (pointSize = 3),
-            children = [
-                vtk_polydata(points=xyz, connectivity="points")
-            ]
-        )
-    ]
-)
+function boxCallback(obj, event)
+    #vtk = pyimport("vtk") # Is this OK?
+    t = vtk.vtkTransform()
+    obj.GetTransform(t)
+    obj.GetProp3D().SetUserTransform(t)
+    # type(event): str
+    # event:InteractionEvent
+end
 
-app = dash()
+function learn_box(;renderer=vtk.vtkRenderer(), renwin=vtk.vtkRenderWindow())
+    #vtk = pyimport("vtk")
+    @show vtk.vtkVersion.GetVTKVersion()
+    
+    colors = vtk.vtkNamedColors()
 
-app.layout = html_div(
-    style = (width = "100%", height = "calc(100vh - 16px)",),
-    children = [content]
-) 
+    # Create a Cone
+    cone = vtk.vtkConeSource()
+    cone.SetResolution(20)
+    coneMapper = vtk.vtkPolyDataMapper()
+    coneMapper.SetInputConnection(cone.GetOutputPort())
+    coneActor = vtk.vtkActor()
+    coneActor.SetMapper(coneMapper)
+    coneActor.GetProperty().SetColor(colors.GetColor3d("BurlyWood"))
 
-run_server(app)
+    # A renderer and render window
+    #renderer = vtk.vtkRenderer()
+    renderer.SetBackground(colors.GetColor3d("Blue"))
+    renderer.AddActor(coneActor)
+
+    #renwin = vtk.vtkRenderWindow()
+    renwin.AddRenderer(renderer)
+    
+
+    # An interactor
+    interactor = vtk.vtkRenderWindowInteractor()
+    interactor.SetRenderWindow(renwin)
+
+    # A Box widget
+    boxWidget = vtk.vtkBoxWidget()
+    boxWidget.SetInteractor(interactor)
+    boxWidget.SetProp3D(coneActor)
+    boxWidget.SetPlaceFactor(1.25)  # Make the box 1.25x larger than the actor
+    boxWidget.PlaceWidget()
+    boxWidget.On()
+
+    # Connect the event to a function
+    # This call makes cone move and stretch with the box.
+    # See complete list of event at 
+    # https://vtk.org/doc/nightly/html/vtkCommand_8h_source.html
+    boxWidget.AddObserver("InteractionEvent", boxCallback)
+
+    # Start
+    interactor.Initialize()
+    renwin.SetWindowName("BoxWidget")
+    renwin.Render()
+    interactor.Start()
+end
+
+
+end
+
+#Vtk.learn_cone()
+
+# renderer=Vtk.vtk.vtkRenderer()
+# renwin=Vtk.vtk.vtkRenderWindow()
+# Vtk.learn_box(renderer=renderer, renwin=renwin)
+Vtk.learn_box()
+
+
