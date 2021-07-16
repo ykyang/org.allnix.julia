@@ -162,7 +162,8 @@ function learn_animation()
     cb = function(obj,event) 
         animation_callback(obj, event; timer_id=timer_id, steps=200, actor=actor)
     end
-    renderWindowInteractor.AddObserver("TimerEvent", cb)
+    obid = renderWindowInteractor.AddObserver("TimerEvent", cb)
+    println("Observer ID: $obid")
 
     # start the interaction and timer
     renderWindow.Render()
@@ -179,7 +180,21 @@ function boxCallback(obj, event)
     # event:InteractionEvent
 end
 
-function learn_box(;renderer=vtk.vtkRenderer(), renwin=vtk.vtkRenderWindow())
+function cmd_callback(obj, event, ref::Ref{Union{Function,Nothing}})
+    if isnothing(ref[]) return end
+    #println("Calling: $(ref[])")
+    
+    ref[]() # call
+    
+    # reset
+    ref[] = nothing
+end
+
+function learn_box(;
+    renderer=vtk.vtkRenderer(), 
+    renwin=vtk.vtkRenderWindow(),
+    fn_ref=Ref{Union{Function,Nothing}}()
+    )
     #vtk = pyimport("vtk")
     @show vtk.vtkVersion.GetVTKVersion()
     
@@ -222,7 +237,17 @@ function learn_box(;renderer=vtk.vtkRenderer(), renwin=vtk.vtkRenderWindow())
     boxWidget.AddObserver("InteractionEvent", boxCallback)
 
     # Start
+    # Initialize must be called prior to creating timer events.
     interactor.Initialize()
+
+    interactor.CreateRepeatingTimer(100)
+    cb = function(obj,event)
+        cmd_callback(obj, event, fn_ref)
+    end
+    ob_id = interactor.AddObserver("TimerEvent", cb)
+    println("Observer ID: $ob_id")
+
+
     renwin.SetWindowName("BoxWidget")
     renwin.Render()
     interactor.Start()
@@ -242,12 +267,23 @@ end
 end # module Vtk
 
 #Vtk.learn_cone()
-Vtk.learn_animation()
-# renderer=Vtk.vtk.vtkRenderer()
-# renwin=Vtk.vtk.vtkRenderWindow()
-# Vtk.learn_box(renderer=renderer, renwin=renwin)
+#Vtk.learn_animation()
+
 #Vtk.learn_box()
 
 #Vtk.learn_wx_vtk() # does not work
 
+
+## Start Julia with `-t 2`
+colors = Vtk.vtk.vtkNamedColors()
+renderer=Vtk.vtk.vtkRenderer()
+renwin=Vtk.vtk.vtkRenderWindow()
+fn_ref=Ref{Union{Function,Nothing}}(nothing)
+task = Threads.@spawn Vtk.learn_box(renderer=renderer, renwin=renwin, fn_ref=fn_ref)
+## Use the following in REPL
+## Notice this is not robust programmatically, timer may not execute the function
+## before the fn_ref changes again.
+# fn_ref[] = ()->renderer.SetBackground(colors.GetColor3d("Blue"))
+# fn_ref[] = ()->renderer.SetBackground(colors.GetColor3d("Black"))
+# fn_ref[] = ()->renwin.Render()
 
