@@ -92,6 +92,84 @@ function learn_cone()
     iren.Start()
 end
 
+# Attempt self-contained callback function
+# and it works.
+function animation_callback(obj, event; 
+    timer_id=nothing, steps=nothing, actor=nothing)
+
+    interactor = obj
+
+    timer_count = 0
+    step = 0
+    while step < steps
+        println("Timer Count: $timer_count")
+        actor.SetPosition(timer_count/100.0, timer_count/100.0, 0.0)
+        interactor.GetRenderWindow().Render()
+        timer_count += 1
+        step += 1
+    end
+    if !isnothing(timer_id)
+        println("Destroy timer $timer_id")
+        interactor.DestroyTimer(timer_id)
+    end
+end
+
+function learn_animation()
+    colors = vtk.vtkNamedColors()
+
+    # Create a sphere
+    sphereSource = vtk.vtkSphereSource()
+    sphereSource.SetCenter(0.0, 0.0, 0.0)
+    sphereSource.SetRadius(2)
+    sphereSource.SetPhiResolution(30)
+    sphereSource.SetThetaResolution(30)
+
+    # Create a mapper and actor
+    mapper = vtk.vtkPolyDataMapper()
+    mapper.SetInputConnection(sphereSource.GetOutputPort())
+    actor = vtk.vtkActor()
+    actor.GetProperty().SetColor(colors.GetColor3d("Peacock"))
+    actor.GetProperty().SetSpecular(0.6)
+    actor.GetProperty().SetSpecularPower(30)
+    actor.SetMapper(mapper)
+    # actor.SetPosition(-5, -5, 0)
+
+    # Setup a renderer, render window, and interactor
+    renderer = vtk.vtkRenderer()
+    renderer.SetBackground(colors.GetColor3d("MistyRose"))
+    renderWindow = vtk.vtkRenderWindow()
+    renderWindow.SetWindowName("Animation")
+    renderWindow.AddRenderer(renderer)
+
+    renderWindowInteractor = vtk.vtkRenderWindowInteractor()
+    renderWindowInteractor.SetRenderWindow(renderWindow)
+
+    # Add the actor to the scene
+    renderer.AddActor(actor)
+
+    # Render and interact
+    renderWindow.Render()
+    renderer.GetActiveCamera().Zoom(0.8)
+    renderWindow.Render()
+
+    # Initialize must be called prior to creating timer events.
+    renderWindowInteractor.Initialize()
+
+    # Sign up to receive TimerEvent
+    #cb = vtkTimerCallback(200, actor, renderWindowInteractor)
+    
+    timer_id = renderWindowInteractor.CreateRepeatingTimer(500)
+    cb = function(obj,event) 
+        animation_callback(obj, event; timer_id=timer_id, steps=200, actor=actor)
+    end
+    renderWindowInteractor.AddObserver("TimerEvent", cb)
+
+    # start the interaction and timer
+    renderWindow.Render()
+    renderWindowInteractor.Start()
+end
+
+
 function boxCallback(obj, event)
     #vtk = pyimport("vtk") # Is this OK?
     t = vtk.vtkTransform()
@@ -150,14 +228,26 @@ function learn_box(;renderer=vtk.vtkRenderer(), renwin=vtk.vtkRenderWindow())
     interactor.Start()
 end
 
-
+function learn_wx_vtk()
+    #wx = pyimport("wx") # does not work
+    la = pyimport("learnall")
+    @show la.hello()
+    util = pyimport("learnall.util")
+    @show util.hello()
+    
 end
 
-#Vtk.learn_cone()
 
+
+end # module Vtk
+
+#Vtk.learn_cone()
+Vtk.learn_animation()
 # renderer=Vtk.vtk.vtkRenderer()
 # renwin=Vtk.vtk.vtkRenderWindow()
 # Vtk.learn_box(renderer=renderer, renwin=renwin)
-Vtk.learn_box()
+#Vtk.learn_box()
+
+#Vtk.learn_wx_vtk() # does not work
 
 
