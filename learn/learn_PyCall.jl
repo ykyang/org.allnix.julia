@@ -4,9 +4,21 @@ using PyCall
 import Pkg
 
 # Change python
-# py = joinpath(Conda.ROOTENV, "py38", "python.exe")
-# ENV["PYTHON"] = py
+# ENV["PYTHON"] = joinpath(Conda.ROOTENV, "envs", "py38", "python.exe")
 # Pkg.build("PyCall")
+
+begin
+    # Keyword: VTK, numpy, Julia, import _vtkmodules_static, vtkmodules.all
+    # Keyword: Conda, non-root, env
+    #
+    # Add "...\envs\py38\Library\bin" to path
+    # VTK, numpy etc won't work without this
+    path = Conda.bin_dir(dirname(PyCall.pyprogramname))
+    if isnothing(findfirst(path, ENV["PATH"])) && Sys.iswindows()
+        ENV["PATH"] = path * ";" * ENV["PATH"]
+    end
+end
+
 
 function learn_setup()
     @show PyCall.pyversion
@@ -68,15 +80,30 @@ function learn_tkinter()
 
     
 end
+function learn_wx()
+    # py"""
+    # import numpy as np
+    # import wx
+    # """
+
+    # Must load in Python before loading in Julia
+    py"""
+    import wx
+    """
+    wx = pyimport(:wx)
+    
+end
 
 #build()
 
-learn_setup()
+#learn_setup()
 #learn_basic()
 #learn_qt()
 #learn_gtk()
 
-learn_tkinter()
+#learn_tkinter()
+learn_wx()
+
 
 
 nothing

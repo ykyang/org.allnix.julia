@@ -1,6 +1,10 @@
 using Conda
 import Pkg
 
+## Assign external Conda
+# ENV["CONDA_JL_HOME"] = joinpath(ENV["USERPROFILE"], "local", "mambaforge")
+# Pkg.build("Conda")
+
 function learn_basic()
     @show Conda.ROOTENV
 
@@ -33,6 +37,10 @@ function learn_basic()
     
     ## Revert back to default Conda
     # ENV["CONDA_JL_HOME"] = raw"C:\Users\Yi-Kun.Yang\.julia\conda\3"
+    # Pkg.build("Conda")
+
+    ## Assign external Conda
+    # ENV["CONDA_JL_HOME"] = joinpath(ENV["USERPROFILE"], "local", "mambaforge")
     # Pkg.build("Conda")
 
     ## Assign external Conda

@@ -254,13 +254,60 @@ function learn_box(;
     interactor.Start()
 end
 
-function learn_wx_vtk()
-    #wx = pyimport("wx") # does not work
-    la = pyimport("learnall")
-    @show la.hello()
-    util = pyimport("learnall.util")
-    @show util.hello()
+function learn_wx()
+    # Must load in Python before loading in Julia
+    py"""
+    import wx
+    from vtkmodules.wx.wxVTKRenderWindowInteractor import wxVTKRenderWindowInteractor
+    """
+    wx = pyimport("wx")
+    # https://gitlab.kitware.com/vtk/vtk/-/blob/master/Wrapping/Python/vtkmodules/wx/wxVTKRenderWindowInteractor.py
     
+    #vwxw = pyimport("vtkmodules.wx.wxVTKRenderWindowInteractor")
+    #widget = vwxw.wxVTKRenderWindowInteractor(frame, -1)
+    
+    vwx = pyimport("vtkmodules.wx")
+
+    # la = pyimport("learnall")
+    # @show la.hello()
+    # util = pyimport("learnall.util")
+    # @show util.hello()
+    
+    colors = vtk.vtkNamedColors()
+
+    # every wx app needs an app
+    app = wx.App(false)
+    frame = wx.Frame(nothing, -1, "wxVTKRenderWindowInteractor", size=(400,400))
+    #widget = vwxw.wxVTKRenderWindowInteractor(frame, -1)
+    widget = vwx[:wxVTKRenderWindowInteractor].wxVTKRenderWindowInteractor(frame, -1)
+    #widget = vwx.wxVTKRenderWindowInteractor.wxVTKRenderWindowInteractor(frame, -1)
+    sizer = wx.BoxSizer(wx.VERTICAL)
+    sizer.Add(widget, 1, wx.EXPAND)
+    frame.SetSizer(sizer)
+    frame.Layout()
+
+    widget.Enable(1)
+    widget.AddObserver("ExitEvent", (obj,event)-> frame.Close())
+
+    ren = vtk.vtkRenderer()
+    renwin = widget.GetRenderWindow()
+    widget.GetRenderWindow().AddRenderer(ren)
+
+    cone = vtk.vtkConeSource()
+    cone.SetResolution(8)
+
+    coneMapper = vtk.vtkPolyDataMapper()
+    coneMapper.SetInputConnection(cone.GetOutputPort())
+
+    coneActor = vtk.vtkActor()
+    coneActor.SetMapper(coneMapper)
+
+    ren.AddActor(coneActor)
+
+    # show the window
+    frame.Show()
+    #frame.Close()
+    app.MainLoop() # comment out to interact in ipython
 end
 
 function invoke_later(interactor, fn)
@@ -301,56 +348,31 @@ end # module Vtk
 
 #Vtk.learn_cone()
 #Vtk.learn_animation()
-
 #Vtk.learn_box()
+Vtk.learn_wx() # does not work
 
-#Vtk.learn_wx_vtk() # does not work
+# begin
+#     ## Interactive VTK with Julia REPL
+#     ## Start Julia with `-t 2`
+#     colors = Vtk.vtk.vtkNamedColors()
+#     renderer=Vtk.vtk.vtkRenderer()
+#     renwin=Vtk.vtk.vtkRenderWindow()
+#     interactor = Vtk.vtk.vtkRenderWindowInteractor()
 
+#     task = Threads.@spawn Vtk.learn_box(renderer=renderer, renwin=renwin, interactor=interactor)
+#     sleep(3)
+#     fn = ()->renderer.SetBackground(colors.GetColor3d("Red")) 
+#     Vtk.invoke_later(interactor, renwin, fn)
+#     # fn = ()->renwin.Render()
+#     # Vtk.invoke_later(interactor, fn)
+#     sleep(3)
+#     fn = ()->renderer.SetBackground(colors.GetColor3d("Black")) 
+#     Vtk.invoke_later(interactor, renwin, fn)
+#     sleep(3)
+#     fn = ()->renderer.SetBackground(colors.GetColor3d("Blue")) 
+#     Vtk.invoke_later(interactor, renwin, fn)
+# end
 
-## Start Julia with `-t 2`
-colors = Vtk.vtk.vtkNamedColors()
-renderer=Vtk.vtk.vtkRenderer()
-renwin=Vtk.vtk.vtkRenderWindow()
-interactor = Vtk.vtk.vtkRenderWindowInteractor()
-
-# fn_ref=Ref{Union{Function,Nothing}}(nothing)
-# task = Threads.@spawn Vtk.learn_box(renderer=renderer, renwin=renwin, fn_ref=fn_ref)
-
-task = Threads.@spawn Vtk.learn_box(renderer=renderer, renwin=renwin, interactor=interactor)
-
-
-## Use the following in REPL
-## Notice this is not robust programmatically, timer may not execute the function
-## before the fn_ref changes again.
-
-# sleep(1)
-# fn_ref[] = ()->renderer.SetBackground(colors.GetColor3d("Blue"))
-# sleep(1)
-# fn_ref[] = ()->renderer.SetBackground(colors.GetColor3d("Black"))
-# sleep(1)
-# fn_ref[] = ()->renwin.Render()
-# sleep(1)
-
-sleep(3)
-
-fn = ()->renderer.SetBackground(colors.GetColor3d("Red")) 
-Vtk.invoke_later(interactor, renwin, fn)
-# fn = ()->renwin.Render()
-# Vtk.invoke_later(interactor, fn)
-
-sleep(3)
-
-fn = ()->renderer.SetBackground(colors.GetColor3d("Black")) 
-Vtk.invoke_later(interactor, renwin, fn)
-# fn = ()->renwin.Render()
-# Vtk.invoke_later(interactor, fn)
-
-sleep(3)
-
-fn = ()->renderer.SetBackground(colors.GetColor3d("Blue")) 
-Vtk.invoke_later(interactor, renwin, fn)
-# fn = ()->renwin.Render()
-# Vtk.invoke_later(interactor, fn)
 
 nothing
 
