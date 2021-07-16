@@ -193,6 +193,7 @@ end
 function learn_box(;
     renderer=vtk.vtkRenderer(), 
     renwin=vtk.vtkRenderWindow(),
+    interactor = vtk.vtkRenderWindowInteractor(),
     fn_ref=Ref{Union{Function,Nothing}}()
     )
     #vtk = pyimport("vtk")
@@ -219,7 +220,7 @@ function learn_box(;
     
 
     # An interactor
-    interactor = vtk.vtkRenderWindowInteractor()
+    #interactor = vtk.vtkRenderWindowInteractor()
     interactor.SetRenderWindow(renwin)
 
     # A Box widget
@@ -241,11 +242,11 @@ function learn_box(;
     interactor.Initialize()
 
     interactor.CreateRepeatingTimer(100)
-    cb = function(obj,event)
-        cmd_callback(obj, event, fn_ref)
-    end
-    ob_id = interactor.AddObserver("TimerEvent", cb)
-    println("Observer ID: $ob_id")
+    # cb = function(obj,event)
+    #     cmd_callback(obj, event, fn_ref)
+    # end
+    # ob_id = interactor.AddObserver("TimerEvent", cb)
+    # println("Observer ID: $ob_id")
 
 
     renwin.SetWindowName("BoxWidget")
@@ -262,7 +263,20 @@ function learn_wx_vtk()
     
 end
 
-
+function invoke_later(interactor, fn)
+    #println("invoke_later")
+    ref_id = Ref{Union{UInt64,Nothing}}(nothing)
+    callback = function(obj,event)
+        try
+            fn() # run
+        finally
+            while isnothing(ref_id[]) sleep(0.1) end
+            interactor.RemoveObserver(ref_id[])
+        end
+    end
+    ref_id[] = interactor.AddObserver("TimerEvent", callback)
+    #println("Observer ID: $(ref_id[])")
+end
 
 end # module Vtk
 
@@ -278,12 +292,43 @@ end # module Vtk
 colors = Vtk.vtk.vtkNamedColors()
 renderer=Vtk.vtk.vtkRenderer()
 renwin=Vtk.vtk.vtkRenderWindow()
-fn_ref=Ref{Union{Function,Nothing}}(nothing)
-task = Threads.@spawn Vtk.learn_box(renderer=renderer, renwin=renwin, fn_ref=fn_ref)
+interactor = Vtk.vtk.vtkRenderWindowInteractor()
+
+# fn_ref=Ref{Union{Function,Nothing}}(nothing)
+# task = Threads.@spawn Vtk.learn_box(renderer=renderer, renwin=renwin, fn_ref=fn_ref)
+
+task = Threads.@spawn Vtk.learn_box(renderer=renderer, renwin=renwin, interactor=interactor)
+
+
 ## Use the following in REPL
 ## Notice this is not robust programmatically, timer may not execute the function
 ## before the fn_ref changes again.
+
+# sleep(1)
 # fn_ref[] = ()->renderer.SetBackground(colors.GetColor3d("Blue"))
+# sleep(1)
 # fn_ref[] = ()->renderer.SetBackground(colors.GetColor3d("Black"))
+# sleep(1)
 # fn_ref[] = ()->renwin.Render()
+# sleep(1)
+
+fn = ()->renderer.SetBackground(colors.GetColor3d("Red")) 
+Vtk.invoke_later(interactor, fn)
+fn = ()->renwin.Render()
+Vtk.invoke_later(interactor, fn)
+
+sleep(3)
+
+fn = ()->renderer.SetBackground(colors.GetColor3d("Black")) 
+Vtk.invoke_later(interactor, fn)
+fn = ()->renwin.Render()
+Vtk.invoke_later(interactor, fn)
+
+sleep(3)
+
+fn = ()->renderer.SetBackground(colors.GetColor3d("Blue")) 
+Vtk.invoke_later(interactor, fn)
+fn = ()->renwin.Render()
+Vtk.invoke_later(interactor, fn)
+
 
