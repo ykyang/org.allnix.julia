@@ -267,6 +267,7 @@ function invoke_later(interactor, fn)
     #println("invoke_later")
     ref_id = Ref{Union{UInt64,Nothing}}(nothing)
     callback = function(obj,event)
+        println("Ref: $(ref_id)")
         try
             fn() # run
         finally
@@ -277,6 +278,24 @@ function invoke_later(interactor, fn)
     ref_id[] = interactor.AddObserver("TimerEvent", callback)
     #println("Observer ID: $(ref_id[])")
 end
+
+function invoke_later(interactor, renwin, fn)
+    #println("invoke_later")
+    ref_id = Ref{Union{UInt64,Nothing}}(nothing)
+    callback = function(obj,event)
+        println("Ref: $(ref_id)")
+        try
+            fn() # run
+            renwin.Render()
+        finally
+            while isnothing(ref_id[]) sleep(0.1) end
+            interactor.RemoveObserver(ref_id[])
+        end
+    end
+    ref_id[] = interactor.AddObserver("TimerEvent", callback)
+    #println("Observer ID: $(ref_id[])")
+end
+
 
 end # module Vtk
 
@@ -312,23 +331,28 @@ task = Threads.@spawn Vtk.learn_box(renderer=renderer, renwin=renwin, interactor
 # fn_ref[] = ()->renwin.Render()
 # sleep(1)
 
+sleep(3)
+
 fn = ()->renderer.SetBackground(colors.GetColor3d("Red")) 
-Vtk.invoke_later(interactor, fn)
-fn = ()->renwin.Render()
-Vtk.invoke_later(interactor, fn)
+Vtk.invoke_later(interactor, renwin, fn)
+# fn = ()->renwin.Render()
+# Vtk.invoke_later(interactor, fn)
 
 sleep(3)
 
 fn = ()->renderer.SetBackground(colors.GetColor3d("Black")) 
-Vtk.invoke_later(interactor, fn)
-fn = ()->renwin.Render()
-Vtk.invoke_later(interactor, fn)
+Vtk.invoke_later(interactor, renwin, fn)
+# fn = ()->renwin.Render()
+# Vtk.invoke_later(interactor, fn)
 
 sleep(3)
 
 fn = ()->renderer.SetBackground(colors.GetColor3d("Blue")) 
-Vtk.invoke_later(interactor, fn)
-fn = ()->renwin.Render()
-Vtk.invoke_later(interactor, fn)
+Vtk.invoke_later(interactor, renwin, fn)
+# fn = ()->renwin.Render()
+# Vtk.invoke_later(interactor, fn)
+
+nothing
+
 
 
