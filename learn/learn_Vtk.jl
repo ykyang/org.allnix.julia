@@ -3,50 +3,44 @@
 #
 # Learn using VTK in Julia
 #
+# See complete list of event at 
+# https://vtk.org/doc/nightly/html/vtkCommand_8h_source.html
+
+# https://kitware.github.io/vtk-examples/site/
+# See vtkInteractorStyle for key binding
 module Vtk
 
 using Conda
 using PyCall
 
+#
 # Set up VTK in a separate Conda environment.
-#
-#   Conda.runconda(`create --name py38 python=3.8`)
-#   Conda.add("vtk", :py38)
-#   ENV["PYTHON"] = joinpath(Conda.ROOTENV, "envs", "py38", "python.exe")
-#   Pkg.build("PyCall")
-#
-# Use external Conda
-#   ENV["CONDA_JL_HOME"] = joinpath(ENV["USERPROFILE"], "local", "mambaforge")
-#   Pkg.build("Conda")
-# Exit Julia
-# Enter Julia
-#   using Conda
-#   ENV["PYTHON"] = joinpath(Conda.ROOTENV, "envs", "py38", "python.exe")
-#   Pkg.build("PyCall")
+# See learn_Conda.jl
+
+env   = "py38"
+pyver = "3.8"
+
+# Assign external Conda
+if false
+    ENV["CONDA_JL_HOME"] = joinpath(ENV["USERPROFILE"], "local", "mambaforge")
+    Pkg.build("Conda")
+end
 # Exit Julia
 
-# From Conda document,
-# NOTE: If you are installing Python packages for use with PyCall,
-# you must use the root environment.
-#
-# If there is an error loading vtk module,
-# then try use Conda root environment.
-#
-# This may allow using non-root-installed packages.
-#
-# https://github.com/JuliaPy/PyCall.jl/issues/730
-# ENV["PATH"] = Conda.bin_dir(Conda.ROOTENV) * ";" * ENV["PATH"]
-# Fix package must be in root env bug
+# Create new Conda env, install vtk
+if false
+    Conda.runconda(`create --name $(env) python=$(pyver)`)
+    Conda.add("vtk", env)
+end
+# Re-build PyCall
+if false
+   ENV["PYTHON"] = joinpath(Conda.ROOTENV, "envs", env, "python.exe")
+   Pkg.build("PyCall")
+end
+# Exit Julia
 
-# if isnothing(findfirst(Conda.bin_dir(Conda.ROOTENV), ENV["PATH"])) && Sys.iswindows()
-#     ENV["PATH"] = Conda.bin_dir(Conda.ROOTENV) * ";" * ENV["PATH"]
-# end
 
-begin
-    # Keyword: VTK, Julia, import _vtkmodules_static, vtkmodules.all
-    #
-    # Add "...\envs\py38\Library\bin" to path
-    # VTK, numpy etc won't work without this
+begin # See learn_PyCall.jl
     path = Conda.bin_dir(dirname(PyCall.pyprogramname))
     if isnothing(findfirst(path, ENV["PATH"])) && Sys.iswindows()
         ENV["PATH"] = path * ";" * ENV["PATH"]
@@ -194,16 +188,15 @@ function learn_box(;
     renderer=vtk.vtkRenderer(), 
     renwin=vtk.vtkRenderWindow(),
     interactor = vtk.vtkRenderWindowInteractor(),
-    fn_ref=Ref{Union{Function,Nothing}}()
     )
-    #vtk = pyimport("vtk")
-    @show vtk.vtkVersion.GetVTKVersion()
+    
+    #@show vtk.vtkVersion.GetVTKVersion()
     
     colors = vtk.vtkNamedColors()
 
     # Create a Cone
     cone = vtk.vtkConeSource()
-    cone.SetResolution(20)
+    cone.SetResolution(30)
     coneMapper = vtk.vtkPolyDataMapper()
     coneMapper.SetInputConnection(cone.GetOutputPort())
     coneActor = vtk.vtkActor()
@@ -248,12 +241,15 @@ function learn_box(;
     # ob_id = interactor.AddObserver("TimerEvent", cb)
     # println("Observer ID: $ob_id")
 
+    interactor.AddObserver("ExitEvent", (obj,event)-> renwin.Finalize())
 
     renwin.SetWindowName("BoxWidget")
     renwin.Render()
     interactor.Start()
 end
 
+# https://discourse.vtk.org/t/interactor-start-blocking-execution/1095/2
+# https://gitlab.kitware.com/vtk/vtk/-/blob/master/Wrapping/Python/vtkmodules/wx/wxVTKRenderWindowInteractor.py
 function learn_wx()
     # Must load in Python before loading in Julia
     py"""
@@ -309,38 +305,49 @@ function learn_wx()
     #frame.Close()
     app.MainLoop() # comment out to interact in ipython
 end
+"""
+    invoke_later(vtk_obj, fn)
+    
+Invoke a function, `fn`, in the GUI thread.
 
-function invoke_later(interactor, fn)
-    #println("invoke_later")
+This is done by adding `fn` as a "TimerEvent" callback to the 
+`vtk_obj`.  `vtk_obj` is usually a `vtkRenderWindowInteractor`.
+Functions such as Render() must be called in the GUI thread through this type
+of mechanism.
+"""
+function invoke_later(vtk_obj, fn)
     ref_id = Ref{Union{UInt64,Nothing}}(nothing)
     callback = function(obj,event)
-        println("Ref: $(ref_id)")
         try
             fn() # run
         finally
             while isnothing(ref_id[]) sleep(0.1) end
-            interactor.RemoveObserver(ref_id[])
+            vtk_obj.RemoveObserver(ref_id[])
         end
     end
-    ref_id[] = interactor.AddObserver("TimerEvent", callback)
-    #println("Observer ID: $(ref_id[])")
+    ref_id[] = vtk_obj.AddObserver("TimerEvent", callback)
 end
+"""
+    invoke_later(vtk_obj, fn, renwin)
 
-function invoke_later(interactor, renwin, fn)
-    #println("invoke_later")
+Invoke a function, `fn`, in the GUI thread and call `renwin.Render()` to render.
+"""
+function invoke_later(vtk_obj, renwin, fn::Function)
+    #println(vtk_obj)
     ref_id = Ref{Union{UInt64,Nothing}}(nothing)
     callback = function(obj,event)
-        println("Ref: $(ref_id)")
+        #println(obj)
         try
+            #println("Run fn")
             fn() # run
             renwin.Render()
         finally
             while isnothing(ref_id[]) sleep(0.1) end
-            interactor.RemoveObserver(ref_id[])
+            vtk_obj.RemoveObserver(ref_id[])
         end
     end
-    ref_id[] = interactor.AddObserver("TimerEvent", callback)
-    #println("Observer ID: $(ref_id[])")
+    ref_id[] = vtk_obj.AddObserver("TimerEvent", callback)
+    #println("$(ref_id[])")
 end
 
 
@@ -349,30 +356,34 @@ end # module Vtk
 #Vtk.learn_cone()
 #Vtk.learn_animation()
 #Vtk.learn_box()
-Vtk.learn_wx() # does not work
+#Vtk.learn_wx()
 
-# begin
-#     ## Interactive VTK with Julia REPL
-#     ## Start Julia with `-t 2`
-#     colors = Vtk.vtk.vtkNamedColors()
-#     renderer=Vtk.vtk.vtkRenderer()
-#     renwin=Vtk.vtk.vtkRenderWindow()
-#     interactor = Vtk.vtk.vtkRenderWindowInteractor()
 
-#     task = Threads.@spawn Vtk.learn_box(renderer=renderer, renwin=renwin, interactor=interactor)
-#     sleep(3)
-#     fn = ()->renderer.SetBackground(colors.GetColor3d("Red")) 
-#     Vtk.invoke_later(interactor, renwin, fn)
-#     # fn = ()->renwin.Render()
-#     # Vtk.invoke_later(interactor, fn)
-#     sleep(3)
-#     fn = ()->renderer.SetBackground(colors.GetColor3d("Black")) 
-#     Vtk.invoke_later(interactor, renwin, fn)
-#     sleep(3)
-#     fn = ()->renderer.SetBackground(colors.GetColor3d("Blue")) 
-#     Vtk.invoke_later(interactor, renwin, fn)
-# end
+## Interactive VTK with Julia REPL --------------Interactive VTK with Julia REPL
+## Start Julia with `-t 2`
+colors = Vtk.vtk.vtkNamedColors()
+renderer=Vtk.vtk.vtkRenderer()
+renwin=Vtk.vtk.vtkRenderWindow()
+interactor = Vtk.vtk.vtkRenderWindowInteractor()
+#Vtk.learn_box(renderer=renderer, renwin=renwin, interactor=interactor)
+task = Threads.@spawn Vtk.learn_box(renderer=renderer, renwin=renwin, interactor=interactor)
 
+# sleep() here is a bad idea
+# REPL may not get the prompt back
+# 3 different ways to run
+println("Enter to change color")
+readline()
+Vtk.invoke_later(interactor, renwin, ()->renderer.SetBackground(colors.GetColor3d("Red")))
+println("Enter to change color")
+readline()
+fn = ()->renderer.SetBackground(colors.GetColor3d("Black")) 
+Vtk.invoke_later(interactor, renwin, fn)
+println("Enter to change color")
+readline()
+Vtk.invoke_later(interactor, renwin , function()
+        renderer.SetBackground(colors.GetColor3d("Blue"))
+    end 
+)
 
 nothing
 

@@ -77,9 +77,13 @@ end
 
 function learn_Task()
 end
-
+function hello()
+    println("First")
+    sleep(5)
+    println("Second")
+end
 
 #learn_basic()
-learn_write_read_file()
+#learn_write_read_file()
 
 nothing
