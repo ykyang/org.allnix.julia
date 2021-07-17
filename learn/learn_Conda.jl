@@ -1,12 +1,48 @@
 using Conda
 import Pkg
 
-## Assign external Conda
-# ENV["CONDA_JL_HOME"] = joinpath(ENV["USERPROFILE"], "local", "mambaforge")
-# Pkg.build("Conda")
+@show Conda.ROOTENV
+
+env   = "py38"
+pyver = "3.8"
+
+# Assign external Conda
+if false
+    ENV["CONDA_JL_HOME"] = joinpath(ENV["USERPROFILE"], "local", "mambaforge")
+    Pkg.build("Conda")
+end
+
+# Back to Julia Conda
+if false
+    # ENV["JULIA_DEPOT_PATH"]???
+    ENV["CONDA_JL_HOME"] = joinpath(ENV["USERPROFILE"], ".julia", "conda", "3")
+    Pkg.build("Conda")
+end
+
+# Create new Conda env
+if false
+    Conda.runconda(`create --name $(env) python=$(pyver)`)
+end
+
+# Common Conda commands
+if false
+    Conda.runconda(`info`)
+    Conda.runconda(`search python`)
+    Conda.runconda(`env list`)
+    Conda.runconda(`list`)
+end
+
+# Add package
+if false
+    Conda.add("vtk",   env)
+    Conda.add("numpy", env)
+    # or
+    Conda.runconda(`install paraview -n $(env)`)
+    Conda.runconda(`install vtk      -n $(env)`)
+end
 
 function learn_basic()
-    @show Conda.ROOTENV
+    #@show Conda.ROOTENV
 
     # From Conda document,
     # NOTE: If you are installing Python packages for use with PyCall,
