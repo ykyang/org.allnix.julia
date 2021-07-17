@@ -316,16 +316,21 @@ Functions such as Render() must be called in the GUI thread through this type
 of mechanism.
 """
 function invoke_later(vtk_obj, fn)
+    L = ReentrantLock()
     ref_id = Ref{Union{UInt64,Nothing}}(nothing)
     callback = function(obj,event)
         try
             fn() # run
         finally
-            while isnothing(ref_id[]) sleep(0.1) end
+            #while isnothing(ref_id[]) sleep(0.1) end
+            lock(L)
             vtk_obj.RemoveObserver(ref_id[])
+            unlock(L)
         end
     end
+    lock(L)
     ref_id[] = vtk_obj.AddObserver("TimerEvent", callback)
+    unlock(L)
 end
 """
     invoke_later(vtk_obj, fn, renwin)
@@ -333,20 +338,23 @@ end
 Invoke a function, `fn`, in the GUI thread and call `renwin.Render()` to render.
 """
 function invoke_later(vtk_obj, renwin, fn::Function)
-    #println(vtk_obj)
+    L = ReentrantLock()
     ref_id = Ref{Union{UInt64,Nothing}}(nothing)
     callback = function(obj,event)
-        #println(obj)
         try
             #println("Run fn")
             fn() # run
             renwin.Render()
         finally
-            while isnothing(ref_id[]) sleep(0.1) end
+            #while isnothing(ref_id[]) sleep(0.1) end
+            lock(L)
             vtk_obj.RemoveObserver(ref_id[])
+            unlock(L)
         end
     end
+    lock(L)
     ref_id[] = vtk_obj.AddObserver("TimerEvent", callback)
+    unlock(L)
     #println("$(ref_id[])")
 end
 
@@ -363,24 +371,27 @@ end # module Vtk
 ## Start Julia with `-t 2`
 colors = Vtk.vtk.vtkNamedColors()
 renderer=Vtk.vtk.vtkRenderer()
-renwin=Vtk.vtk.vtkRenderWindow()
+# Window may close on its own if not a Ref
+renwin=Ref{Any}(Vtk.vtk.vtkRenderWindow())
 interactor = Vtk.vtk.vtkRenderWindowInteractor()
 #Vtk.learn_box(renderer=renderer, renwin=renwin, interactor=interactor)
-task = Threads.@spawn Vtk.learn_box(renderer=renderer, renwin=renwin, interactor=interactor)
+task = Threads.@spawn Vtk.learn_box(
+    renderer=renderer, renwin=renwin[], 
+    interactor=interactor)
 
 # sleep() here is a bad idea
 # REPL may not get the prompt back
 # 3 different ways to run
 println("Enter to change color")
 readline()
-Vtk.invoke_later(interactor, renwin, ()->renderer.SetBackground(colors.GetColor3d("Red")))
+Vtk.invoke_later(interactor, renwin[], ()->renderer.SetBackground(colors.GetColor3d("Red")))
 println("Enter to change color")
 readline()
 fn = ()->renderer.SetBackground(colors.GetColor3d("Black")) 
-Vtk.invoke_later(interactor, renwin, fn)
+Vtk.invoke_later(interactor, renwin[], fn)
 println("Enter to change color")
 readline()
-Vtk.invoke_later(interactor, renwin , function()
+Vtk.invoke_later(interactor, renwin[], function()
         renderer.SetBackground(colors.GetColor3d("Blue"))
     end 
 )
