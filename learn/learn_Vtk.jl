@@ -10,6 +10,7 @@
 # See vtkInteractorStyle for key binding
 module Vtk
 
+using Logging
 using Conda
 using PyCall
 
@@ -46,6 +47,17 @@ begin # See learn_PyCall.jl
         ENV["PATH"] = path * ";" * ENV["PATH"]
     end
 end
+
+struct VtkWindow
+    interactor
+    renderer
+    render_window
+    
+    function VtkWindow(interactor, renderer, renwin)
+        new(interactor, renderer, renwin)
+    end
+end
+
 const vtk = pyimport("vtk")
 
 function learn_cone()
@@ -189,7 +201,7 @@ function learn_box(;
     renwin=vtk.vtkRenderWindow(),
     interactor = vtk.vtkRenderWindowInteractor(),
     )
-    
+    try
     #@show vtk.vtkVersion.GetVTKVersion()
     
     colors = vtk.vtkNamedColors()
@@ -246,6 +258,11 @@ function learn_box(;
     renwin.SetWindowName("BoxWidget")
     renwin.Render()
     interactor.Start()
+    catch e
+        @error e
+        @error stacktrace(catch_backtrace())
+        rethrow(e)
+    end
 end
 
 # https://discourse.vtk.org/t/interactor-start-blocking-execution/1095/2
@@ -317,19 +334,18 @@ of mechanism.
 """
 function invoke_later(vtk_obj, fn)
     L = ReentrantLock()
-    ref_id = Ref{Union{UInt64,Nothing}}(nothing)
+    ref_id = nothing #Ref{Union{UInt64,Nothing}}(nothing)
     callback = function(obj,event)
         try
             fn() # run
         finally
-            #while isnothing(ref_id[]) sleep(0.1) end
             lock(L)
-            vtk_obj.RemoveObserver(ref_id[])
+            vtk_obj.RemoveObserver(ref_id)
             unlock(L)
         end
     end
     lock(L)
-    ref_id[] = vtk_obj.AddObserver("TimerEvent", callback)
+    ref_id = vtk_obj.AddObserver("TimerEvent", callback)
     unlock(L)
 end
 """
@@ -339,23 +355,20 @@ Invoke a function, `fn`, in the GUI thread and call `renwin.Render()` to render.
 """
 function invoke_later(vtk_obj, renwin, fn::Function)
     L = ReentrantLock()
-    ref_id = Ref{Union{UInt64,Nothing}}(nothing)
+    ref_id = nothing #Ref{Union{UInt64,Nothing}}(nothing)
     callback = function(obj,event)
         try
-            #println("Run fn")
             fn() # run
             renwin.Render()
         finally
-            #while isnothing(ref_id[]) sleep(0.1) end
             lock(L)
-            vtk_obj.RemoveObserver(ref_id[])
+            vtk_obj.RemoveObserver(ref_id)
             unlock(L)
         end
     end
     lock(L)
-    ref_id[] = vtk_obj.AddObserver("TimerEvent", callback)
+    ref_id = vtk_obj.AddObserver("TimerEvent", callback)
     unlock(L)
-    #println("$(ref_id[])")
 end
 
 
@@ -371,27 +384,33 @@ end # module Vtk
 ## Start Julia with `-t 2`
 colors = Vtk.vtk.vtkNamedColors()
 renderer=Vtk.vtk.vtkRenderer()
-# Window may close on its own if not a Ref
-renwin=Ref{Any}(Vtk.vtk.vtkRenderWindow())
+renwin=Vtk.vtk.vtkRenderWindow()
 interactor = Vtk.vtk.vtkRenderWindowInteractor()
+
+# Window may close on its own if not a ref by a Julia structure
+vwin = Vtk.VtkWindow(interactor, renderer, renwin)
+
 #Vtk.learn_box(renderer=renderer, renwin=renwin, interactor=interactor)
 task = Threads.@spawn Vtk.learn_box(
-    renderer=renderer, renwin=renwin[], 
-    interactor=interactor)
+            renderer=renderer, 
+            renwin=renwin, 
+            interactor=interactor
+        )
+    
 
 # sleep() here is a bad idea
 # REPL may not get the prompt back
 # 3 different ways to run
 println("Enter to change color")
 readline()
-Vtk.invoke_later(interactor, renwin[], ()->renderer.SetBackground(colors.GetColor3d("Red")))
+Vtk.invoke_later(interactor, renwin, ()->renderer.SetBackground(colors.GetColor3d("Red")))
 println("Enter to change color")
 readline()
 fn = ()->renderer.SetBackground(colors.GetColor3d("Black")) 
-Vtk.invoke_later(interactor, renwin[], fn)
+Vtk.invoke_later(interactor, renwin, fn)
 println("Enter to change color")
 readline()
-Vtk.invoke_later(interactor, renwin[], function()
+Vtk.invoke_later(interactor, renwin, function()
         renderer.SetBackground(colors.GetColor3d("Blue"))
     end 
 )
