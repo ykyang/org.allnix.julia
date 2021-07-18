@@ -201,7 +201,6 @@ function learn_box(;
     renwin=vtk.vtkRenderWindow(),
     interactor = vtk.vtkRenderWindowInteractor(),
     )
-    try
     #@show vtk.vtkVersion.GetVTKVersion()
     
     colors = vtk.vtkNamedColors()
@@ -258,11 +257,6 @@ function learn_box(;
     renwin.SetWindowName("BoxWidget")
     renwin.Render()
     interactor.Start()
-    catch e
-        @error e
-        @error stacktrace(catch_backtrace())
-        rethrow(e)
-    end
 end
 
 # https://discourse.vtk.org/t/interactor-start-blocking-execution/1095/2
@@ -390,12 +384,19 @@ interactor = Vtk.vtk.vtkRenderWindowInteractor()
 # Window may close on its own if not a ref by a Julia structure
 vwin = Vtk.VtkWindow(interactor, renderer, renwin)
 
-#Vtk.learn_box(renderer=renderer, renwin=renwin, interactor=interactor)
-task = Threads.@spawn Vtk.learn_box(
+task = Threads.@spawn (function() # define and run function
+    try
+        Vtk.learn_box(
             renderer=renderer, 
             renwin=renwin, 
             interactor=interactor
         )
+    catch e # need this to print error from thread
+        @error e
+        @error stacktrace(catch_backtrace())
+        rethrow(e)
+    end
+end)()
     
 
 # sleep() here is a bad idea

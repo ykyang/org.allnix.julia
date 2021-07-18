@@ -75,6 +75,25 @@ function learn_write_read_file()
     wait(read_task)
 end
 
+function learn_error()
+    # task = Threads.@spawn (function()
+    #     error("Message not printed")
+    # end)()
+    # wait(task) # error printed because of wait()
+
+    task = Threads.@spawn (function()
+        try
+            error("Message will not be printed without try/catch")
+        catch e
+            @error e.msg
+            @error stacktrace(catch_backtrace())
+            rethrow(e)
+        end
+    end)()
+    
+    println("Will not reach here")
+end
+
 function learn_Task()
 end
 function hello()
@@ -85,5 +104,6 @@ end
 
 #learn_basic()
 #learn_write_read_file()
+learn_error()
 
 nothing
