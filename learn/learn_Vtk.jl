@@ -186,20 +186,10 @@ function boxCallback(obj, event)
     # event:InteractionEvent
 end
 
-function cmd_callback(obj, event, ref::Ref{Union{Function,Nothing}})
-    if isnothing(ref[]) return end
-    #println("Calling: $(ref[])")
-    
-    ref[]() # call
-    
-    # reset
-    ref[] = nothing
-end
-
 function learn_box(;
-    renderer=vtk.vtkRenderer(), 
-    renwin=vtk.vtkRenderWindow(),
-    interactor = vtk.vtkRenderWindowInteractor(),
+        renderer=vtk.vtkRenderer(), 
+        renwin=vtk.vtkRenderWindow(),
+        interactor = vtk.vtkRenderWindowInteractor(),
     )
     #@show vtk.vtkVersion.GetVTKVersion()
     
@@ -273,7 +263,8 @@ function learn_wx()
     #vwxw = pyimport("vtkmodules.wx.wxVTKRenderWindowInteractor")
     #widget = vwxw.wxVTKRenderWindowInteractor(frame, -1)
     
-    vwx = pyimport("vtkmodules.wx")
+    #vwx = pyimport("vtkmodules.wx")
+    vtkmodules = pyimport("vtkmodules")
 
     # la = pyimport("learnall")
     # @show la.hello()
@@ -286,8 +277,8 @@ function learn_wx()
     app = wx.App(false)
     frame = wx.Frame(nothing, -1, "wxVTKRenderWindowInteractor", size=(400,400))
     #widget = vwxw.wxVTKRenderWindowInteractor(frame, -1)
-    widget = vwx[:wxVTKRenderWindowInteractor].wxVTKRenderWindowInteractor(frame, -1)
-    #widget = vwx.wxVTKRenderWindowInteractor.wxVTKRenderWindowInteractor(frame, -1)
+    #widget = vwx[:wxVTKRenderWindowInteractor].wxVTKRenderWindowInteractor(frame, -1)
+    widget = vtkmodules.wx.wxVTKRenderWindowInteractor.wxVTKRenderWindowInteractor(frame, -1)
     sizer = wx.BoxSizer(wx.VERTICAL)
     sizer.Add(widget, 1, wx.EXPAND)
     frame.SetSizer(sizer)
@@ -371,50 +362,50 @@ end # module Vtk
 #Vtk.learn_cone()
 #Vtk.learn_animation()
 #Vtk.learn_box()
-#Vtk.learn_wx()
+Vtk.learn_wx()
 
 
 ## Interactive VTK with Julia REPL --------------Interactive VTK with Julia REPL
 ## Start Julia with `-t 2`
-colors = Vtk.vtk.vtkNamedColors()
-renderer=Vtk.vtk.vtkRenderer()
-renwin=Vtk.vtk.vtkRenderWindow()
-interactor = Vtk.vtk.vtkRenderWindowInteractor()
+# colors = Vtk.vtk.vtkNamedColors()
+# renderer=Vtk.vtk.vtkRenderer()
+# renwin=Vtk.vtk.vtkRenderWindow()
+# interactor = Vtk.vtk.vtkRenderWindowInteractor()
 
-# Window may close on its own if not a ref by a Julia structure
-vwin = Vtk.VtkWindow(interactor, renderer, renwin)
+# # Window may close on its own if not a ref by a Julia structure
+# vwin = Vtk.VtkWindow(interactor, renderer, renwin)
 
-task = Threads.@spawn (function() # define and run function
-    try
-        Vtk.learn_box(
-            renderer=renderer, 
-            renwin=renwin, 
-            interactor=interactor
-        )
-    catch e # need this to print error from thread
-        @error e
-        @error stacktrace(catch_backtrace())
-        rethrow(e)
-    end
-end)()
+# task = Threads.@spawn (function() # define and run function
+#     try
+#         Vtk.learn_box(
+#             renderer=renderer, 
+#             renwin=renwin, 
+#             interactor=interactor
+#         )
+#     catch e # need this to print error from thread
+#         @error e
+#         @error stacktrace(catch_backtrace())
+#         rethrow(e)
+#     end
+# end)()
     
 
-# sleep() here is a bad idea
-# REPL may not get the prompt back
-# 3 different ways to run
-println("Enter to change color")
-readline()
-Vtk.invoke_later(interactor, renwin, ()->renderer.SetBackground(colors.GetColor3d("Red")))
-println("Enter to change color")
-readline()
-fn = ()->renderer.SetBackground(colors.GetColor3d("Black")) 
-Vtk.invoke_later(interactor, renwin, fn)
-println("Enter to change color")
-readline()
-Vtk.invoke_later(interactor, renwin, function()
-        renderer.SetBackground(colors.GetColor3d("Blue"))
-    end 
-)
+# # sleep() here is a bad idea
+# # REPL may not get the prompt back
+# # 3 different ways to run
+# println("Enter to change color")
+# readline()
+# Vtk.invoke_later(interactor, renwin, ()->renderer.SetBackground(colors.GetColor3d("Red")))
+# println("Enter to change color")
+# readline()
+# fn = ()->renderer.SetBackground(colors.GetColor3d("Black")) 
+# Vtk.invoke_later(interactor, renwin, fn)
+# println("Enter to change color")
+# readline()
+# Vtk.invoke_later(interactor, renwin, function()
+#         renderer.SetBackground(colors.GetColor3d("Blue"))
+#     end 
+# )
 
 nothing
 

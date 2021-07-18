@@ -1,12 +1,49 @@
 <h1> <b>Learn Julia </b></h1>
 
+- [Basic](#basic)
+  - [Project specific Julia environment](#project-specific-julia-environment)
+    - [Windows](#windows)
 - [VTK](#vtk)
   - [Conda environment set up](#conda-environment-set-up)
   - [First example with callback](#first-example-with-callback)
 - [Backup](#backup)
 
+# Basic
+## Project specific Julia environment
+The motivation to have a project specific Julia environment is to have project specific `Conda.jl` and `PyCall.jl`.
+
+### Windows
+```sh
+set JULIA_DEPOT_PATH=path\to\your\project\.julia
+cd path\to\your\project
+julia --project=@.
+```
+```julia
+julia> ]
+(project) pkg> instantiate
+```
+Note that `JULIA_DEPOT_PATH` needs to be set each time in a new terminal and the `.julia` directory could be several GB in size.
+
+Create an `activate.bat` in the project directory to simplify the process.
+Use system default Julia environment
+```sh
+@echo off
+set JULIA_DEPOT_PATH=%USERPROFILE%\.julia
+echo Set Julia Environment to %JULIA_DEPOT_PATH%
+```
+Use project specific Julia environment
+```sh
+@echo off
+set JULIA_DEPOT_PATH=%CD%\.julia
+echo Set Julia Environment to %JULIA_DEPOT_PATH%
+```
+
+
 # VTK
-Use `VTK` through `PyCall` and `Conda.jl`
+This section deminstrates the use `VTK`'s `Python` wrapper through `PyCall.jl` and `Conda.jl`.
+In the documenation of both `Conda.jl` and `PyCall.jl` states one can only use the `base` env
+in `Conda` in `Julia`.  This restriction could be lifted with a change in the `PATH`
+environment as shown below.
 
 ## Conda environment set up
 Download and install `mambaforge` from https://github.com/conda-forge/miniforge.
@@ -68,9 +105,8 @@ Stacktrace:
 
 This could be related to this issue https://github.com/JuliaPy/PyCall.jl/issues/730.
 
-Use a similar approach to the above mentioned issue solves the problem.  Notice
-this is only tested on the Windows
-
+The following code fixes the problem.
+Notice this is only tested on the Windows
 ```julia
 path = Conda.bin_dir(dirname(PyCall.pyprogramname))
 ENV["PATH"] = path * ";" * ENV["PATH"]
