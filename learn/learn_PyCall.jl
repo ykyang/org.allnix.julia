@@ -79,12 +79,6 @@ function learn_gtk()
     gtk.main()    
 end
 
-function build()
-    ENV["PYTHON"] = ""
-    #ENV["PYTHON"] = raw"C:\Users\Yi-Kun.Yang\local\conda3\envs\qt\python.exe"
-    Pkg.build("PyCall")
-end
-
 function learn_tkinter()
     tkinter = pyimport(:tkinter)
 end
@@ -100,9 +94,7 @@ function learn_wx()
     wx = pyimport(:wx)
 end
 
-#build()
 
-#learn_setup()
 #learn_basic()
 #learn_qt()
 #learn_gtk()

@@ -113,6 +113,7 @@ ENV["PATH"] = path * ";" * ENV["PATH"]
 ```
 
 This is the snippet used in `learn_PyVtk.jl` to resolve the vtk not loading error.
+The code avoids re-prepending the PATH.
 ```julia
 using Conda
 using PyCall
