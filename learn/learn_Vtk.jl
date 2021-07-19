@@ -13,6 +13,9 @@ module Vtk
 using Logging
 using Conda
 using PyCall
+import Pkg
+import REPL
+
 
 #
 # Set up VTK in a separate Conda environment.
@@ -48,16 +51,22 @@ begin # See learn_PyCall.jl
     end
 end
 
-struct VtkWindow
+mutable struct VtkWindow
     interactor
     renderer
     render_window
+    wx
     
     function VtkWindow(interactor, renderer, renwin)
         new(interactor, renderer, renwin)
     end
+    function VtkWindow()
+        new()
+    end
 end
-
+py"""
+import vtk
+"""
 const vtk = pyimport("vtk")
 
 function learn_cone()
@@ -186,6 +195,7 @@ function boxCallback(obj, event)
     # event:InteractionEvent
 end
 
+# Only works with the VTK version (8.90.0) that comes with the Paraview
 function learn_box(;
         renderer=vtk.vtkRenderer(), 
         renwin=vtk.vtkRenderWindow(),
@@ -251,7 +261,7 @@ end
 
 # https://discourse.vtk.org/t/interactor-start-blocking-execution/1095/2
 # https://gitlab.kitware.com/vtk/vtk/-/blob/master/Wrapping/Python/vtkmodules/wx/wxVTKRenderWindowInteractor.py
-function learn_wx()
+function learn_wx(vtkwin)
     # Must load in Python before loading in Julia
     py"""
     import wx
@@ -290,6 +300,11 @@ function learn_wx()
     ren = vtk.vtkRenderer()
     renwin = widget.GetRenderWindow()
     widget.GetRenderWindow().AddRenderer(ren)
+    vtkwin.renderer = ren
+    vtkwin.render_window = renwin
+    vtkwin.interactor = widget
+    vtkwin.wx = wx
+
 
     cone = vtk.vtkConeSource()
     cone.SetResolution(8)
@@ -305,7 +320,26 @@ function learn_wx()
     # show the window
     frame.Show()
     #frame.Close()
+
+    # Threads.@threads for i in 1:2
+    #     if Threads.threadid() == 1
+    #         app.MainLoop() # comment out to interact in ipython
+    #     else
+    #         try
+    #             term = REPL.Terminals.TTYTerminal("dumb", stdin, stdout, stderr)
+    #             repl = REPL.LineEditREPL(term, true)
+    #             REPL.run_repl(repl)
+    #         catch e # need this to print error from thread
+    #             @error e
+    #             @error stacktrace(catch_backtrace())
+    #             rethrow(e)
+    #         end
+    #     end
+    # end
+    wx.CallLater(1000*3, ()->ren.SetBackground(colors.GetColor3d("Red")))
+
     app.MainLoop() # comment out to interact in ipython
+    #pygui_start(:wx)
 end
 """
     invoke_later(vtk_obj, fn)
@@ -339,6 +373,7 @@ end
 Invoke a function, `fn`, in the GUI thread and call `renwin.Render()` to render.
 """
 function invoke_later(vtk_obj, renwin, fn::Function)
+    println("invoke_later")
     L = ReentrantLock()
     ref_id = nothing #Ref{Union{UInt64,Nothing}}(nothing)
     callback = function(obj,event)
@@ -362,50 +397,98 @@ end # module Vtk
 #Vtk.learn_cone()
 #Vtk.learn_animation()
 #Vtk.learn_box()
-Vtk.learn_wx()
+
+# vtkwin = Vtk.VtkWindow()
+# Vtk.learn_wx(vtkwin)
 
 
 ## Interactive VTK with Julia REPL --------------Interactive VTK with Julia REPL
 ## Start Julia with `-t 2`
-# colors = Vtk.vtk.vtkNamedColors()
-# renderer=Vtk.vtk.vtkRenderer()
-# renwin=Vtk.vtk.vtkRenderWindow()
-# interactor = Vtk.vtk.vtkRenderWindowInteractor()
+## Only works with the VTK version (8.90.0) that comes with the Paraview
+colors = Vtk.vtk.vtkNamedColors()
+renderer=Vtk.vtk.vtkRenderer()
+renwin=Vtk.vtk.vtkRenderWindow()
+interactor = Vtk.vtk.vtkRenderWindowInteractor()
 
-# # Window may close on its own if not a ref by a Julia structure
-# vwin = Vtk.VtkWindow(interactor, renderer, renwin)
+# Window may close on its own if not a ref by a Julia structure
+vwin = Vtk.VtkWindow(interactor, renderer, renwin)
 
-# task = Threads.@spawn (function() # define and run function
-#     try
-#         Vtk.learn_box(
-#             renderer=renderer, 
-#             renwin=renwin, 
-#             interactor=interactor
-#         )
-#     catch e # need this to print error from thread
-#         @error e
-#         @error stacktrace(catch_backtrace())
-#         rethrow(e)
-#     end
-# end)()
+task = Threads.@spawn (function() # define and run function
+    try
+        Vtk.learn_box(
+            renderer=renderer, 
+            renwin=renwin, 
+            interactor=interactor
+        )
+    catch e # need this to print error from thread
+        @error e
+        @error stacktrace(catch_backtrace())
+        rethrow(e)
+    end
+end)()
     
 
-# # sleep() here is a bad idea
-# # REPL may not get the prompt back
-# # 3 different ways to run
-# println("Enter to change color")
-# readline()
-# Vtk.invoke_later(interactor, renwin, ()->renderer.SetBackground(colors.GetColor3d("Red")))
-# println("Enter to change color")
-# readline()
-# fn = ()->renderer.SetBackground(colors.GetColor3d("Black")) 
-# Vtk.invoke_later(interactor, renwin, fn)
-# println("Enter to change color")
-# readline()
-# Vtk.invoke_later(interactor, renwin, function()
-#         renderer.SetBackground(colors.GetColor3d("Blue"))
-#     end 
-# )
+
+# sleep() here is a bad idea
+# REPL may not get the prompt back
+# 3 different ways to run
+println("Enter to change color")
+readline()
+Vtk.invoke_later(interactor, renwin, ()->renderer.SetBackground(colors.GetColor3d("Red")))
+println("Enter to change color")
+readline()
+fn = ()->renderer.SetBackground(colors.GetColor3d("Black")) 
+Vtk.invoke_later(interactor, renwin, fn)
+println("Enter to change color")
+readline()
+Vtk.invoke_later(interactor, renwin, function()
+        renderer.SetBackground(colors.GetColor3d("Blue"))
+    end 
+)
+
+# Uncomment when not running from REPL
+#wait(task)
+
+# import REPL
+# ## Interactive VTK with wx ----------------------------- Interactive VTK with wx
+# colors = Vtk.vtk.vtkNamedColors()
+#vtkwin = Vtk.VtkWindow()
+# #task = Threads.@spawn Vtk.learn_wx(vtkwin)
+# Threads.@threads for i in 1:2
+#     if Threads.threadid() == 1
+#         Vtk.learn_wx(vtkwin)
+#     else
+#         try
+#             term = REPL.Terminals.TTYTerminal("dumb", stdin, stdout, stderr)
+#             repl = REPL.LineEditREPL(term, true)
+#             REPL.run_repl(repl)
+#         catch e # need this to print error from thread
+#             @error e
+#             @error stacktrace(catch_backtrace())
+#             rethrow(e)
+#         end
+#     end
+# end
+
+# task = Threads.@spawn (function()
+#         try
+#             term = REPL.Terminals.TTYTerminal("dumb", stdin, stdout, stderr)
+#             repl = REPL.LineEditREPL(term, true)
+#             REPL.run_repl(repl)
+#         catch e # need this to print error from thread
+#             @error e
+#             @error stacktrace(catch_backtrace())
+#             rethrow(e)
+#         end
+#     end)()
+#Vtk.learn_wx(vtkwin)
+#wait(task)
+#vtkwin.wx.CallAfter(()->vtkwin.render_window.Render())
+#vtkwin.wx.CallAfter(()->vtkwin.renderer.SetBackground(colors.GetColor3d("Red")))
+#Vtk.invoke_later(vtkwin.interactor, vtkwin.render_window, ()->vtkwin.renderer.SetBackground(colors.GetColor3d("Red")))
+
+#vtkwin = Vtk.VtkWindow()
+#Vtk.learn_wx(vtkwin)
 
 nothing
 

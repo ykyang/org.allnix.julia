@@ -11,9 +11,11 @@ end
 
 
 # Must load in Python before loading in Julia
+
 py"""
 import wx
 """
+#pygui_start(:wx)
 wx = pyimport("wx")
 
 
@@ -41,14 +43,17 @@ function learn_building_a_simple_text_editor()
     # frame = py"MyFrame"(nothing, "Small editor")
     # app.MainLoop()
 
+
+    
     # Use my own package
     lwx = pyimport("learnall.wx")
     app = wx.App(false)
     frame = lwx.MyFrame(nothing, "Small editor")
-    app.MainLoop()
+    #app.MainLoop()
+    
 end
 
 #learn_hello()
-learn_building_a_simple_text_editor()
+#learn_building_a_simple_text_editor()
 
 nothing
