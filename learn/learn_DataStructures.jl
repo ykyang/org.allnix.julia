@@ -254,6 +254,11 @@ function learn_SortedSet()
     # Check for key
     @test in(Date(2020, 12, 24), d)
     @test !in(Date(2019, 1, 1), d)
+
+    set = SortedSet{Int64}([8,2,3,1,7], Base.Order.Forward)
+    @test [1,2,3,7,8] == collect(set)
+    set = SortedSet{Int64}(Base.Order.Forward, [8,2,3,1,7])
+    @test [1,2,3,7,8] == collect(set)
 end
 
 function learn_Stack()
