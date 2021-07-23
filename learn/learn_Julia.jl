@@ -68,8 +68,22 @@ function learn_resize!()
     
 end
 
+function learn_searchsortedfirst()
+    v = Float64[1, 2, 3, 4, 5]
+    
+    i = searchsortedfirst(v, 1)
+    @test 1 == i
+
+    i = searchsortedfirst(v, 1.5)
+    @test 2 == i
+
+    i = searchsortedfirst(v, 2)
+    @test 2 == i
+end
+
 @testset "Basic" begin
     learn_resize!()
+    learn_searchsortedfirst()
 end
 
 nothing
