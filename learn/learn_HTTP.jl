@@ -29,6 +29,11 @@ function sec_requests()
     return r
 end
 
+function oildata()
+    HTTP.request("PUT", "http://localhost:5000/vtk/v0/background/red")
+    HTTP.request("PUT", "http://localhost:5000/vtk/v0/background/tan")
+end
+
 sec_requests()
 
 nothing
