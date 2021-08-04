@@ -4,6 +4,8 @@ using CSV, HTTP
 import Downloads
 using Test
 using TerminalPager
+using PrettyTables
+using Formatting
 
 # See learn_Downloads.jl for how to download
 
@@ -214,7 +216,7 @@ function learn_groupby_1()
     df = gdf[(true,)] # group of B == true
     #pager(df)
     df[:,"D"] = df[!,"A"] ./ df[!,"C"]
-    pager(mdf)
+    #pager(mdf)
 end
 
 function learn_hcat() # https://dataframes.juliadata.org/stable/lib/functions/#Base.hcat
@@ -324,7 +326,17 @@ function learn_transform_1()
         end 
         => "ABC"
     )
-    @test df[!, "A"] + df[!, "B"] + df[!, "C"] == df[!,"ABC"]   
+    @test df[!, "A"] + df[!, "B"] + df[!, "C"] == df[!,"ABC"]
+
+    # Create D = min(A,B)
+    df = simple_table()
+    df[:,"A2"] = [1.2, 1.1, 3.0, 4.3, 5.0, 5.9, 7.2, 7.8, 9.3, 9.4]
+    transform!(df, ["A", "A2"] => ((a,b) -> min.(a,b)) => "D")
+    @show df
+    transform!(df, ["A", "A2"] => (ByRow((a,b)->min(a,b))) => "D")
+    @show df
+    transform!(df, ["A"] => ((a) -> min.(a,5)) => "D")
+    @show df
 end
 
 function learn_filter_1()
@@ -368,6 +380,27 @@ function learn_filter_1()
     @test [1,2,8,9,10] == df[!,"A"]
     @test [11,12,18,19,20] == df[!,"B"]
     @test [101,102,108,109,110] == df[!,"C"]
+
+end
+"""
+
+Printing and formatting with PrettyTables
+"""
+function learn_formatting()
+    formatter = function(v, i, j)
+        if j in [2]
+            return sprintf1("%'7.0f", v)
+        else
+            return v
+        end
+    end
+
+    df = DataFrame(Dict(
+        "a" => Float64[1000000, 2000000],
+        "b" => Float64[10000000, 20000000],
+    ))
+
+    pretty_table(df, formatters=formatter)
 
 end
 
