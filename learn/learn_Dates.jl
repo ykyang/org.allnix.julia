@@ -35,6 +35,9 @@ function learn_constructors()
     @test now()              isa DateTime
     @test Date(2020, 12, 23) isa Date
     @test Date(now())        isa Date
+
+    # Construct DateTime from Date
+    @test DateTime(2020,1,1) == DateTime(Date(2020,1,1))
 end
 # https://docs.julialang.org/en/v1/stdlib/Dates/#Durations/Comparisons
 function learn_durations_comparisons()
@@ -205,6 +208,7 @@ function learn_print()
     @test "2021-Jun-1"  == Dates.format(Date(2021,6,1), "yyyy-u-d")
     @test "2021-Jun-01" == Dates.format(Date(2021,6,1), "yyyy-u-dd")
 
+    # Built-in formats
     # ISODateFormat     dateformat"yyyy-mm-dd"
     # ISODateTimeFormat dateformat"yyyy-mm-ddTHH:MM:SS.s"    
         
@@ -215,8 +219,8 @@ end
 function learn_arithemtic()
     # +
     @test Date(2021,6,21) == Date(2021,6,18) + Day(3)
-    #@test_throws MethodError Date(2021,6,18) + Millisecond(3*86400*1000)
-    @test Date(2021,6,21) == Date(2021,6,18) + Millisecond(3*86400*1000)
+    @test_throws MethodError Date(2021,6,18) + Millisecond(3*86400*1000)
+    #@test Date(2021,6,21) == Date(2021,6,18) + Millisecond(3*86400*1000)
     @test Date(2021,6,21) == DateTime(2021,6,18) + Millisecond(3*86400*1000)
     
 
@@ -232,7 +236,10 @@ function learn_arithemtic()
     @test 11 == Day(11).value
     @test Day(11).value isa Int64
 
+    # Comparing between Date and DateTime
     @test Date(2021,10,31) == DateTime(2021,10,31)
+    @test Date(2021,10,31) > DateTime(2021,10,30, 23)
+    @test Date(2021,10,31) < DateTime(2021,10,31, 1)
 end
 
 """
