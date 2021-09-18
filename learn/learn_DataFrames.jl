@@ -4,6 +4,8 @@ using CSV, HTTP
 import Downloads
 using Test
 using TerminalPager
+using PrettyTables
+using Formatting
 
 # See learn_Downloads.jl for how to download
 
@@ -198,6 +200,25 @@ function learn_get_column()
     @test ["Liam", "Sophie", "Jacob"] == df[:, "name"] # by value
 end
 
+function learn_groupby_1()
+    mdf = DataFrame(
+        [
+            [1,        2,    3],        # A
+            [true, false, true],        # B
+            [1,    nothing,  3],        # C
+            [nothing, nothing, nothing] # D
+        ],
+        ["A", "B", "C", "D"]
+    )
+
+    # group by :B
+    gdf = groupby(mdf, "B") 
+    df = gdf[(true,)] # group of B == true
+    #pager(df)
+    df[:,"D"] = df[!,"A"] ./ df[!,"C"]
+    #pager(mdf)
+end
+
 function learn_hcat() # https://dataframes.juliadata.org/stable/lib/functions/#Base.hcat
     df1 = DataFrame(A=1:3, B=1:3)
     df2 = DataFrame(A=4:6, B=4:6)
@@ -215,6 +236,44 @@ function learn_hcat() # https://dataframes.juliadata.org/stable/lib/functions/#B
     df3 = hcat(df1, df2[!, [2, 3]])
     @test df3.A == df1.A
     @test df3.C == df2.C
+end
+
+function learn_row_iteration()
+    df = simple_table()
+    for row in eachrow(df)
+        # @show typeof(row)
+        # @show row["A"]
+    end
+end
+
+function learn_set_value()
+    df = simple_table()
+    @test 1.0 == df[1,"A"]
+    df[1,"A"] = 13.0 # How efficient is this?
+    @test 13.0 == df[1,"A"]
+
+    # Row is referenced to internal data
+    df = simple_table()
+    row = df[1,:]
+    @test 1 == row["A"]
+    row["A"] = 13.0
+    @test 13 == row["A"]
+    @test 13 == df[1,"A"] # referenced
+end
+
+function learn_sort()
+    mdf = DataFrame(
+        [
+            Int64[1, 2, 3], # A
+            Int64[3, 2, 1], # B
+            Int64[3, 1, 2], # C
+        ],
+        ["A", "B", "C"]
+    )
+
+    df = sort(mdf, ["B"])
+    @test [1,2,3] == df[!,"B"]
+    @test [2,1,3] == df[!,"C"]
 end
 
 function learn_transform_1()
@@ -267,7 +326,17 @@ function learn_transform_1()
         end 
         => "ABC"
     )
-    @test df[!, "A"] + df[!, "B"] + df[!, "C"] == df[!,"ABC"]   
+    @test df[!, "A"] + df[!, "B"] + df[!, "C"] == df[!,"ABC"]
+
+    # Create D = min(A,B)
+    df = simple_table()
+    df[:,"A2"] = [1.2, 1.1, 3.0, 4.3, 5.0, 5.9, 7.2, 7.8, 9.3, 9.4]
+    transform!(df, ["A", "A2"] => ((a,b) -> min.(a,b)) => "D")
+    @show df
+    transform!(df, ["A", "A2"] => (ByRow((a,b)->min(a,b))) => "D")
+    @show df
+    transform!(df, ["A"] => ((a) -> min.(a,5)) => "D")
+    @show df
 end
 
 function learn_filter_1()
@@ -313,6 +382,27 @@ function learn_filter_1()
     @test [101,102,108,109,110] == df[!,"C"]
 
 end
+"""
+
+Printing and formatting with PrettyTables
+"""
+function learn_formatting()
+    formatter = function(v, i, j)
+        if j in [2]
+            return sprintf1("%'7.0f", v)
+        else
+            return v
+        end
+    end
+
+    df = DataFrame(Dict(
+        "a" => Float64[1000000, 2000000],
+        "b" => Float64[10000000, 20000000],
+    ))
+
+    pretty_table(df, formatters=formatter)
+
+end
 
 function simple_table()
     df = DataFrame(
@@ -331,14 +421,18 @@ end
 
     learn_constructor()
     learn_empty_constructor()
-    learn_csv()
+    #learn_csv()
 
+    learn_groupby_1()
     learn_hcat()
 
+    learn_row_iteration()
+    learn_set_value()
+    learn_sort()
     learn_transform_1()
     learn_filter_1()
 end
 
-df = learn_csv()
+#df = learn_csv()
 
 nothing

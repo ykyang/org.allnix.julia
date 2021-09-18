@@ -3474,6 +3474,8 @@ function basic_heatmap()
             y = [0, 1, 3, 4],
             z = z,
             showscale = true,
+            xgap = 3,
+            ygap = 3,
         )
     ])
     layout = Layout(
@@ -4028,4 +4030,6 @@ function _3d_mesh_cube()
 
     return traces, layout
 end
-savefig(Plot(_3d_mesh_cube()...), "plot.html")
+
+#savefig(Plot(_3d_mesh_cube()...), "plot.html")
+display(plot(basic_heatmap()...))

@@ -6,6 +6,7 @@
 using Test
 #import DataStructures
 using DataStructures
+using Dates
 
 """
 Example custom struct for testing with containers.
@@ -76,6 +77,15 @@ function learn_Dict()
     #@show getindex(db, Node2(1,2))
 
     @show db
+end
+
+function learn_OrderedSet()
+    set = OrderedSet{Int64}()
+    push!(set, 13)
+    push!(set, 7)
+    push!(set, 17)
+
+    @test [13,7,17] == collect(set)
 end
 
 function learn_PriorityQueue()
@@ -231,6 +241,26 @@ function learn_Set()
 
 end
 
+function learn_SortedSet()
+    #>> Sort by Date <<#
+    d = SortedSet{Date}(Base.Order.Forward)
+    push!(d, Date(2020, 12, 24))
+    push!(d, Date(2020, 12, 22))
+    push!(d, Date(2020, 12, 23))
+
+    #@info d
+    @test [Date("2020-12-22"), Date("2020-12-23"), Date("2020-12-24")] == collect(d)
+   
+    # Check for key
+    @test in(Date(2020, 12, 24), d)
+    @test !in(Date(2019, 1, 1), d)
+
+    set = SortedSet{Int64}([8,2,3,1,7], Base.Order.Forward)
+    @test [1,2,3,7,8] == collect(set)
+    set = SortedSet{Int64}(Base.Order.Forward, [8,2,3,1,7])
+    @test [1,2,3,7,8] == collect(set)
+end
+
 function learn_Stack()
     ds = DataStructures
 
@@ -247,11 +277,15 @@ end
     learn_Node2()
 end
 
+@testset "Set" begin
+    learn_OrderedSet()
+    learn_SortedSet()
+end
 #learn_Dict()
 #A = learn_PriorityQueue()
 #A = learn_Queue()
 #A = learn_Set()
 #A = learn_Stack()
-
+#learn_OrderedSet()
 #A
 nothing
