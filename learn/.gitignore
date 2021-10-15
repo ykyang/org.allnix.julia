@@ -6,6 +6,7 @@ dev/
 *.PRT
 *.RSM
 *.txt
+*.mp4
 
 !assets/images/*.png
 

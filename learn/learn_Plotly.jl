@@ -1,10 +1,13 @@
 # Follows https://plotly.com/javascript/
+# Use run_Plotly.jl to run.
+# Use the command at the end to plot without Dash.
 
 using Dash, DashHtmlComponents, DashCoreComponents, DashBootstrapComponents
 using PlotlyJS, HTTP, CSV
 using DataFrames
 using Random
 
+# Fundamentals                                                      Fundamentals
 """
 
 https://plotly.com/javascript/configuration-options/
@@ -359,6 +362,8 @@ function add_buttons_to_modebar_config()
 
     return config
 end
+
+# Basic Charts                                                      Basic Charts 
 
 """
 
@@ -3682,6 +3687,8 @@ function heatmap_with_unequal_block_sizes()
     return traces, layout
 end
 
+# 3D Charts                                                            3D Charts
+
 """
     chapter_3d_scatter_plots(; app=nothing)
 
@@ -4031,5 +4038,108 @@ function _3d_mesh_cube()
     return traces, layout
 end
 
+# Subplots                                                              Subplots
+# TODO: chapter Dash driver
+function simple_subplot()
+    traces = AbstractTrace[
+        scatter(
+            x = [1,2,3],
+            y = [4,5,6],
+        ),
+        scatter(
+            x = [20, 30, 40],
+            y = [50, 60, 70],
+            xaxis = "x2",
+            yaxis = "y2",
+        ),
+    ]
+    layout = Layout(
+        grid = attr(
+            rows=1, columns=2, pattern="independent",
+        )
+    )
+
+    return traces, layout
+end
+
+function subplots_with_shared_axes()
+    traces = AbstractTrace[
+        scatter(
+            x = [1,2,3], y = [2,3,4],
+        ),
+        scatter(
+            x = [20, 30, 40], y = [5, 5, 5],
+            xaxis = "x2", yaxis = "y",
+        ),
+        scatter(
+            x = [2, 3, 4], y = [600, 700, 800],
+            xaxis = "x", yaxis = "y3",
+        ),
+        scatter(
+            x = [4000, 5000, 6000], y = [7000, 8000, 9000],
+            xaxis = "x4", yaxis = "y4",
+        )
+    ]
+    layout = Layout(
+        grid = attr(
+            rows=2, columns=2,
+            subplots=[["xy", "x2y"], ["xy3", "x4y4"]],
+            roworder="bottom to top"
+        )
+    )
+
+    return traces, layout
+end
+
+# x-axis are synchronized
+function subplots_with_shared_axes2()
+    traces = AbstractTrace[
+        scatter(
+            x = [1,2,3], y = [2,3,4],
+            xaxis = "x", yaxis="y",
+        ),
+        # 2 traces in one plot
+        scatter(
+            x = [2, 3, 4], y = [5, 4, 2],
+            xaxis = "x2", yaxis = "y2",
+        ),
+        scatter(
+            x = [2, 3, 4], y = [5, 1, 3],
+            xaxis = "x2", yaxis = "y2",
+        ),
+        scatter(
+            x = [2, 3, 4], y = [600, 700, 800],
+            xaxis = "x3", yaxis = "y3",
+        ),
+        scatter(
+            x = [4, 5, 6], y = [7000, 8000, 9000],
+            xaxis = "x4", yaxis = "y4",
+        )
+    ]
+    layout = Layout(
+        grid = attr(
+            rows=2, columns=2,
+            subplots=[["xy", "x2y2"], ["x3y3", "x4y4"]],
+            #roworder="bottom to top"
+            roworder="top to bottom"
+        ),
+        xaxis = attr(
+            matches="x2"
+        ),
+        xaxis2 = attr(
+            matches="x3"            
+        ),
+        xaxis3 = attr(
+            matches="x4"            
+        )
+    )
+
+    return traces, layout
+end
+
+# Use this to plot without Dash
 #savefig(Plot(_3d_mesh_cube()...), "plot.html")
-display(plot(basic_heatmap()...))
+#display(plot(basic_heatmap()...))
+#display(plot(simple_subplot()...))
+#display(plot(subplots_with_shared_axes()...))
+display(plot(subplots_with_shared_axes2()...))

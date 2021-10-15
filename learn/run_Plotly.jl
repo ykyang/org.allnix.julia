@@ -1,3 +1,7 @@
+
+# Run with 
+#   julia --project=@. run_Plotly.jl
+# to enable hot reload.
 include("learn_Plotly.jl")
 
 app = dash(external_stylesheets=[

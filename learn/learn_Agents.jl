@@ -95,10 +95,10 @@ step!(model, MyAgents.agent_step!)
 step!(model, MyAgents.agent_step!,3)
 
 using InteractiveDynamics
-#using CairoMakie
-using GLMakie
+using CairoMakie
+#using GLMakie
 
-GLMakie.activate!()
+#GLMakie.activate!()
 
 groupcolor(a) = a.group == 1 ? :blue : :orange
 groupmarker(a) = a.group == 1 ? :circle : :rect
@@ -108,4 +108,13 @@ figure, _ = abm_plot(model; ac = groupcolor, am = groupmarker, as = 10)
 #Makie.inline!(true)
 display(figure) # Only works in IDE
 save("schelling.png", figure)
+abm_video(
+    "schelling.mp4", model, MyAgents.agent_step!,
+    ac = groupcolor, am = groupmarker, as = 10,
+    framerate = 1, frames = 20,
+    title = "Schelling's segregation model"
+)
 
+# Collecting data during time evolution
+adata = [:pos, :mood, :group]
+nothing
