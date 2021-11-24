@@ -1,9 +1,8 @@
-### LightGraphs.jl is archived
-### Use Graphs.jl instead
+### Replace LightGraphs.jl
 
 # https://github.com/JuliaGraphs/JuliaGraphsTutorials
 using Test
-using LightGraphs
+using Graphs
 using GraphPlot
 using Compose
 
@@ -20,6 +19,11 @@ function learn_basic_library_examples(io::IO)
     add_edge!(g, 1, 6) # connect first and last
     @test 6 == nv(g)
     @test 6 == ne(g)
+
+    if display_plot
+        #display(gplot(g))
+        draw(SVG("basic.svg", 16cm, 16cm), gplot(g))
+    end
 end
 
 
@@ -306,12 +310,16 @@ io = stdout
 dp = true
 dp = false 
 
-@testset "Base" begin
+display_plot = true
+#display_plot = false
+
+@testset "Graphs All" begin
+    if !(@isdefined test_all) || test_all
     #learn_basic_library_examples(io)
     #learn_graph_generators(io)
     learn_modifying_graphs()
-    ds = learn_dijkstra_shortest_paths(dp)
-    learn_bfs_tree()
+    #ds = learn_dijkstra_shortest_paths(dp)
+    #learn_bfs_tree()
 
     #learn_dijkstra_shortest_paths_2(dp)
     #learn()
@@ -320,6 +328,11 @@ dp = false
     #learn_basic_operations(io)
     #learn_set_interface(io)
     #learn_dag(io)
+    end
+end
+
+@testset "Graphs Special" begin
+    learn_basic_library_examples(io)
 end
 #global_logger(default_logger) # Restore global logger
 nothing
