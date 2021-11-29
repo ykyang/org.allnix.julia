@@ -1,3 +1,4 @@
+### Learn Graphs.jl
 ### Replace LightGraphs.jl
 
 # https://github.com/JuliaGraphs/JuliaGraphsTutorials
@@ -9,12 +10,13 @@ using Compose
 
 ## Getting Started
 
-# https://juliagraphs.org/LightGraphs.jl/latest/#Basic-library-examples
+# Basic library examples, https://juliagraphs.org/Graphs.jl/dev/#Basic-library-examples
 function learn_basic_library_examples(io::IO)
     # A path that connect 1 vertex to the next
-    g = path_graph(6)
-    @test 6 == nv(g)
-    @test 5 == ne(g)
+    g = path_graph(6) # Graph with 6 vertices
+
+    @test 6 == nv(g)  # Number of vertices
+    @test 5 == ne(g)  # Number of edges
     
     add_edge!(g, 1, 6) # connect first and last
     @test 6 == nv(g)
@@ -22,14 +24,14 @@ function learn_basic_library_examples(io::IO)
 
     if display_plot
         #display(gplot(g))
-        draw(SVG("basic.svg", 16cm, 16cm), gplot(g))
+        draw(SVG("basic_library_examples.svg", 16cm, 16cm), gplot(g))
     end
 end
 
 
 ## Making and Modifying Graphs
 
-# https://juliagraphs.org/LightGraphs.jl/latest/generators/#Graph-Generators
+# Graph generators, https://juliagraphs.org/Graphs.jl/dev/generators/#Graph-Generators
 function learn_graph_generators(io::IO)
     # 1 - 3 - 5
     # |   |   |

@@ -1,6 +1,10 @@
 using Conda
 import Pkg
 
+# Access Julia Conda from terminal
+# Navigate to Julia's Conda installation at ~/.julia/conda/3/condabin
+# Drag "activate.bat" into a terminal.
+
 @show Conda.ROOTENV
 
 env   = "py38"
@@ -36,6 +40,7 @@ end
 if false
     Conda.add("vtk",   env)
     Conda.add("numpy", env)
+    Conda.add("jupyterlab", env)
     # or
     Conda.runconda(`install paraview -n $(env)`)
     Conda.runconda(`install vtk      -n $(env)`)
