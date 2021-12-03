@@ -1,5 +1,6 @@
 # Learn basic Julia stuff
 using Test
+import Serialization
 
 module MyJulia
 using Test
@@ -136,16 +137,63 @@ function learn_comprehension()
         (2, 4)
     ] == vec(x2)
 end
+
+function learn_for_zip()
+    Ans = []
+    for (i,j,k) in zip([1,2], [3,4], [5,6])
+        push!(Ans, (i,j,k))
+    end 
+
+    @test [
+        (1,3,5),
+        (2,4,6)
+    ] == Ans
+end
+
+function learn_CartesianIndex()
+    ind = CartesianIndex(1,2,3)
+
+    @test (1,2,3) == ind.I
+end
+
+function learn_Serialization()
+    node = MyJulia.Node(13)
+
+    filename = "serialization.jls"
+    open(filename, "w") do io
+        Serialization.serialize(io, node)
+    end
+
+    node_deserialized = Serialization.deserialize(filename)
+
+    @test node_deserialized == node
+end
+
+function learn_rand()
+    # 1 random number bewteen 1:50
+    @test 1<= rand(1:50) <= 50
+    
+    # 1000 random numbers between 1:10
+    r = rand(1:10, 1000)
+    @test all(1 .<= r .<= 10)
+end
+
 @testset "Node" begin
     MyJulia.learn_Node()
 end
 @testset "Basic" begin
     learn_resize!()
     learn_searchsortedfirst()
+
+    learn_CartesianIndex()
+    learn_Serialization()
+
+    learn_rand()
 end
 @testset "For-Loop" begin
     learn_for_comma()
     learn_comprehension()
+    learn_for_zip()
 end
 
 nothing

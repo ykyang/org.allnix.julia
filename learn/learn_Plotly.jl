@@ -3141,7 +3141,7 @@ function connect_the_gaps_between_null_values_in_the_z_matrix()
             xaxis = "x2", yaxis = "y2",
         ),
         heatmap(
-            naem = "Gaps",
+            name = "Gaps",
             zsmooth = "best", # comment out to have blocks with constant value
             z = z,
             showscale = false,

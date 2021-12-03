@@ -169,6 +169,22 @@ function learn_csv()
     return df
 end
 
+function learn_csv_io()
+    df = simple_table2()
+
+    filename = "simple_table.csv"
+    
+    CSV.write(filename, df)
+
+    df_read = DataFrame(CSV.File(filename))
+
+    #display(df_read)
+
+    @test df == df_read
+
+    #rm(filename)
+end
+
 """
 
 https://stackoverflow.com/questions/51240161/how-to-insert-a-column-in-a-julia-dataframe-at-specific-position-without-referr
@@ -332,11 +348,11 @@ function learn_transform_1()
     df = simple_table()
     df[:,"A2"] = [1.2, 1.1, 3.0, 4.3, 5.0, 5.9, 7.2, 7.8, 9.3, 9.4]
     transform!(df, ["A", "A2"] => ((a,b) -> min.(a,b)) => "D")
-    @show df
+    #@show df
     transform!(df, ["A", "A2"] => (ByRow((a,b)->min(a,b))) => "D")
-    @show df
+    #@show df
     transform!(df, ["A"] => ((a) -> min.(a,5)) => "D")
-    @show df
+    #@show df
 end
 
 function learn_filter_1()
@@ -413,6 +429,22 @@ function simple_table()
     return df
 end
 
+function simple_table2()
+    df = DataFrame(
+        "A" => 1:10,
+        "B" => 1.0:1:10.0,
+    )
+
+    return df
+end
+
+function test_simple_table2()
+    df = simple_table2()
+
+    @test eltype(df.A) == Int64
+    @test eltype(df.B) == Float64
+end
+
 @testset "Base" begin
     unsupported_DataFrame()
 
@@ -422,6 +454,7 @@ end
     learn_constructor()
     learn_empty_constructor()
     #learn_csv()
+    learn_csv_io()
 
     learn_groupby_1()
     learn_hcat()
@@ -431,6 +464,8 @@ end
     learn_sort()
     learn_transform_1()
     learn_filter_1()
+
+    test_simple_table2()
 end
 
 #df = learn_csv()

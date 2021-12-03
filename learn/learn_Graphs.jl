@@ -26,6 +26,8 @@ function learn_basic_library_examples(io::IO)
         #display(gplot(g))
         draw(SVG("basic_library_examples.svg", 16cm, 16cm), gplot(g))
     end
+
+    nothing
 end
 
 
@@ -41,13 +43,16 @@ function learn_graph_generators(io::IO)
     @test 7 == ne(g)
 
     plt = gplot(g, nodelabel=1:nv(g), edgelabel=1:ne(g))
-    display(plt)    
+    #display(plt)    
 
     # Numbering follow the 1st dimension first then 2nd dimension
     g = grid([10,5], periodic=false)
-    plt = gplot(g, nodelabel=1:nv(g))
-    display(plt)    
+    #plt = gplot(g, nodelabel=1:nv(g))
+    #display(plt)    
+
+    nothing
 end
+
 function learn_modifying_graphs()
     # 1 - 3 - 5
     # |   |   |
@@ -67,6 +72,8 @@ function learn_modifying_graphs()
     @test 7 == ne(g)
     @test !add_edge!(g, 5,6)
     @test 7 == ne(g)
+
+    nothing
 end
 
 ## Reading/Writing Graphs
@@ -75,7 +82,12 @@ end
 
 ## Plotting Graphs
 
-## Path and Traversal
+## Path and Traversal, https://juliagraphs.org/Graphs.jl/dev/pathing/
+
+"""
+
+Breadth-first traversal of a graph `g`.
+"""
 function learn_bfs_tree()
     # 1 - 3 - 5
     # |   |   |
@@ -86,13 +98,14 @@ function learn_bfs_tree()
     bfs = bfs_tree(g, 1)
     # 6 <- 4 <- 2 <- 1 -> 3 -> 5
     #display(gplot(bfs, nodelabel=1:nv(bfs), edgelabel=1:ne(bfs)))
-    draw(SVG("bfs_tree.svg", 16cm, 16cm), gplot(bfs, nodelabel=1:nv(bfs), edgelabel=1:ne(bfs)))
+    draw(SVG("bfs_tree_1.svg", 16cm, 16cm), gplot(bfs, nodelabel=1:nv(bfs), edgelabel=1:ne(bfs)))
 
     @test 6 == nv(bfs)
     @test 5 == ne(bfs)
 
     edge = first(edges(bfs)) 
-    @test edge isa LightGraphs.SimpleGraphs.SimpleEdge
+    @test edge isa Graphs.SimpleGraphs.SimpleEdge #{Int64} #LightGraphs.SimpleGraphs.SimpleEdge
+    #@show typeof(edge)
     @test 1 == src(edge)
     @test 2 == dst(edge)
 
@@ -108,10 +121,13 @@ function learn_bfs_tree()
     @test 5 == ne(bfs)
 
     bfs = bfs_tree(g, 2)
+    # 4 <- 2 -> 1 -> 3
     @show collect(vertices(bfs))
     @show collect(edges(bfs))
     @test 6 == nv(bfs)
     @test 3 == ne(bfs)
+
+    draw(SVG("bfs_tree_2.svg", 16cm, 16cm), gplot(bfs, nodelabel=1:nv(bfs), edgelabel=1:ne(bfs)))
 end
 
 function learn_dijkstra_shortest_paths(dp)
@@ -130,12 +146,38 @@ function learn_dijkstra_shortest_paths(dp)
         #@show i, e
         edgelabel[i] = string(w[e.src, e.dst])
     end
+
+
     ds = dijkstra_shortest_paths(g, 1, w)
+    @test ds isa Graphs.DijkstraState
+    # https://juliagraphs.org/Graphs.jl/dev/community/#Graphs.DijkstraState
+    #
+    # struct DijkstraState{T <: Real,U <: Integer} <: AbstractPathState
+    #     parents::Vector{U}
+    #     dists::Vector{T}
+    #     predecessors::Vector{Vector{U}}
+    #     pathcounts::Vector{Float64}
+    #     closest_vertices::Vector{U}
+    # end
+
     @show ds
-    @show ds.dists
 
     plt = gplot(g, nodelabel=1:nv(g), edgelabel=edgelabel)
-    #display(plt)
+    draw(SVG("dijkstra_1.svg", 16cm, 16cm), plt)
+
+    # 1 - 3   5
+    # |   |   |
+    # 2 - 4   6
+    g = grid([2,3], periodic=false) 
+
+    rem_edge!(g, 3,5)
+    rem_edge!(g, 4,6)
+
+    ds = dijkstra_shortest_paths(g, 1)
+    #@show ds
+    # ds = Graphs.DijkstraState{Int64, Int64}([0, 1, 1, 2, 0, 0], [0, 1, 1, 2, 9223372036854775807, 9223372036854775807], [Int64[], Int64[], Int64[], Int64[], Int64[], Int64[]], [1.0, 1.0, 1.0, 2.0, 0.0, 0.0], Int64[])
+    plt = gplot(g, nodelabel=1:nv(g))
+    draw(SVG("dijkstra_2.svg", 16cm, 16cm), plt)
 
     return ds
 end
@@ -317,24 +359,24 @@ display_plot = true
 
 @testset "Graphs All" begin
     if !(@isdefined test_all) || test_all
-    #learn_basic_library_examples(io)
-    #learn_graph_generators(io)
-    learn_modifying_graphs()
-    #ds = learn_dijkstra_shortest_paths(dp)
-    #learn_bfs_tree()
+        learn_basic_library_examples(io)
+        learn_graph_generators(io)
+        learn_modifying_graphs()
+        ds = learn_dijkstra_shortest_paths(dp)
+        learn_bfs_tree()
 
-    #learn_dijkstra_shortest_paths_2(dp)
-    #learn()
-    #pl = learn_Basics()
-    #learn_graph_properties(io)
-    #learn_basic_operations(io)
-    #learn_set_interface(io)
-    #learn_dag(io)
+        #learn_dijkstra_shortest_paths_2(dp)
+        #learn()
+        #pl = learn_Basics()
+        #learn_graph_properties(io)
+        #learn_basic_operations(io)
+        #learn_set_interface(io)
+        #learn_dag(io)
     end
 end
 
 @testset "Graphs Special" begin
-    learn_basic_library_examples(io)
+    #learn_basic_library_examples(io)
 end
 #global_logger(default_logger) # Restore global logger
 nothing
