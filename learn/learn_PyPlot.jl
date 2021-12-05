@@ -2,17 +2,22 @@
 module MyPyPlot
 
 using PyCall
-
-#pygui(:qt5) # good, default
-# pygui(:wx) # crashes
-# pygui(:gtk3)
 using Random
+using Distributions
 import PyPlot as plt
+
+using Test
+
+
+
 #const plt = PyPlot
 
 # Turn on/off GUI
 pygui(true)
 pygui(false) # Turn off the pop-up window
+# pygui(:qt5) # good, default
+# pygui(:wx) # crashes
+# pygui(:gtk3)
 
 # close("all") # close all PyPlot figures
 
@@ -31,6 +36,11 @@ julia> savefig("oo_style")
 """
 function savefig(filename)
     format = "png"
+
+    if !isdir("output")
+        mkdir("output")
+    end
+
     filepath = joinpath("output", "$filename.$format")
     plt.savefig(filepath, format=format)
 
@@ -216,9 +226,10 @@ function learn_working_with_multiple_figures_and_axes()
     savefig("working_with_multiple_figures_and_axes", fig)
 end
 
+# https://matplotlib.org/stable/tutorials/introductory/pyplot.html#working-with-text
 function learn_working_with_text()
-    num_count = 100 # 10000
-    bin_count = 10  # 50
+    num_count = 10000 #100 # 10000
+    bin_count = 50    #10  # 50
 
     mu = 100.0
     sigma = 15.0
@@ -231,12 +242,85 @@ function learn_working_with_text()
     ax.set_xlabel("Smarts")
     ax.set_ylabel("Probability")
     ax.set_title("Histogram of IQ")
+    text = ax.text(60, 0.025, raw"$\mu=100,\ \sigma=15$") # set text
+    @test text isa PyObject 
+    plt.setp(text, color="red") 
     ax.set_xlim(40, 160)
     ax.set_ylim(0, 0.03)
     ax.grid(true)
 
     savefig("working_with_text", fig)
+end
 
+# https://matplotlib.org/stable/tutorials/introductory/pyplot.html#annotating-text
+function learn_annotating_text()
+    fig,ax = plt.subplots()
+
+    t = range(0.0, stop=5.0, step=0.01)
+    s = cos.(2*pi*t)
+    line = plt.plot(t, s, linewidth=2)
+    ax.set_ylim(-2,2)
+    
+    # Annotation
+    ax.annotate("local max", xy=(2,1), xytext=(3,1.5),
+        arrowprops=Dict(
+            "facecolor"=>"black", "shrink"=>0.05,
+            "width"=>1, "headwidth"=>8
+        )
+    )
+
+    savefig("annotating_text", fig)
+end
+
+# https://matplotlib.org/stable/tutorials/introductory/pyplot.html#logarithmic-and-other-nonlinear-axes
+function learn_logarithmic_and_other_nonlinear_axes()
+    # Data
+    Random.seed!(19680801)
+    μ = 0.5
+    σ = 0.4
+    dist = Normal(μ, σ)
+    y = rand(dist, 1000)
+    #y = y[(0 .< y) & (y .< 1)]
+    y = y[findall(y -> 0 < y < 1, y)]
+    sort!(y)
+    x = range(1,stop=length(y),step=1)
+
+    # Plot
+    fig,axs = plt.subplots(2,2)
+
+    # linear
+    ax = axs[1,1]
+    ax.plot(x,y)
+    ax.set_yscale("linear")
+    ax.set_title("linear")
+    ax.grid(true)
+
+    # log
+    ax = axs[1,2]
+    ax.plot(x, y)
+    ax.set_yscale("log")
+    ax.set_title("log")
+    ax.grid(true)
+
+    # symmetric log
+    ax = axs[2,1]
+    ax.plot(x, y .- mean(y))
+    ax.set_yscale("symlog", linthresh=0.01)
+    ax.set_title("symlog")
+    ax.grid(true)
+
+    ax = axs[2,2]
+    ax.plot(x, y)
+    ax.set_yscale("logit")
+    ax.set_title("logit")
+    ax.grid(true)
+
+    # Adjust layout
+    fig.subplots_adjust(top=0.92, bottom=0.08, left=0.10, right=0.95,
+        hspace=0.25, wspace=0.35
+    )
+
+    savefig("logarithmic_and_other_nonlinear_axes")
 end
 
 
@@ -245,7 +329,10 @@ end
 
 
 
+
+
 # Plot interface
+# Use OO interface instead
 
 
 # https://github.com/JuliaPy/PyPlot.jl
@@ -311,15 +398,17 @@ end
 learn_oo_style()
 
 ## https://matplotlib.org/stable/tutorials/introductory/usage.html
-learn_a_simple_example()
-learn_intro_to_pyplot()
-learn_formatting_the_style_of_your_plot()
-learn_plotting_with_keyword_strings()
-learn_plotting_with_categorical_variables()
-learn_controlling_line_properties()
-learn_axes_step()
-learn_working_with_multiple_figures_and_axes()
-learn_working_with_text()
+# learn_a_simple_example()
+# learn_intro_to_pyplot()
+# learn_formatting_the_style_of_your_plot()
+# learn_plotting_with_keyword_strings()
+# learn_plotting_with_categorical_variables()
+# learn_controlling_line_properties()
+# learn_axes_step()
+# learn_working_with_multiple_figures_and_axes()
+# learn_working_with_text()
+# learn_annotating_text()
+learn_logarithmic_and_other_nonlinear_axes()
 
 ## https://matplotlib.org/stable/tutorials/introductory/pyplot.html#
 # Use OO interface instead of pyplot interface
