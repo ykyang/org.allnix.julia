@@ -399,6 +399,8 @@ learn_oo_style()
 
 ## https://matplotlib.org/stable/tutorials/introductory/usage.html
 # learn_a_simple_example()
+
+## https://matplotlib.org/stable/tutorials/introductory/pyplot.html#
 # learn_intro_to_pyplot()
 # learn_formatting_the_style_of_your_plot()
 # learn_plotting_with_keyword_strings()
@@ -408,12 +410,17 @@ learn_oo_style()
 # learn_working_with_multiple_figures_and_axes()
 # learn_working_with_text()
 # learn_annotating_text()
-learn_logarithmic_and_other_nonlinear_axes()
+# learn_logarithmic_and_other_nonlinear_axes()
+
+## https://matplotlib.org/stable/tutorials/intermediate/legend_guide.html
+
+
+
+
+
 
 ## https://matplotlib.org/stable/tutorials/introductory/pyplot.html#
 # Use OO interface instead of pyplot interface
-
-
 #learn_basic_usage()
 #learn_intro_to_pyplot_1()
 #learn_intro_to_pyplot_2()
