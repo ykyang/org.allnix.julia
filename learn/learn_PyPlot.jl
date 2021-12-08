@@ -263,7 +263,8 @@ function learn_pcolormesh()
     savefig("pcolormesh", fig)
 end
 
-
+function learn_basic_pcolormesh()
+end
 
 
 
@@ -335,12 +336,12 @@ end
 # # The object-oriented interface and the pyplot interface
 # learn_oo_style()
 
-# # Usage Guide
-# # https://matplotlib.org/stable/tutorials/introductory/usage.html
+## Usage Guide
+## https://matplotlib.org/stable/tutorials/introductory/usage.html
 # learn_a_simple_example()
 
-# # Pyplot tutorial 
-# # https://matplotlib.org/stable/tutorials/introductory/pyplot.html
+## Pyplot tutorial 
+## https://matplotlib.org/stable/tutorials/introductory/pyplot.html
 # learn_intro_to_pyplot()
 # learn_formatting_the_style_of_your_plot()
 # learn_plotting_with_keyword_strings()
@@ -351,19 +352,14 @@ end
 # learn_working_with_text()
 
 
-# Plot types
+## Plot types
 # https://matplotlib.org/stable/plot_types/index.html
 learn_pcolormesh()
 
-# pcolormesh(X, Y, Z)
-# https://matplotlib.org/stable/plot_types/arrays/pcolormesh.html#sphx-glr-plot-types-arrays-pcolormesh-py
 
-
-
-
-
-# Examples
-# https://matplotlib.org/stable/gallery/index.html
+## Examples
+## https://matplotlib.org/stable/gallery/index.html
+learn_basic_pcolormesh()
 
 
 
