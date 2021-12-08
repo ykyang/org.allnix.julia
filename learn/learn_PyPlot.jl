@@ -1,4 +1,6 @@
-# Learn PyPlot
+#
+# Learn Matplotlib through PyPlot
+#
 module MyPyPlot
 
 using PyCall
@@ -44,7 +46,7 @@ function savefig(filename, fig::plt.Figure)
 end
 
 
-# The object-oriented interface and the pyplot interface
+
 # https://matplotlib.org/stable/tutorials/introductory/usage.html#the-object-oriented-interface-and-the-pyplot-interface
 function learn_oo_style()
     x = range(0,stop=2,length=100)
@@ -239,6 +241,28 @@ function learn_working_with_text()
 
 end
 
+# https://matplotlib.org/stable/plot_types/arrays/pcolormesh.html#sphx-glr-plot-types-arrays-pcolormesh-py
+function learn_pcolormesh()
+    # plt.matplotlib.style.available
+    # plt.matplotlib.style.use("_mpl-gallery-nogrid")
+    plt.matplotlib.style.use("default")
+
+
+    x = [-3, -2, -1.6, -1.2, -.8, -.5, -.2, .1, .3, .5, .8, 1.1, 1.5, 1.9, 2.3, 3]
+    y = range(-3,stop=3,length=128)
+
+    # X, Y = np.meshgrid(x, np.linspace(-3, 3, 128)) # Python
+    X = x' .* ones(length(y))
+    Y = ones(length(x))' .* y
+    Z = @. (1 - X/2 + X^5 + Y^3) * exp(-X^2 - Y^2)
+
+    fig,ax = plt.subplots()
+
+    ax.pcolormesh(X,Y,Z, vmin=-0.5, vmax=1.0)
+
+    savefig("pcolormesh", fig)
+end
+
 
 
 
@@ -308,22 +332,46 @@ function learn_intro_to_pyplot_5()
     plt.show()
 end
 
-learn_oo_style()
+# # The object-oriented interface and the pyplot interface
+# learn_oo_style()
 
-## https://matplotlib.org/stable/tutorials/introductory/usage.html
-learn_a_simple_example()
-learn_intro_to_pyplot()
-learn_formatting_the_style_of_your_plot()
-learn_plotting_with_keyword_strings()
-learn_plotting_with_categorical_variables()
-learn_controlling_line_properties()
-learn_axes_step()
-learn_working_with_multiple_figures_and_axes()
-learn_working_with_text()
+# # Usage Guide
+# # https://matplotlib.org/stable/tutorials/introductory/usage.html
+# learn_a_simple_example()
+
+# # Pyplot tutorial 
+# # https://matplotlib.org/stable/tutorials/introductory/pyplot.html
+# learn_intro_to_pyplot()
+# learn_formatting_the_style_of_your_plot()
+# learn_plotting_with_keyword_strings()
+# learn_plotting_with_categorical_variables()
+# learn_controlling_line_properties()
+# learn_axes_step()
+# learn_working_with_multiple_figures_and_axes()
+# learn_working_with_text()
+
+
+# Plot types
+# https://matplotlib.org/stable/plot_types/index.html
+learn_pcolormesh()
+
+# pcolormesh(X, Y, Z)
+# https://matplotlib.org/stable/plot_types/arrays/pcolormesh.html#sphx-glr-plot-types-arrays-pcolormesh-py
+
+
+
+
+
+# Examples
+# https://matplotlib.org/stable/gallery/index.html
+
+
+
+
+
 
 ## https://matplotlib.org/stable/tutorials/introductory/pyplot.html#
 # Use OO interface instead of pyplot interface
-
 
 #learn_basic_usage()
 #learn_intro_to_pyplot_1()

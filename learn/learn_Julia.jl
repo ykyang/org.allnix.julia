@@ -176,6 +176,9 @@ function learn_rand()
     # 1000 random numbers between 1:10
     r = rand(1:10, 1000)
     @test all(1 .<= r .<= 10)
+
+    #
+    randn(50)
 end
 
 @testset "Node" begin
