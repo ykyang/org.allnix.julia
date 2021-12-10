@@ -523,8 +523,26 @@ end
 
 # https://matplotlib.org/stable/tutorials/colors/colorbar_only.html#colorbar-with-custom-extension-lengths
 function learn_colorbar_with_custom_extension_lengths()
-    fig,ax = plt.subplots(figsize(6,1))
+    fig,ax = plt.subplots(figsize=(6,1))
+    
+    cmap = mpl.colors.ListedColormap(["royalblue", "cyan", "yellow", "orange"])
+    cmap = cmap.with_extremes(under="blue", over="red")
 
+    bounds = [-1, -0.7, 0.3, 0.5, 1]
+    norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
+    mappable = mpl.cm.ScalarMappable(norm, cmap)
+    fig.colorbar(
+        mappable, cax=ax, orientation="horizontal",
+        boundaries=[-10, bounds..., 10],
+        extend="both",
+        extendfrac="auto",
+        spacing="proportional",
+        label="Custom extension lengths",
+    )
+
+
+    fig.tight_layout()
+    savefig("colorbar_with_custom_extension_lengths", fig)
 end
 
 
