@@ -545,6 +545,9 @@ function learn_colorbar_with_custom_extension_lengths()
     savefig("colorbar_with_custom_extension_lengths", fig)
 end
 
+# https://matplotlib.org/stable/tutorials/colors/colormap-manipulation.html#getting-colormaps-and-accessing-their-values
+function learn_getting_colormaps_and_accessing_their_values()
+end
 
 # https://matplotlib.org/stable/tutorials/intermediate/color_cycle.html#styling-with-cycler
 function learn_styling_with_cycler()
@@ -729,25 +732,24 @@ if false
 
     ## Tutorials
     ## https://matplotlib.org/stable/tutorials/index.html
+    # Styling with cycler
+    learn_styling_with_cycler()
+    learn_cycling_through_multiple_properties()
     # Customized Colorbars Tutorial
     learn_basic_continuous_colorbar()
     learn_get_all_colormaps()
     learn_extended_colorbar_with_continuous_colorscale()
     learn_discrete_intervals_colorbar()
     learn_colorbar_with_custom_extension_lengths()
-    # Styling with cycler
-    learn_styling_with_cycler()
-    learn_cycling_through_multiple_properties()
+    # Creating Colormaps in Matplotlib
+    learn_getting_colormaps_and_accessing_their_values()
 end
 
-learn_colorbar_with_custom_extension_lengths()
+learn_getting_colormaps_and_accessing_their_values()
 
 
-
-
-
-
-
+end
+nothing
 
 
 ## https://matplotlib.org/stable/tutorials/introductory/pyplot.html#
@@ -758,6 +760,3 @@ learn_colorbar_with_custom_extension_lengths()
 #learn_intro_to_pyplot_3()
 #learn_intro_to_pyplot_4()
 #learn_intro_to_pyplot_5()
-
-end
-nothing
