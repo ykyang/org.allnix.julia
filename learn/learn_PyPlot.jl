@@ -8,6 +8,8 @@ using Random
 using Distributions
 import PyPlot as plt
 
+
+
 const mpl = plt.matplotlib
 
 using Test
@@ -456,6 +458,87 @@ function learn_making_levels_using_norms()
     savefig("making_levels_using_norms", fig)
 end
 
+# https://matplotlib.org/stable/tutorials/intermediate/color_cycle.html#styling-with-cycler
+function learn_styling_with_cycler()
+    x = range(0, stop=2*π, length=50) #  np.linspace(0, 2 * np.pi, 50)
+    x_offsets = range(0, stop=2*π, length=5)[1:end-1] # np.linspace(0, 2 * np.pi, 4, endpoint=False)
+    ys = [@. sin(x + phi) for phi in x_offsets]
+    
+    # Cycler
+    rgby_cycler = (
+        plt.matplotlib.cycler(color=["r", "g", "b", "y"]) + 
+        plt.matplotlib.cycler(linestyle=["-", "--", ":", "-."])
+    )
+    cmyk_cycler = (
+        plt.matplotlib.cycler(color=["c", "m", "y", "k"]) +
+        plt.matplotlib.cycler(lw=[1,2,3,4])
+    )
+    # Global default
+    plt.rc("lines", linewidth=4)
+    plt.rc("axes", prop_cycle=rgby_cycler)
+
+    fig,axs = plt.subplots(2,1)
+    ax = axs[1]
+    ax.set_title("Set default color cycle to rgby")
+    objs = [ax.plot(x,y) for y in ys]
+    #@show typeof(objs)    # vector of vector of matplotlib.lines.Line2D
+    #@show typeof(objs[1]) # first line, vector of matplotlib.lines.Line2D
+    #@show pytypeof(objs[1][1]) # matplotlib.lines.Line2D
+    
+    # for y in ys
+    #     ax.plot(x,y)
+    # end
+
+    ax = axs[2]
+    ax.set_title("Set axes color cycle to cmyk")
+    ax.set_prop_cycle(cmyk_cycler)
+    objs = [ax.plot(x,y) for y in ys]
+
+    fig.tight_layout()
+
+    savefig("styling_with_cycler", fig)
+end
+
+# https://matplotlib.org/stable/tutorials/intermediate/color_cycle.html#cycling-through-multiple-properties
+function learn_cycling_through_multiple_properties()
+    
+    # Add
+    cc = (
+        plt.matplotlib.cycler(color=split("rgb","")) # list('rgb')
+        +
+        plt.matplotlib.cycler(linestyle=["-", "--", "-."])
+    )
+    @test length(cc) == 3
+    for d in cc
+        #println(d)
+        # Dict{Any, Any}("linestyle" => "-", "color" => "r")
+        # Dict{Any, Any}("linestyle" => "--", "color" => "g")
+        # Dict{Any, Any}("linestyle" => "-.", "color" => "b")
+        @test d isa Dict
+    end
+
+    # Multiple
+    cc = (
+        plt.matplotlib.cycler(color=split("rgb","")) # list('rgb')
+        *
+        plt.matplotlib.cycler(linestyle=["-", "--", "-."])
+    )
+    @test length(cc) == 9
+    for d in cc
+        #println(d)
+        # Dict{Any, Any}("linestyle" => "-", "color" => "r")
+        # Dict{Any, Any}("linestyle" => "--", "color" => "r")
+        # Dict{Any, Any}("linestyle" => "-.", "color" => "r")
+        # Dict{Any, Any}("linestyle" => "-", "color" => "g")
+        # Dict{Any, Any}("linestyle" => "--", "color" => "g")
+        # Dict{Any, Any}("linestyle" => "-.", "color" => "g")
+        # Dict{Any, Any}("linestyle" => "-", "color" => "b")
+        # Dict{Any, Any}("linestyle" => "--", "color" => "b")
+        # Dict{Any, Any}("linestyle" => "-.", "color" => "b")
+        @test d isa Dict
+    end
+end
+
 # https://matplotlib.org/stable/tutorials/colors/colorbar_only.html#basic-continuous-colorbar
 function learn_basic_continuous_colorbar()
     fig,ax = plt.subplots(figsize=(6,1))
@@ -549,86 +632,78 @@ end
 function learn_getting_colormaps_and_accessing_their_values()
 end
 
-# https://matplotlib.org/stable/tutorials/intermediate/color_cycle.html#styling-with-cycler
-function learn_styling_with_cycler()
-    x = range(0, stop=2*π, length=50) #  np.linspace(0, 2 * np.pi, 50)
-    x_offsets = range(0, stop=2*π, length=5)[1:end-1] # np.linspace(0, 2 * np.pi, 4, endpoint=False)
-    ys = [@. sin(x + phi) for phi in x_offsets]
-    
-    # Cycler
-    rgby_cycler = (
-        plt.matplotlib.cycler(color=["r", "g", "b", "y"]) + 
-        plt.matplotlib.cycler(linestyle=["-", "--", ":", "-."])
-    )
-    cmyk_cycler = (
-        plt.matplotlib.cycler(color=["c", "m", "y", "k"]) +
-        plt.matplotlib.cycler(lw=[1,2,3,4])
-    )
-    # Global default
-    plt.rc("lines", linewidth=4)
-    plt.rc("axes", prop_cycle=rgby_cycler)
+function plot_color_gradients(category, cmaps)
+    # Create figure and adjust figure height to number of colormaps
+    nrows = length(cmaps)
+    figh = 0.35 + 0.15 + (nrows + (nrows-1)*0.1) * 0.22
+    fig,axs = plt.subplots(nrows+1, figsize=(6.4, figh)) # +1 for the title
+    fig.subplots_adjust(top=1-0.35/figh, bottom=0.15/figh, left=0.2, right=0.99)
 
-    fig,axs = plt.subplots(2,1)
     ax = axs[1]
-    ax.set_title("Set default color cycle to rgby")
-    objs = [ax.plot(x,y) for y in ys]
-    #@show typeof(objs)    # vector of vector of matplotlib.lines.Line2D
-    #@show typeof(objs[1]) # first line, vector of matplotlib.lines.Line2D
-    #@show pytypeof(objs[1][1]) # matplotlib.lines.Line2D
-    
-    # for y in ys
-    #     ax.plot(x,y)
-    # end
+    ax.set_title("$category colormaps", fontsize=14)
 
-    ax = axs[2]
-    ax.set_title("Set axes color cycle to cmyk")
-    ax.set_prop_cycle(cmyk_cycler)
-    objs = [ax.plot(x,y) for y in ys]
-
-    fig.tight_layout()
-
-    savefig("styling_with_cycler", fig)
-end
-
-# https://matplotlib.org/stable/tutorials/intermediate/color_cycle.html#cycling-through-multiple-properties
-function learn_cycling_through_multiple_properties()
-    
-    # Add
-    cc = (
-        plt.matplotlib.cycler(color=split("rgb","")) # list('rgb')
-        +
-        plt.matplotlib.cycler(linestyle=["-", "--", "-."])
-    )
-    @test length(cc) == 3
-    for d in cc
-        #println(d)
-        # Dict{Any, Any}("linestyle" => "-", "color" => "r")
-        # Dict{Any, Any}("linestyle" => "--", "color" => "g")
-        # Dict{Any, Any}("linestyle" => "-.", "color" => "b")
-        @test d isa Dict
+    gradient = range(0, stop=1, length=256)
+    gradient = vcat(gradient',gradient')
+    #@show gradient
+    for (ax,name) in zip(axs,cmaps)
+        ax.imshow(gradient, aspect="auto", cmap=plt.get_cmap(name))
+        ax.text(-0.01,0.5, name, va="center", ha="right", fontsize=10,
+        transform=ax.transAxes)
     end
 
-    # Multiple
-    cc = (
-        plt.matplotlib.cycler(color=split("rgb","")) # list('rgb')
-        *
-        plt.matplotlib.cycler(linestyle=["-", "--", "-."])
-    )
-    @test length(cc) == 9
-    for d in cc
-        #println(d)
-        # Dict{Any, Any}("linestyle" => "-", "color" => "r")
-        # Dict{Any, Any}("linestyle" => "--", "color" => "r")
-        # Dict{Any, Any}("linestyle" => "-.", "color" => "r")
-        # Dict{Any, Any}("linestyle" => "-", "color" => "g")
-        # Dict{Any, Any}("linestyle" => "--", "color" => "g")
-        # Dict{Any, Any}("linestyle" => "-.", "color" => "g")
-        # Dict{Any, Any}("linestyle" => "-", "color" => "b")
-        # Dict{Any, Any}("linestyle" => "--", "color" => "b")
-        # Dict{Any, Any}("linestyle" => "-.", "color" => "b")
-        @test d isa Dict
+    for ax in axs
+        ax.set_axis_off()
     end
+
+    return fig,axs
 end
+
+function learn_colormaps_sequential()
+    # conda install colorspacious
+    # cm = pyimport("matplotlib.cm") # module
+    # cs = pyimport("colorspacious") # module
+
+    fig,_ = plot_color_gradients(
+        "Perceptually Uniform Sequential",
+        ["viridis", "plasma", "inferno", "magma", "cividis"]
+    )
+    savefig("colormaps_sequential_1", fig)
+
+    fig,_ = plot_color_gradients(
+        "Sequential",
+        [
+            "Greys", "Purples", "Blues", "Greens", "Oranges", "Reds",
+            "YlOrBr", "YlOrRd", "OrRd", "PuRd", "RdPu", "BuPu",
+            "GnBu", "PuBu", "YlGnBu", "PuBuGn", "BuGn", "YlGn"
+        ]
+    )
+    savefig("colormaps_sequential_1_1", fig)
+
+    fig,_ = plot_color_gradients(
+        "Sequential 2",
+        [
+            "binary", "gist_yarg", "gist_gray", "gray", "bone",
+            "pink",
+            "spring", "summer", "autumn", "winter",
+            "cool", "Wistia", "hot", "afmhot", "gist_heat", "copper"
+        ]
+    )
+    savefig("colormaps_sequential_2", fig)
+end
+
+function learn_colormaps_diverging()
+    fig,_ = plot_color_gradients(
+        "Diverging",
+        
+    )
+end
+function learn_colormaps_cyclic()
+end
+function learn_colormaps_qualitative()
+end
+function learn_colormaps_miscellaneous()
+end
+
 
 
 begin # Deprecated
@@ -743,10 +818,21 @@ if false
     learn_colorbar_with_custom_extension_lengths()
     # Creating Colormaps in Matplotlib
     learn_getting_colormaps_and_accessing_their_values()
+    # Choosing Colormaps in Matplotlib
+    learn_colormaps_sequential()
+    learn_colormaps_diverging()
+    learn_colormaps_cyclic()
+    learn_colormaps_qualitative()
+    learn_colormaps_miscellaneous()
+    # TODO: Not complete
 end
 
 learn_getting_colormaps_and_accessing_their_values()
-
+learn_colormaps_sequential()
+learn_colormaps_diverging()
+learn_colormaps_cyclic()
+learn_colormaps_qualitative()
+learn_colormaps_miscellaneous()
 
 end
 nothing
