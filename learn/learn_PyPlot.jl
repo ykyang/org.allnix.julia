@@ -8,6 +8,8 @@ using Random
 using Distributions
 import PyPlot as plt
 
+
+
 const mpl = plt.matplotlib
 
 using Test
@@ -629,6 +631,79 @@ function learn_getting_colormaps_and_accessing_their_values()
     
 end
 
+function plot_color_gradients(category, cmaps)
+    # Create figure and adjust figure height to number of colormaps
+    nrows = length(cmaps)
+    figh = 0.35 + 0.15 + (nrows + (nrows-1)*0.1) * 0.22
+    fig,axs = plt.subplots(nrows+1, figsize=(6.4, figh)) # +1 for the title
+    fig.subplots_adjust(top=1-0.35/figh, bottom=0.15/figh, left=0.2, right=0.99)
+
+    ax = axs[1]
+    ax.set_title("$category colormaps", fontsize=14)
+
+    gradient = range(0, stop=1, length=256)
+    gradient = vcat(gradient',gradient')
+    #@show gradient
+    for (ax,name) in zip(axs,cmaps)
+        ax.imshow(gradient, aspect="auto", cmap=plt.get_cmap(name))
+        ax.text(-0.01,0.5, name, va="center", ha="right", fontsize=10,
+        transform=ax.transAxes)
+    end
+
+    for ax in axs
+        ax.set_axis_off()
+    end
+
+    return fig,axs
+end
+
+function learn_colormaps_sequential()
+    # conda install colorspacious
+    # cm = pyimport("matplotlib.cm") # module
+    # cs = pyimport("colorspacious") # module
+
+    fig,_ = plot_color_gradients(
+        "Perceptually Uniform Sequential",
+        ["viridis", "plasma", "inferno", "magma", "cividis"]
+    )
+    savefig("colormaps_sequential_1", fig)
+
+    fig,_ = plot_color_gradients(
+        "Sequential",
+        [
+            "Greys", "Purples", "Blues", "Greens", "Oranges", "Reds",
+            "YlOrBr", "YlOrRd", "OrRd", "PuRd", "RdPu", "BuPu",
+            "GnBu", "PuBu", "YlGnBu", "PuBuGn", "BuGn", "YlGn"
+        ]
+    )
+    savefig("colormaps_sequential_1_1", fig)
+
+    fig,_ = plot_color_gradients(
+        "Sequential 2",
+        [
+            "binary", "gist_yarg", "gist_gray", "gray", "bone",
+            "pink",
+            "spring", "summer", "autumn", "winter",
+            "cool", "Wistia", "hot", "afmhot", "gist_heat", "copper"
+        ]
+    )
+    savefig("colormaps_sequential_2", fig)
+end
+
+function learn_colormaps_diverging()
+    # fig,_ = plot_color_gradients(
+    #     "Diverging",
+        
+    # )
+end
+function learn_colormaps_cyclic()
+end
+function learn_colormaps_qualitative()
+end
+function learn_colormaps_miscellaneous()
+end
+
+
 
 begin # Deprecated
     # Plot interface
@@ -743,10 +818,20 @@ if true
     # Creating Colormaps in Matplotlib
     learn_getting_colormaps_and_accessing_their_values()
     # Choosing Colormaps in Matplotlib
+    learn_colormaps_sequential()
+    learn_colormaps_diverging()
+    learn_colormaps_cyclic()
+    learn_colormaps_qualitative()
+    learn_colormaps_miscellaneous()
+    # TODO: Not complete
 end
 
 learn_getting_colormaps_and_accessing_their_values()
-
+learn_colormaps_sequential()
+learn_colormaps_diverging()
+learn_colormaps_cyclic()
+learn_colormaps_qualitative()
+learn_colormaps_miscellaneous()
 
 end
 nothing
