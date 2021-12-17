@@ -7,7 +7,7 @@ using PyCall
 using Random
 using Distributions
 import PyPlot as plt
-
+using TerminalPager
 
 
 const mpl = plt.matplotlib
@@ -626,9 +626,20 @@ function learn_getting_colormaps_and_accessing_their_values()
 
     # ListedColormap
     # @show viridis.colors
+
+    # Same results
     # @show viridis(range(0,stop=7)) # Python: range(8)
-    # 
+    # @show viridis(range(0,stop=1, length=8)) # Python: range(8)
+
+    #pager(viridis(range(0,stop=1, length=12))) # Repeated colors
     
+
+    # LinearSegmentedColormap
+    copper = cm.get_cmap("copper", 8)
+    #pager(copper(range(0,stop=7)))
+end
+
+function learn_creating_listed_colormaps()
 end
 
 function plot_color_gradients(category, cmaps)
@@ -771,7 +782,7 @@ begin # Deprecated
 
 end
 
-if true
+if false
     # # The object-oriented interface and the pyplot interface
     learn_oo_style()
 
@@ -817,17 +828,21 @@ if true
     learn_colorbar_with_custom_extension_lengths()
     # Creating Colormaps in Matplotlib
     learn_getting_colormaps_and_accessing_their_values()
+    learn_creating_listed_colormaps()
     # Choosing Colormaps in Matplotlib
     learn_colormaps_sequential()
+    # TODO: Not complete
     learn_colormaps_diverging()
     learn_colormaps_cyclic()
     learn_colormaps_qualitative()
     learn_colormaps_miscellaneous()
-    # TODO: Not complete
+    
 end
 
-learn_getting_colormaps_and_accessing_their_values()
-learn_colormaps_sequential()
+
+learn_creating_listed_colormaps()
+
+
 learn_colormaps_diverging()
 learn_colormaps_cyclic()
 learn_colormaps_qualitative()
