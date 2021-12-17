@@ -169,6 +169,11 @@ function learn_Serialization()
     @test node_deserialized == node
 end
 
+"""
+
+See ``learn_Distributions.jl`` for more examples and
+more advanced usage.
+"""
 function learn_rand()
     # 1 random number bewteen 1:50
     @test 1<= rand(1:50) <= 50
@@ -177,8 +182,13 @@ function learn_rand()
     r = rand(1:10, 1000)
     @test all(1 .<= r .<= 10)
 
-    #
-    randn(50)
+    # 10x10 random numbers
+    Ans = rand(10,10)
+    @test size(Ans) == (10,10)
+    
+    # Random numbers in normal distribution
+    Ans = randn(50)
+    @test size(Ans) == (50,)
 end
 
 @testset "Node" begin

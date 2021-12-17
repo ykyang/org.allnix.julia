@@ -639,8 +639,55 @@ function learn_getting_colormaps_and_accessing_their_values()
     #pager(copper(range(0,stop=7)))
 end
 
-function learn_creating_listed_colormaps()
+function plot_examples(colormaps)
+    Random.seed!(19680801)
+    rng = Normal()
+    data = rand(rng, 30, 30)    
+    #pager(data)
+    # 1 ax for each colormap
+    n = length(colormaps)
+    fig,axs = plt.subplots(1, n, figsize=(n*2+2,3), 
+        constrained_layout=true, 
+        squeeze=false)
+    #plt.setp(fig, layout="constrained")
+    #fig.layout = "constrained"
+    #fig.constrained_layout = true
+    #pager(@doc plt.subplots)
+    for (ax,cmap) in zip(axs, colormaps)
+        psm = ax.pcolormesh(data, cmap=cmap, rasterized=true, vmin=-4, vmax=4)
+        fig.colorbar(psm, ax=ax)
+    end
+
+    return fig,axs
 end
+
+function learn_creating_listed_colormaps()
+    cm = plt.matplotlib.cm
+    ListedColormap = plt.matplotlib.colors.ListedColormap
+
+    # one plot
+    cmap = plt.matplotlib.colors.ListedColormap(["darkorange", "gold","lawngreen", "lightseagreen"])
+    fig,_ = plot_examples([cmap])
+    savefig("creating_listed_colormaps_1", fig)
+
+    # Pink color
+    viridis = cm.get_cmap("viridis", 256)
+    pink = [248,24,148,256] ./ 256
+    newcolors = viridis(range(0, stop=1, length=256))
+    newcolors[1:50,:] .= pink'
+    newcmp = plt.matplotlib.colors.ListedColormap(newcolors)
+    fig,_ = plot_examples([viridis, newcmp])
+    savefig("creating_listed_colormaps_2", fig)
+
+    # Reduced viridis
+    viridis_big = cm.get_cmap("viridis") # length?
+    newcmp = ListedColormap(viridis_big(range(0.25, stop=0.75, length=128)))
+    fig,_ = plot_examples([viridis, newcmp])
+    savefig("creating_listed_colormaps_3", fig)
+    
+    # Concatenate colormaps
+end
+
 
 function plot_color_gradients(category, cmaps)
     # Create figure and adjust figure height to number of colormaps
