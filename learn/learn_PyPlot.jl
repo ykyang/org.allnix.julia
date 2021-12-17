@@ -54,7 +54,9 @@ end
 function savefig(filename, fig::plt.Figure)
     plt.figure(fig)
 
-    return savefig(filename)
+    filepath = savefig(filename)
+
+    return filepath
 end
 
 function meshgrid(x, y)
@@ -82,11 +84,9 @@ function learn_oo_style()
 
     savefig("oo_style")
 end
-
 function learn_pyplot_style()
     # TODO
 end
-
 function my_plotter(ax, x, y, param_dict)
     # TODO
 end
@@ -99,6 +99,7 @@ function learn_a_simple_example()
 
     savefig("a_simple_example", fig)
 end
+
 # https://matplotlib.org/stable/tutorials/introductory/pyplot.html#intro-to-pyplot
 function learn_intro_to_pyplot()
     fig,axs = plt.subplots(1,2)
@@ -112,7 +113,6 @@ function learn_intro_to_pyplot()
 
     savefig("intro_to_pyplot", fig)
 end
-
 # https://matplotlib.org/stable/tutorials/introductory/pyplot.html#formatting-the-style-of-your-plot
 function learn_formatting_the_style_of_your_plot()
     fig,ax = plt.subplots()
@@ -129,7 +129,6 @@ function learn_formatting_the_style_of_your_plot()
 
     savefig("formatting_the_style_of_your_plot_2", fig)
 end
-
 # https://matplotlib.org/stable/tutorials/introductory/pyplot.html#plotting-with-keyword-strings
 function learn_plotting_with_keyword_strings()
     data = Dict(
@@ -147,7 +146,6 @@ function learn_plotting_with_keyword_strings()
 
     savefig("plotting_with_keyword_strings", fig)
 end
-
 # https://matplotlib.org/stable/tutorials/introductory/pyplot.html#plotting-with-categorical-variables
 function learn_plotting_with_categorical_variables()
     names = ["group_a", "group_b", "group_c"]
@@ -168,7 +166,6 @@ function learn_plotting_with_categorical_variables()
 
     savefig("plotting_with_categorical_variables", fig)
 end
-
 # https://matplotlib.org/stable/tutorials/introductory/pyplot.html#controlling-line-properties
 function learn_controlling_line_properties()
     x = [1,2,3,4]
@@ -193,7 +190,6 @@ function learn_controlling_line_properties()
 
     savefig("controlling_line_properties_2", fig)
 end
-
 # My own stuff from https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.step.html
 function learn_axes_step()
     x = [1,2,3,4]
@@ -214,7 +210,6 @@ function learn_axes_step()
 
     savefig("axes_step", fig)
 end
-
 # https://matplotlib.org/stable/tutorials/introductory/pyplot.html#working-with-multiple-figures-and-axes
 function learn_working_with_multiple_figures_and_axes()
     function f(x)
@@ -235,7 +230,6 @@ function learn_working_with_multiple_figures_and_axes()
         
     savefig("working_with_multiple_figures_and_axes", fig)
 end
-
 # https://matplotlib.org/stable/tutorials/introductory/pyplot.html#working-with-text
 function learn_working_with_text()
     num_count = 10000 #100 # 10000
@@ -261,7 +255,6 @@ function learn_working_with_text()
 
     savefig("working_with_text", fig)
 end
-
 # https://matplotlib.org/stable/tutorials/introductory/pyplot.html#annotating-text
 function learn_annotating_text()
     fig,ax = plt.subplots()
@@ -281,7 +274,6 @@ function learn_annotating_text()
 
     savefig("annotating_text", fig)
 end
-
 # https://matplotlib.org/stable/tutorials/introductory/pyplot.html#logarithmic-and-other-nonlinear-axes
 function learn_logarithmic_and_other_nonlinear_axes()
     # Data
@@ -332,6 +324,7 @@ function learn_logarithmic_and_other_nonlinear_axes()
 
     savefig("logarithmic_and_other_nonlinear_axes")
 end
+
 
 # https://matplotlib.org/stable/plot_types/arrays/pcolormesh.html#sphx-glr-plot-types-arrays-pcolormesh-py
 function learn_pcolormesh()
@@ -456,98 +449,6 @@ function learn_making_levels_using_norms()
     savefig("making_levels_using_norms", fig)
 end
 
-# https://matplotlib.org/stable/tutorials/colors/colorbar_only.html#basic-continuous-colorbar
-function learn_basic_continuous_colorbar()
-    fig,ax = plt.subplots(figsize=(6,1))
-    fig.subplots_adjust(bottom=0.5)
-    
-    cmap = plt.matplotlib.cm.cool
-    norm = plt.matplotlib.colors.Normalize(vmin=5, vmax=10)
-
-    bar = fig.colorbar(plt.matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap),
-                cax=ax, orientation="horizontal", label="Some Units")
-    # @show bar
-    # @show pytypeof(bar)
-    savefig("basic_continuous_colorbar", fig)
-end
-
-function learn_get_all_colormaps()
-    @show plt.matplotlib.colormaps()
-end
-
-# https://matplotlib.org/stable/tutorials/colors/colorbar_only.html#extended-colorbar-with-continuous-colorscale
-function learn_extended_colorbar_with_continuous_colorscale()
-    fig,ax = plt.subplots(figsize=(6,1))
-    fig.subplots_adjust(bottom=0.5)
-
-    cmap = mpl.cm.get_cmap("viridis")
-    bounds = [-1, 2, 5, 7, 12, 15]
-    norm = mpl.colors.BoundaryNorm(bounds, cmap.N, extend="both")
-    mappable = mpl.cm.ScalarMappable(norm=norm, cmap=cmap)
-    fig.colorbar(
-        mappable, cax=ax, orientation="horizontal",
-        label="Discrete intervals with extend='both'"
-    )
-
-    savefig("extended_colorbar_with_continuous_colorscale", fig)
-end
-
-# https://matplotlib.org/stable/tutorials/colors/colorbar_only.html#discrete-intervals-colorbar
-function learn_discrete_intervals_colorbar()
-    fig,ax = plt.subplots(figsize=(6,1))
-
-    cmap = mpl.colors.ListedColormap([
-        (0,144,204,255)   ./ 255, # teal
-        (161,161,255,255) ./ 255, # light purple
-        (144,0,204,255)   ./ 255, # purple
-        (255,161,255,255) ./ 255, # pink
-    ])
-    cmap = cmap.with_extremes(under="0.75", over="0.25")
-
-    bounds = [1,2,4,7,8]
-    norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
-    mappable = mpl.cm.ScalarMappable(norm=norm, cmap=cmap)
-    fig.colorbar(
-        mappable, cax=ax, orientation="horizontal",
-        boundaries = [0, bounds..., 13],
-        extend="both",
-        ticks=bounds,
-        spacing="proportional",
-        label="Discrete intervals"
-    )
-
-    fig.tight_layout()
-
-    savefig("discrete_intervals_colorbar", fig)
-end
-
-# https://matplotlib.org/stable/tutorials/colors/colorbar_only.html#colorbar-with-custom-extension-lengths
-function learn_colorbar_with_custom_extension_lengths()
-    fig,ax = plt.subplots(figsize=(6,1))
-    
-    cmap = mpl.colors.ListedColormap(["royalblue", "cyan", "yellow", "orange"])
-    cmap = cmap.with_extremes(under="blue", over="red")
-
-    bounds = [-1, -0.7, 0.3, 0.5, 1]
-    norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
-    mappable = mpl.cm.ScalarMappable(norm, cmap)
-    fig.colorbar(
-        mappable, cax=ax, orientation="horizontal",
-        boundaries=[-10, bounds..., 10],
-        extend="both",
-        extendfrac="auto",
-        spacing="proportional",
-        label="Custom extension lengths",
-    )
-
-
-    fig.tight_layout()
-    savefig("colorbar_with_custom_extension_lengths", fig)
-end
-
-# https://matplotlib.org/stable/tutorials/colors/colormap-manipulation.html#getting-colormaps-and-accessing-their-values
-function learn_getting_colormaps_and_accessing_their_values()
-end
 
 # https://matplotlib.org/stable/tutorials/intermediate/color_cycle.html#styling-with-cycler
 function learn_styling_with_cycler()
@@ -589,7 +490,6 @@ function learn_styling_with_cycler()
 
     savefig("styling_with_cycler", fig)
 end
-
 # https://matplotlib.org/stable/tutorials/intermediate/color_cycle.html#cycling-through-multiple-properties
 function learn_cycling_through_multiple_properties()
     
@@ -628,6 +528,105 @@ function learn_cycling_through_multiple_properties()
         # Dict{Any, Any}("linestyle" => "-.", "color" => "b")
         @test d isa Dict
     end
+end
+# https://matplotlib.org/stable/tutorials/colors/colorbar_only.html#basic-continuous-colorbar
+function learn_basic_continuous_colorbar()
+    fig,ax = plt.subplots(figsize=(6,1))
+    fig.subplots_adjust(bottom=0.5)
+    
+    cmap = plt.matplotlib.cm.cool
+    norm = plt.matplotlib.colors.Normalize(vmin=5, vmax=10)
+
+    bar = fig.colorbar(plt.matplotlib.cm.ScalarMappable(norm=norm, cmap=cmap),
+                cax=ax, orientation="horizontal", label="Some Units")
+    # @show bar
+    # @show pytypeof(bar)
+    savefig("basic_continuous_colorbar", fig)
+end
+# My own stuff
+function learn_get_all_colormaps()
+    @show plt.matplotlib.colormaps()
+end
+# https://matplotlib.org/stable/tutorials/colors/colorbar_only.html#extended-colorbar-with-continuous-colorscale
+function learn_extended_colorbar_with_continuous_colorscale()
+    fig,ax = plt.subplots(figsize=(6,1))
+    fig.subplots_adjust(bottom=0.5)
+
+    cmap = mpl.cm.get_cmap("viridis")
+    bounds = [-1, 2, 5, 7, 12, 15]
+    norm = mpl.colors.BoundaryNorm(bounds, cmap.N, extend="both")
+    mappable = mpl.cm.ScalarMappable(norm=norm, cmap=cmap)
+    fig.colorbar(
+        mappable, cax=ax, orientation="horizontal",
+        label="Discrete intervals with extend='both'"
+    )
+
+    savefig("extended_colorbar_with_continuous_colorscale", fig)
+end
+# https://matplotlib.org/stable/tutorials/colors/colorbar_only.html#discrete-intervals-colorbar
+function learn_discrete_intervals_colorbar()
+    fig,ax = plt.subplots(figsize=(6,1))
+
+    cmap = mpl.colors.ListedColormap([
+        (0,144,204,255)   ./ 255, # teal
+        (161,161,255,255) ./ 255, # light purple
+        (144,0,204,255)   ./ 255, # purple
+        (255,161,255,255) ./ 255, # pink
+    ])
+    cmap = cmap.with_extremes(under="0.75", over="0.25")
+
+    bounds = [1,2,4,7,8]
+    norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
+    mappable = mpl.cm.ScalarMappable(norm=norm, cmap=cmap)
+    fig.colorbar(
+        mappable, cax=ax, orientation="horizontal",
+        boundaries = [0, bounds..., 13],
+        extend="both",
+        ticks=bounds,
+        spacing="proportional",
+        label="Discrete intervals"
+    )
+
+    fig.tight_layout()
+
+    savefig("discrete_intervals_colorbar", fig)
+end
+# https://matplotlib.org/stable/tutorials/colors/colorbar_only.html#colorbar-with-custom-extension-lengths
+function learn_colorbar_with_custom_extension_lengths()
+    fig,ax = plt.subplots(figsize=(6,1))
+    
+    cmap = mpl.colors.ListedColormap(["royalblue", "cyan", "yellow", "orange"])
+    cmap = cmap.with_extremes(under="blue", over="red")
+
+    bounds = [-1, -0.7, 0.3, 0.5, 1]
+    norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
+    mappable = mpl.cm.ScalarMappable(norm, cmap)
+    fig.colorbar(
+        mappable, cax=ax, orientation="horizontal",
+        boundaries=[-10, bounds..., 10],
+        extend="both",
+        extendfrac="auto",
+        spacing="proportional",
+        label="Custom extension lengths",
+    )
+
+
+    fig.tight_layout()
+    savefig("colorbar_with_custom_extension_lengths", fig)
+end
+# https://matplotlib.org/stable/tutorials/colors/colormap-manipulation.html#getting-colormaps-and-accessing-their-values
+function learn_getting_colormaps_and_accessing_their_values()
+    cm = plt.matplotlib.cm
+    
+    viridis = cm.get_cmap("viridis", 8) # @doc plt.matplotlib.cm.get_cmap
+    # viridis is a callable, and param is between 0 - 1
+    # @show viridis(0.56) # (0.122312, 0.633153, 0.530398, 1.0)
+
+    # ListedColormap
+    # @show viridis.colors
+    # @show viridis(range(0,stop=7)) # Python: range(8)
+    # 
+    
 end
 
 
@@ -697,7 +696,7 @@ begin # Deprecated
 
 end
 
-if false
+if true
     # # The object-oriented interface and the pyplot interface
     learn_oo_style()
 
@@ -743,6 +742,7 @@ if false
     learn_colorbar_with_custom_extension_lengths()
     # Creating Colormaps in Matplotlib
     learn_getting_colormaps_and_accessing_their_values()
+    # Choosing Colormaps in Matplotlib
 end
 
 learn_getting_colormaps_and_accessing_their_values()
