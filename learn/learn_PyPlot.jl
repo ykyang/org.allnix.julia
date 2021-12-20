@@ -68,6 +68,53 @@ function meshgrid(x, y)
     return X, Y
 end
 
+"""
+
+Get all color maps
+"""
+function get_all_colormaps()
+    plt.matplotlib.colormaps()
+end
+
+"""
+
+Plot all Matplotlib color maps
+
+Source: https://stackoverflow.com/questions/34314356/how-to-view-all-colormaps-available-in-matplotlib
+"""
+function plot_all_cmaps()
+    mpl = plt.matplotlib
+    cm  = plt.matplotlib.cm
+
+    n_row = 13 #8
+    n_col = 13 #7
+    height = 7
+    width = 14
+
+    cmap_names = mpl.colormaps()
+
+    if length(cmap_names) > n_row*n_col
+        @error "Not enough rows and columns to plot color maps"
+    end
+
+    #@info "Matplotlib version: $(mpl.__version__)"
+    #@info "Number of cmaps: $(length(cmaps))"
+    
+    fig,axes = plt.subplots(n_row, n_col, figsize=(width,height))
+    for (ind,cmap_name) in enumerate(cmap_names)
+        @test cmap_name isa String
+        ax = axes[ind]
+        cmap = plt.get_cmap(cmap_name)
+        mpl.colorbar.Colorbar(ax, cmap=cmap, orientation="horizontal")
+        ax.set_title(cmap_name, fontsize=6)        
+        ax.tick_params(left=false, right=false, bottom=false, 
+            labelleft=false, labelright=false, labelbottom=false)
+    end
+
+    plt.tight_layout()
+    savefig("all_cmaps", fig)
+end
+
 
 # https://matplotlib.org/stable/tutorials/introductory/usage.html#the-object-oriented-interface-and-the-pyplot-interface
 function learn_oo_style()
@@ -545,10 +592,7 @@ function learn_basic_continuous_colorbar()
     # @show pytypeof(bar)
     savefig("basic_continuous_colorbar", fig)
 end
-# My own stuff
-function learn_get_all_colormaps()
-    @show plt.matplotlib.colormaps()
-end
+
 # https://matplotlib.org/stable/tutorials/colors/colorbar_only.html#extended-colorbar-with-continuous-colorscale
 function learn_extended_colorbar_with_continuous_colorscale()
     fig,ax = plt.subplots(figsize=(6,1))
@@ -684,10 +728,32 @@ function learn_creating_listed_colormaps()
     newcmp = ListedColormap(viridis_big(range(0.25, stop=0.75, length=128)))
     fig,_ = plot_examples([viridis, newcmp])
     savefig("creating_listed_colormaps_3", fig)
-    
+
     # Concatenate colormaps
+    top_cmap = cm.get_cmap("Oranges_r", 128)
+    bot_cmap = cm.get_cmap("Blues", 128)
+    new_colors = vcat(
+        top_cmap(range(0,stop=1,length=128)),
+        bot_cmap(range(0,stop=1,length=128))
+    )
+    new_cmap = ListedColormap(new_colors, name="OrangeBlue")
+    fig,_ = plot_examples([viridis, new_cmap])
+    savefig("creating_listed_colormaps_4", fig)
+
+    # Make up colormap
+    n = 256
+    vals = ones(n,4)
+    vals[:,1] .= range(90/256, stop=1, length=n)
+    vals[:,2] .= range(40/256, stop=1, length=n)
+    vals[:,3] .= range(40/256, stop=1, length=n)
+    cmp = ListedColormap(vals)
+    fig,_ = plot_examples([viridis, cmp])
+    savefig("makeup_colormap", fig)
+
 end
 
+function learn_creating_linear_segmented_colormaps()
+end
 
 function plot_color_gradients(category, cmaps)
     # Create figure and adjust figure height to number of colormaps
@@ -861,6 +927,7 @@ if false
     learn_centered_coordinates()
     learn_making_levels_using_norms()
 
+    plot_all_cmaps()
 
     ## Tutorials
     ## https://matplotlib.org/stable/tutorials/index.html
@@ -876,6 +943,9 @@ if false
     # Creating Colormaps in Matplotlib
     learn_getting_colormaps_and_accessing_their_values()
     learn_creating_listed_colormaps()
+    learn_creating_linear_segmented_colormaps()
+    
+
     # Choosing Colormaps in Matplotlib
     learn_colormaps_sequential()
     # TODO: Not complete
@@ -887,7 +957,8 @@ if false
 end
 
 
-learn_creating_listed_colormaps()
+#learn_creating_listed_colormaps()
+learn_creating_linear_segmented_colormaps()
 
 
 learn_colormaps_diverging()
