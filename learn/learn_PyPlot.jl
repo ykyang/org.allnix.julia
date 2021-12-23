@@ -18,7 +18,7 @@ using Test
 
 #const plt = PyPlot
 
-# Turn on/off GUI
+# Turn on/off GUI, from PyCall
 pygui(true)
 pygui(false) # Turn off the pop-up window
 # pygui(:qt5) # good, default
@@ -753,7 +753,113 @@ function learn_creating_listed_colormaps()
 end
 
 function learn_creating_linear_segmented_colormaps()
+    mpl = plt.matplotlib
+    LinearSegmentedColormap = plt.matplotlib.colors.LinearSegmentedColormap
+    LineCollection = mpl.collections.LineCollection
+
+    # The explaination is here
+    # https://matplotlib.org/stable/api/_as_gen/matplotlib.colors.LinearSegmentedColormap.html?highlight=linearsegmentedcolormap#matplotlib.colors.LinearSegmentedColormap
+    cdict = Dict(
+        "red" => [
+            #  x, red on the left, red on the right
+            [0.0, 0.0, 0.0],
+            [0.5, 1.0, 1.0],
+            [1.0, 1.0, 1.0]
+        ],
+        "green" => [
+            #  x, green on the left, green on the right
+            [0.0,  0.0, 0.0],
+            [0.25, 0.0, 0.0],
+            [0.75, 1.0, 1.0],
+            [1.0,  1.0, 1.0]
+        ],
+        "blue" => [
+            [0.0,  0.0, 0.0],
+            [0.5,  0.0, 0.0],
+            [1.0,  1.0, 1.0]
+        ]
+    )
+
+    cmap = LinearSegmentedColormap("testCmap", segmentdata=cdict, N=256)
+    rgba = cmap(range(0,stop=1,length=256))
+    #pager(rgba)
+
+    fig,ax = plt.subplots(1,1)
+
+    ## The following could be done in a for-loop, but
+    ## this is easier to read.
+    ## The lines represent the rgb color combination that will produce
+    ## the color map as shown.
+    # vertical line
+    for v in [0.25, 0.5, 0.75]
+        ax.axvline(v, color="0.7", linestyle="--")
+    end
+    x = range(0,stop=1,length=256)
+    # red line
+    ax.plot(x, rgba[:,1], color="r", linestyle="-")
+    # green line
+    ax.plot(x, rgba[:,2], color="g", linestyle="-")
+    # blue line
+    ax.plot(x, rgba[:,3], color="b", linestyle="-")
+    
+    # https://matplotlib.org/stable/gallery/lines_bars_and_markers/multicolored_line.html#sphx-glr-gallery-lines-bars-and-markers-multicolored-line-py
+    
+    if true # plot line in color map colors
+        norm = mpl.colors.Normalize(0,1) #mpl.pyplot.Normalize(0,1)
+        points = reshape(vcat(x,x), length(x),1,2) 
+        ## [256,1,2], [256 point, 1 point per segment (so no line), x and y] 
+        segs = hcat(points[1:end-1,:,:], points[2:end,:,:])
+        lc = LineCollection(segs, cmap=cmap, norm=norm)
+        lc.set_array(x)
+        lc.set_linewidth(2)
+        line = ax.add_collection(lc)
+        fig.colorbar(line,ax=ax)
+    else # Not plotting the line colored in color map
+        lc = LineCollection([], cmap=cmap)
+        line = ax.add_collection(lc)
+        fig.colorbar(line,ax=ax)
+    end
+    
+
+    #mpl.colorbar.Colorbar(ax, cmap=cmap, orientation="horizontal")
+    savefig("creating_linear_segmented_colormaps", fig)
+
 end
+
+function learn_directly_creating_a_segmented_colormap_from_a_list()
+    mpl = plt.matplotlib
+    LinearSegmentedColormap = mpl.colors.LinearSegmentedColormap
+
+    colors = ["darkorange", "gold", "lawngreen", "lightseagreen"]
+    cmap_1 = LinearSegmentedColormap.from_list("my cmap", colors)
+    
+    # position of the colors in the range of [0,1]
+    nodes = [0.0, 0.4, 0.8, 1.0] 
+    cmap_2 = LinearSegmentedColormap.from_list("my cmap", collect(zip(nodes,colors)))
+    fig,_ = plot_examples([cmap_1, cmap_2])
+    savefig("directly_creating_a_segmented_colormap_from_a_list", fig)
+end
+
+
+function learn_colormap_normalization()
+    mpl = plt.matplotlib
+
+    #pager(@doc mpl.colors.Normalize)
+    norm = mpl.colors.Normalize(-1,1)
+    norm = mpl.colors.Normalize(vmin=-1,vmax=1)
+    
+    @test norm(-1) == 0
+    @test norm(-0.5) == 0.25
+    @test norm(0) == 0.5
+end
+
+function learn_colormap_logarithmic()
+    N = 100
+    X,Y = meshgrid(range(-3,stop=3,length=N), range(-2,stop=2,length=N))
+    Z1 = @. exp(-X^2 - Y^2)
+    Z2 = @. exp(-(X*10)^2 - (Y*10)^2)
+end
+
 
 function plot_color_gradients(category, cmaps)
     # Create figure and adjust figure height to number of colormaps
@@ -944,7 +1050,11 @@ if false
     learn_getting_colormaps_and_accessing_their_values()
     learn_creating_listed_colormaps()
     learn_creating_linear_segmented_colormaps()
-    
+    learn_directly_creating_a_segmented_colormap_from_a_list()
+
+    # Colormap Normalization
+    learn_colormap_normalization()
+    learn_colormap_logarithmic()
 
     # Choosing Colormaps in Matplotlib
     learn_colormaps_sequential()
@@ -958,8 +1068,10 @@ end
 
 
 #learn_creating_listed_colormaps()
-learn_creating_linear_segmented_colormaps()
-
+#learn_creating_linear_segmented_colormaps()
+#learn_directly_creating_a_segmented_colormap_from_a_list()
+#learn_colormap_normalization()
+learn_colormap_logarithmic()
 
 learn_colormaps_diverging()
 learn_colormaps_cyclic()
