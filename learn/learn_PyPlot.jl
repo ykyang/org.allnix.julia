@@ -683,6 +683,7 @@ function learn_getting_colormaps_and_accessing_their_values()
     #pager(copper(range(0,stop=7)))
 end
 
+# https://matplotlib.org/stable/tutorials/colors/colormap-manipulation.html#creating-listed-colormaps
 function plot_examples(colormaps)
     Random.seed!(19680801)
     rng = Normal()
@@ -704,7 +705,7 @@ function plot_examples(colormaps)
 
     return fig,axs
 end
-
+# https://matplotlib.org/stable/tutorials/colors/colormap-manipulation.html#creating-listed-colormaps
 function learn_creating_listed_colormaps()
     cm = plt.matplotlib.cm
     ListedColormap = plt.matplotlib.colors.ListedColormap
@@ -752,6 +753,7 @@ function learn_creating_listed_colormaps()
 
 end
 
+# https://matplotlib.org/stable/tutorials/colors/colormap-manipulation.html#creating-linear-segmented-colormaps
 function learn_creating_linear_segmented_colormaps()
     mpl = plt.matplotlib
     LinearSegmentedColormap = plt.matplotlib.colors.LinearSegmentedColormap
@@ -825,7 +827,7 @@ function learn_creating_linear_segmented_colormaps()
     savefig("creating_linear_segmented_colormaps", fig)
 
 end
-
+# https://matplotlib.org/stable/tutorials/colors/colormap-manipulation.html#directly-creating-a-segmented-colormap-from-a-list
 function learn_directly_creating_a_segmented_colormap_from_a_list()
     mpl = plt.matplotlib
     LinearSegmentedColormap = mpl.colors.LinearSegmentedColormap
@@ -840,11 +842,12 @@ function learn_directly_creating_a_segmented_colormap_from_a_list()
     savefig("directly_creating_a_segmented_colormap_from_a_list", fig)
 end
 
-
+# https://matplotlib.org/stable/tutorials/colors/colormapnorms.html#colormap-normalization
 function learn_colormap_normalization()
     mpl = plt.matplotlib
 
     #pager(@doc mpl.colors.Normalize)
+    # Normalize [-1,1] -> [0,1]
     norm = mpl.colors.Normalize(-1,1)
     norm = mpl.colors.Normalize(vmin=-1,vmax=1)
     
@@ -852,14 +855,111 @@ function learn_colormap_normalization()
     @test norm(-0.5) == 0.25
     @test norm(0) == 0.5
 end
-
+# https://matplotlib.org/stable/tutorials/colors/colormapnorms.html#logarithmic
 function learn_colormap_logarithmic()
+    mpl = plt.matplotlib
+
     N = 100
     X,Y = meshgrid(range(-3,stop=3,length=N), range(-2,stop=2,length=N))
     Z1 = @. exp(-X^2 - Y^2)
     Z2 = @. exp(-(X*10)^2 - (Y*10)^2)
+    Z = @. Z1 + 50*Z2
+
+    fig,axs = plt.subplots(2,1)
+
+    # Logarithmic color map
+    ax = axs[1]
+    ax.set_title("Logarithmic")
+    
+    #pager(@doc ax.pcolor)
+    pcm = ax.pcolor(X,Y,Z,
+        norm = mpl.colors.LogNorm(vmin=minimum(Z), vmax=maximum(Z)),
+        cmap = "PuBu_r", shading="auto",
+
+    )
+    fig.colorbar(pcm, ax=ax, extend="max")
+
+    # Linear color map
+    ax = axs[2]
+    ax.set_title("Linear")
+    pcm = ax.pcolor(X,Y,Z,
+        cmap = "PuBu_r", shading="auto"
+    )
+    fig.colorbar(pcm, ax=ax, extend="max")
+
+    fig.tight_layout()
+
+    savefig("colormap_logarithmic", fig)
+end
+# https://matplotlib.org/stable/tutorials/colors/colormapnorms.html#centered
+function learn_colormap_centered()
+    mpl = plt.matplotlib
+
+    delta = 0.1
+    x = range(-3, stop=4, step=delta)
+    y = range(-4, stop=3, step=delta)
+
+    X,Y = meshgrid(x,y)
+
+    Z1 = @. exp(-X^2 - Y^2)
+    Z2 = @. exp(- (X-1)^2 - (Y-1)^2)
+    Z = @. (+ 0.9*Z1 - 0.5*Z2) * 2
+
+    cmap = plt.get_cmap("coolwarm")
+
+    fig,axs = plt.subplots(1,2)
+
+    ax = axs[1]
+    ax.set_title("Normalize")
+    pcm = ax.pcolormesh(Z,cmap=cmap)
+    fig.colorbar(pcm, ax=ax)
+    
+    ax = axs[2]
+    ax.set_title("Centered Norm")
+    norm = mpl.colors.CenteredNorm(vcenter=0.0)
+    pcm = ax.pcolormesh(Z, norm=norm, cmap=cmap)
+    fig.colorbar(pcm, ax=ax)
+
+    savefig("colormap_centered", fig)
+end
+# https://matplotlib.org/stable/tutorials/colors/colormapnorms.html#symmetric-logarithmic
+function learn_colormap_symmetric_logarithmic()
+    mpl = plt.matplotlib
+
+    N = 100
+    X,Y = meshgrid(range(-3,stop=3,length=N), range(-2,stop=2,length=N))
+    Z1 = @. exp( -X^2 -Y^2 )
+    Z2 = @. exp( -(X-1)^2 -(Y-1)^2 )
+    Z = @. (Z1 - Z2) * 2
+    #pager(X)
+    fig,axs = plt.subplots(2, 1)
+
+    ax = axs[1]
+    ax.set_title("SymLogNorm")
+    #pager(@doc mpl.colors.SymLogNorm)
+    norm = mpl.colors.SymLogNorm(linthresh=0.03, linscale=0.03,
+        vmin=-1.0, vmax=1.0, base=10
+    )
+    pcm = ax.pcolormesh(X,Y,Z, 
+        norm=norm, 
+        cmap="RdBu_r", shading="auto"
+    )
+    # TODO: Remove labels that are overlapping
+    fig.colorbar(pcm, ax=ax, extend="both")
+
+    ax = axs[2]
+    ax.set_title("Sym Linear")
+    pcm = ax.pcolormesh(X,Y,Z, cmap="RdBu_r", vmin=-maximum(Z), shading="auto")
+    fig.colorbar(pcm, ax=ax, extend="both")
+
+
+    fig.tight_layout()
+    savefig("colormap_symmetric_logarithmic", fig)
 end
 
+function learn_colormap_power_law()
+    
+end
 
 function plot_color_gradients(category, cmaps)
     # Create figure and adjust figure height to number of colormaps
@@ -1055,6 +1155,9 @@ if false
     # Colormap Normalization
     learn_colormap_normalization()
     learn_colormap_logarithmic()
+    learn_colormap_centered()
+    learn_colormap_symmetric_logarithmic()
+    learn_colormap_power_law()
 
     # Choosing Colormaps in Matplotlib
     learn_colormaps_sequential()
@@ -1071,7 +1174,10 @@ end
 #learn_creating_linear_segmented_colormaps()
 #learn_directly_creating_a_segmented_colormap_from_a_list()
 #learn_colormap_normalization()
-learn_colormap_logarithmic()
+#learn_colormap_logarithmic()
+#learn_colormap_centered()
+#learn_colormap_symmetric_logarithmic()
+learn_colormap_power_law()
 
 learn_colormaps_diverging()
 learn_colormaps_cyclic()
