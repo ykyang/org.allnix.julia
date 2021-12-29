@@ -956,10 +956,164 @@ function learn_colormap_symmetric_logarithmic()
     fig.tight_layout()
     savefig("colormap_symmetric_logarithmic", fig)
 end
-
+# https://matplotlib.org/stable/tutorials/colors/colormapnorms.html#power-law
 function learn_colormap_power_law()
+    mpl = plt.matplotlib
+
+    N = 100
+    X,Y = meshgrid(range(0,stop=3,length=N),range(0,stop=2,length=N))
+    Z = @. (1+sin(Y*10)) * X^2
+
+    fig,axs = plt.subplots(4,1, constrained_layout=true)
+
+    ax_ind = 0
+
+    ax_ind += 1
+    ax = axs[ax_ind]
+    ax.set_title("PowerNorm, γ=0.3")
+    norm = mpl.colors.PowerNorm(gamma=0.3)
+    pcm = ax.pcolormesh(X,Y,Z,norm=norm, cmap="PuBu_r")
+    fig.colorbar(pcm, ax=ax, extend="max")
+
+    ax_ind += 1
+    ax = axs[ax_ind]
+    ax.set_title("PowerNorm, γ=0.5")
+    norm = mpl.colors.PowerNorm(gamma=0.5)
+    pcm = ax.pcolormesh(X,Y,Z,norm=norm, cmap="PuBu_r")
+    fig.colorbar(pcm, ax=ax, extend="max")
+
+    ax_ind += 1
+    ax = axs[ax_ind]
+    ax.set_title("PowerNorm, γ=2")
+    norm = mpl.colors.PowerNorm(gamma=2)
+    pcm = ax.pcolormesh(X,Y,Z,norm=norm, cmap="PuBu_r")
+    fig.colorbar(pcm, ax=ax, extend="max")
+
+
+    ax_ind += 1
+    ax = axs[ax_ind]
+    ax.set_title("Linear")
+    pcm = ax.pcolormesh(X,Y,Z, cmap="PuBu_r")
+    fig.colorbar(pcm, ax=ax, extend="max")
+
+    savefig("colormap_power_law", fig)
+end 
+# https://matplotlib.org/stable/tutorials/colors/colormapnorms.html#discrete-bounds
+function learn_colormap_discrete_bounds()
+    #mpl = plt.matplotlib
+
+    # Create discrete norm
+    bounds = [-0.25, -0.125, 0, 0.5, 1]
+    norm = mpl.colors.BoundaryNorm(boundaries=bounds, ncolors=4)
+    @test norm(-0.30) == 0-1
+    @test norm(-0.2)  == 1-1 # Python index
+    @test norm(-0.15) == 1-1
+    @test norm(-0.02) == 2-1
+    @test norm(0.3)   == 3-1
+    @test norm(0.8)   == 4-1
+    @test norm(0.99)  == 4-1
+    @test norm(1.01)  == 5-1
+
+    N = 100
+    X,Y = meshgrid(range(-3,stop=3,length=N), range(-2,stop=2,length=N))
+    Z1 = @. exp( -X^2 -Y^2 )
+    Z2 = @. exp( -(X-1)^2 -(Y-1)^2 )
+    Z = @. (Z1 - Z2) * 2
+
+    fig,axs = plt.subplots(2,2, figsize=(8,6), constrained_layout=true)
     
+    axs = permutedims(axs, [2,1]) # row first then column
+    ax_ind = 0
+    cmap = plt.get_cmap("RdBu_r")
+
+    # Default norm
+    ax_ind += 1
+    ax = axs[ax_ind]
+    ax.set_title("Default Norm")
+    pcm = ax.pcolormesh(X,Y,Z, cmap=cmap)
+    fig.colorbar(pcm, ax=ax, orientation="vertical")
+
+    # Even bounds give a contour-like effect
+    ax_ind += 1
+    ax = axs[ax_ind]
+    ax.set_title("BoundaryNorm: 7 boundaries")
+    bounds = range(-1.5, stop=1.5, length=7)
+    norm = mpl.colors.BoundaryNorm(boundaries=bounds, ncolors=256)
+    #pager(@doc mpl.colors.BoundaryNorm)
+    pcm = ax.pcolormesh(X,Y,Z, norm=norm, cmap=cmap)
+    fig.colorbar(pcm, ax=ax, extend="both", orientation="vertical")
+
+    # Bounds may be unevenly spaced
+    ax_ind += 1
+    ax = axs[ax_ind]
+    ax.set_title("BoundaryNorm: nonuniform")
+    bounds = [-0.2, -0.1, 0, 0.5, 1]
+    norm = mpl.colors.BoundaryNorm(boundaries=bounds, ncolors=256)
+    pcm = ax.pcolormesh(X,Y,Z, norm=norm, cmap=cmap)
+    fig.colorbar(pcm, ax=ax, extend="both", orientation="vertical",
+        spacing="proportional"
+    )
+
+    # With out-of-bounds colors
+    ax_ind += 1
+    ax = axs[ax_ind]
+    ax.set_title("BoundaryNorm: extend=\"both\"")
+    bounds = range(-1.5, 1.5, 7)
+    norm = mpl.colors.BoundaryNorm(boundaries=bounds, ncolors=256, extend="both")
+    pcm = ax.pcolormesh(X,Y,Z, norm=norm, cmap=cmap)
+    fig.colorbar(pcm, ax=ax, orientation="vertical")
+
+
+    savefig("colormap_discrete_bounds", fig)
 end
+
+"""
+
+Learn stacking two color maps and customize colorbar including size, ticks.
+
+https://matplotlib.org/stable/tutorials/colors/colormapnorms.html#twoslopenorm-different-mapping-on-either-side-of-a-center
+"""
+function learn_colormap_two_slope_norm()
+
+    dem = mpl.cbook.get_sample_data("topobathy.npz", np_load=true) 
+    # @show dem       # dem = PyObject <numpy.lib.npyio.NpzFile object at 0x0000000094A2E8B0>
+    # @show dem.files # dem.files = ["topo", "longitude", "latitude"]
+
+    topo = dem.get("topo")            # dem["topo"] does not work
+    longitude = dem.get("longitude")
+    latitude = dem.get("latitude") 
+    
+    fig,ax = plt.subplots()
+    ax.set_title("Two Slope Norm")
+    ax.set_aspect(1/cosd(49))
+    # Make a colormap that has land and ocean delineated and of the
+    # same length (256+256).
+    colors_undersea = plt.cm.terrain(range(0,    stop=0.17, length=256))
+    colors_land     = plt.cm.terrain(range(0.25, stop=1,    length=256))
+    all_colors = vcat(colors_undersea, colors_land)
+    terrain_cmap = mpl.colors.LinearSegmentedColormap.from_list(
+        "terrain_cmap", all_colors
+    )
+    divnorm = mpl.colors.TwoSlopeNorm(vmin=-500, vcenter=0, vmax=4000)
+    pcm = ax.pcolormesh(
+        longitude, latitude, topo,
+        rasterized=true,
+        norm = divnorm, cmap=terrain_cmap
+    )
+
+    cb = fig.colorbar(pcm, shrink=0.6, spacing="proportional")
+    cb.set_ticks([-500, -400, -300, -200, -100, 0, 1000, 2000, 3000, 4000])
+
+    savefig("colormap_two_slope_norm", fig)
+end
+
+# https://matplotlib.org/stable/tutorials/colors/colormapnorms.html#funcnorm-arbitrary-function-normalization
+function learn_colormap_func_norm()
+
+
+end
+
+
 
 function plot_color_gradients(category, cmaps)
     # Create figure and adjust figure height to number of colormaps
@@ -1158,6 +1312,9 @@ if false
     learn_colormap_centered()
     learn_colormap_symmetric_logarithmic()
     learn_colormap_power_law()
+    learn_colormap_discrete_bounds()
+    learn_colormap_two_slope_norm()
+    learn_colormap_func_norm()
 
     # Choosing Colormaps in Matplotlib
     learn_colormaps_sequential()
@@ -1177,7 +1334,10 @@ end
 #learn_colormap_logarithmic()
 #learn_colormap_centered()
 #learn_colormap_symmetric_logarithmic()
-learn_colormap_power_law()
+#learn_colormap_power_law()
+#learn_colormap_discrete_bounds()
+#learn_colormap_two_slope_norm()
+learn_colormap_func_norm()
 
 learn_colormaps_diverging()
 learn_colormaps_cyclic()
