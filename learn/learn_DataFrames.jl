@@ -242,7 +242,7 @@ function learn_hcat() # https://dataframes.juliadata.org/stable/lib/functions/#B
     df3 = hcat(df1, df2, makeunique=true) # copycols = true
     @test df3.A !== df1.A
     df3 = hcat(df1, df2, makeunique=true, copycols=false) # by ref so ...
-    @test df3.A === df1.A 
+    @test df3.A === df1.A
 
     @test_throws ArgumentError hcat(df1, df2, makeunique=false) # Duplicate variable names
     
@@ -252,6 +252,28 @@ function learn_hcat() # https://dataframes.juliadata.org/stable/lib/functions/#B
     df3 = hcat(df1, df2[!, [2, 3]])
     @test df3.A == df1.A
     @test df3.C == df2.C
+end
+
+function learn_join() # https://dataframes.juliadata.org/stable/lib/functions/#Joining
+end
+
+function learn_rename() # https://discourse.julialang.org/t/change-column-names-of-a-dataframe-previous-methods-dont-work/48026
+    df = DataFrame(
+        a = [1,2,3],
+        b = [4,5,6],
+    )
+    @test names(df) == ["a", "b"]
+    
+    # Rename one-by-one
+    rename!(df, Dict(
+        "b" => "bb",  # Purposely reversed the order   
+        "a" => "aa",
+    ))
+    @test names(df) == ["aa", "bb"]
+
+    # Rename following the order of columns
+    rename!(df, ["c", "d"])
+    @test names(df) == ["c", "d"]
 end
 
 function learn_row_iteration()
@@ -290,6 +312,9 @@ function learn_sort()
     df = sort(mdf, ["B"])
     @test [1,2,3] == df[!,"B"]
     @test [2,1,3] == df[!,"C"]
+end
+
+function learn_stack()
 end
 
 function learn_transform_1()
@@ -353,6 +378,9 @@ function learn_transform_1()
     #@show df
     transform!(df, ["A"] => ((a) -> min.(a,5)) => "D")
     #@show df
+end
+
+function learn_unstack()
 end
 
 function learn_filter_1()
@@ -458,6 +486,8 @@ end
 
     learn_groupby_1()
     learn_hcat()
+
+    learn_rename()
 
     learn_row_iteration()
     learn_set_value()

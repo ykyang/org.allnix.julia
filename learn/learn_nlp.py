@@ -7,6 +7,16 @@
 
 # print('Hello World!')
 
+from os.path import join
+
+def write_table(df, filename):
+    f = open(filename, 'w')
+    n = f.write(df.to_string())
+    f.close()
+
+    return n
+
+
 def learn_simplest_tokenizer(): # 2.3.1
     text = ("Trust me, though, the words were on their way, and when "
             "they arrived, Liesel would hold them in her hands like "
@@ -19,7 +29,7 @@ def learn_simplest_tokenizer(): # 2.3.1
 import re
 import numpy as np
 
-def learn_rule_based_tokenization():
+def learn_rule_based_tokenization(): # 2.3.2
     
     pattern = r'\w+(?:\'\w+)?|[^\w\s]'
     text = ("Trust me, though, the words were on their way, and when "
@@ -43,43 +53,32 @@ def learn_rule_based_tokenization():
 
 import spacy
 
-def learn_spacy(): # 2.3.3
-    
-
-    text = ("Trust me, though, the words were on their way, and when "
-            "they arrived, Liesel would hold them in her hands like "
-            "the clouds, and she would wring them out, like the rain.")
-    texts = [text]
-    texts.append("There's no such thing as survival of the fittest. "
-                 "Survival of the most adequate, maybe.")
-
-
+def learn_spacy(texts): # 2.3.3
     #spacy.cli.download('en_core_web_sm') # Only need to run once?
     nlp = spacy.load('en_core_web_sm')
     doc = nlp(texts[-1])
     #print(type(doc))
     tokens = [tok.text for tok in doc]
-    print(tokens)
+    #print(tokens)
 
-    from spacy import displacy
+    #from spacy import displacy
     #print(type(doc.sents)) # generator
-    sentence = list(doc.sents)[0]
+    #sentence = list(doc.sents)[0]
     #displacy.serve(sentence, style='dep')
     #!firefox 127.0.0.1:5000
+
+    return tokens
+
+
+## 2.4 Wordpiece tokenizers
 
 # Outside the function so completion would work
 import scipy
 import pandas as pd
 from sklearn.feature_extraction.text import CountVectorizer
-from tabulate import tabulate
+#from tabulate import tabulate
 
-def learn_clumping_characters(): # 2.4.1    
-    texts = [] # Store 2 strings
-    texts.append("Trust me, though, the words were on their way, and when "
-            "they arrived, Liesel would hold them in her hands like "
-            "the clouds, and she would wring them out, like the rain.")
-    texts.append("There's no such thing as survival of the fittest. "
-                 "Survival of the most adequate, maybe.")
+def learn_clumping_characters(texts): # 2.4.1    
     assert len(texts) == 2
 
     vectorizer = CountVectorizer(
@@ -116,15 +115,57 @@ def learn_clumping_characters(): # 2.4.1
     # Filter by > 1-gram
     #print(df[df['n']>1].sort_values('total').tail())
 
+    write_table(df, join('output', 'clumping_characters.txt'))    
 
     return df
 
+## 2.5 Vectors of tokens
+
+## 2.5.1 One-hot Vectors
+def learn_one_hot_vectors(texts):
+    pattern = r'\w+(?:\'\w+)?|[^\w\s]'
+    tokens = list(re.findall(pattern, texts[-1]))
+    vocab = sorted(set(tokens))
+    #vocab_size = len(vocab)
+    
+    onehot_vectors = np.zeros((len(tokens),len(vocab)), int)
+    for i,word in enumerate(tokens):
+        onehot_vectors[i, vocab.index(word)] = 1
+    
+
+    df_onehot = pd.DataFrame(onehot_vectors, columns=vocab)
+    # df_one_hot.shape = (18, 15)
+    #print('df_one_hot.shape = {}'.format(df_onehot.shape))
+    write_table(df_onehot.iloc[:,:8].replace(0, ''), join('output', 'one_hot_vectors.txt'))
 
 
+## 2.5.2 BOW (Bag-of-Words) Vectors
+def learn_bag_of_words(texts):
+    pattern = r'\w+(?:\'\w+)?|[^\w\s]'
+    text = texts[0]
+    bow = sorted(set(re.findall(pattern, text)))
+    print(bow[:9])
+    print(bow[9:19])
+    print(bow[19:27])
 
+
+texts = [] # Store 2 strings
+texts.append(
+    "Trust me, though, the words were on their way, and when "
+    "they arrived, Liesel would hold them in her hands like "
+    "the clouds, and she would wring them out, like the rain."
+)
+texts.append(
+    "There's no such thing as survival of the fittest. "
+    "Survival of the most adequate, maybe."
+)
 
 #learn_simplest_tokenizer()
 #learn_rule_based_tokenization()
-#learn_spacy()
-df = learn_clumping_characters()
+#learn_spacy(texts)
+#df = learn_clumping_characters(texts)
+#learn_one_hot_vectors(texts)
+#write_table(df, join('output', 'clumping_characters.txt'))
+learn_bag_of_words(texts)
+
 #print(df.style)

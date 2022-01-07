@@ -217,6 +217,12 @@ function learn_print()
 end
 
 function learn_arithemtic()
+    # Date - Date = Day
+    @test isa(Date(2021,6,21) - Date(2021,6,18), Day)
+
+    # DateTime - DateTime = Millisecond
+    @test isa(DateTime(2021,6,21) - DateTime(2021,6,18), Millisecond)
+
     # +
     @test Date(2021,6,21) == Date(2021,6,18) + Day(3)
     @test_throws MethodError Date(2021,6,18) + Millisecond(3*86400*1000)

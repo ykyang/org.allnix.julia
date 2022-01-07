@@ -498,6 +498,15 @@ function learn_making_levels_using_norms()
     savefig("making_levels_using_norms", fig)
 end
 
+# https://matplotlib.org/stable/users/prev_whats_new/dflt_style_changes.html#colors-in-default-property-cycle
+function learn_default_color_cycler()
+    default_cycler = plt.matplotlib.cycler(
+        color = [
+            "#1f77b4", "#ff7f0e", "#2ca02c", "#d62728", "#9467bd", 
+            "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"
+        ]
+    )
+end
 
 # https://matplotlib.org/stable/tutorials/intermediate/color_cycle.html#styling-with-cycler
 function learn_styling_with_cycler()
@@ -1326,6 +1335,7 @@ if false
     
 end
 
+learn_styling_with_cycler()
 
 #learn_creating_listed_colormaps()
 #learn_creating_linear_segmented_colormaps()
