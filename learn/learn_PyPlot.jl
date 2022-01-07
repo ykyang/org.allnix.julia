@@ -8,6 +8,7 @@ using Random
 using Distributions
 import PyPlot as plt
 using TerminalPager
+using Dates
 
 
 const mpl = plt.matplotlib
@@ -20,7 +21,7 @@ using Test
 
 # Turn on/off GUI, from PyCall
 pygui(true)
-pygui(false) # Turn off the pop-up window
+#pygui(false) # Turn off the pop-up window
 # pygui(:qt5) # good, default
 # pygui(:wx) # crashes
 # pygui(:gtk3)
@@ -114,6 +115,47 @@ function plot_all_cmaps()
     plt.tight_layout()
     savefig("all_cmaps", fig)
 end
+
+
+function learn_date_xlim()
+    # Learn setting limits on Date data
+    fig,ax = plt.subplots()
+
+    xs = [Date(1969,12,1), Date(1970,1,1), Date(1970,2,1), Date(1970,3,1)]
+    ys = [0.5, 0, 1, 0.5]
+
+
+    ax.plot(xs,ys)
+    ax.set_xlim(-61, 91) # Days, 0 at 1970-01-01, decimal ok
+ 
+    
+    # https://matplotlib.org/stable/gallery/lines_bars_and_markers/timeline.html#sphx-glr-gallery-lines-bars-and-markers-timeline-py
+    plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
+    fig.tight_layout()
+
+    savefig("date_xlim", fig)
+end
+
+function learn_datetime_xlim()
+    # Learn setting limits on DateTime data
+    fig,ax = plt.subplots()
+    
+    xs = [DateTime(1970,1,1), DateTime(1970,2,1)]
+    ys = [0, 1]
+
+
+    ax.plot(xs,ys)
+    ax.set_xlim(-1.5,60) # Days, 0 at 1970-01-01, decimal ok
+
+
+    # https://matplotlib.org/stable/gallery/lines_bars_and_markers/timeline.html#sphx-glr-gallery-lines-bars-and-markers-timeline-py
+    plt.setp(ax.get_xticklabels(), rotation=30, ha="right")
+    fig.tight_layout()
+
+    savefig("datetime_xlim", fig)
+end
+
+
 
 
 # https://matplotlib.org/stable/tutorials/introductory/usage.html#the-object-oriented-interface-and-the-pyplot-interface
@@ -496,6 +538,80 @@ function learn_making_levels_using_norms()
     fig.tight_layout()
 
     savefig("making_levels_using_norms", fig)
+end
+# https://matplotlib.org/stable/gallery/text_labels_and_annotations/date.html#date-tick-labels
+function learn_date_tick_labels()
+    mdates = mpl.dates
+    cbook = mpl.cbook
+
+    npz = cbook.get_sample_data("goog.npz", np_load=true)
+    dat = npz.get("price_data")
+
+    fig,axs = plt.subplots(3,1, figsize=(6.4,7), constrained_layout=true)
+
+    for ax in axs
+        ax.plot("date", "adj_close", data=dat)
+        # Major ticks every half year, minor ticks every month
+        # MonthLocator(bymonth=None, bymonthday=1, interval=1, tz=None)
+        ax.xaxis.set_major_locator(mdates.MonthLocator(bymonth=[1,7]))
+        ax.xaxis.set_minor_locator(mdates.MonthLocator())
+        ax.grid(true)
+        ax.set_ylabel("Price [\$]")
+    end
+
+    # Different formats
+    ax = axs[1]
+    ax.set_title("Default Formatter", loc="left", x=0.02, y=0.85, fontsize="medium")
+
+    ax = axs[2]
+    ax.set_title("Concise Formatter", loc="left", x=0.02, y=0.85, fontsize="medium")
+    ax.xaxis.set_major_formatter(
+        mdates.ConciseDateFormatter(ax.xaxis.get_major_locator())
+    )
+
+    ax = axs[3]
+
+
+    savefig("date_tick_labels", fig)
+end
+
+# https://matplotlib.org/stable/gallery/text_labels_and_annotations/date_index_formatter.html#custom-tick-formatter-for-time-series
+function learn_custom_tick_formatter_for_time_series()
+    # Use lots of PyCall stuff
+    np = pyimport("numpy")
+    npz = mpl.cbook.get_sample_data("goog.npz", np_load=true) # numpy.lib.npyio.NpzFile
+    
+    r = npz.get("price_data").view(np.recarray)
+    r = py"$r[-30:]"
+    @show py"$r.date"
+
+    fig,axs = plt.subplots(1,2, figsize=(8,4))
+    
+    ax = axs[1]
+    ax.plot(py"$r.date", py"$r.adj_close", "o-")
+    ax.set_title("Default")
+    fig.autofmt_xdate()
+
+    # Custom formatter
+    N = length(r)
+    inds = range(1,stop=N)
+
+    py"""
+    def format_date(x, pos=None):
+        import numpy as np
+        
+        thisind = np.clip(int(x + 0.5), 0, $N-1)
+        #print(x, pos, thisind)
+        return $r.date[thisind].item().strftime('%Y-%m-%d')
+    """
+
+    ax = axs[2]
+    ax.plot(inds, py"$r.adj_close", "o-")
+    ax.xaxis.set_major_formatter(py"format_date")
+    ax.set_title("Custom tick formatter")
+    fig.autofmt_xdate()
+
+    savefig("custom_tick_formatter_for_time_series", fig)
 end
 
 # https://matplotlib.org/stable/users/prev_whats_new/dflt_style_changes.html#colors-in-default-property-cycle
@@ -1265,6 +1381,11 @@ begin # Deprecated
 end
 
 if false
+    ## My stuff
+    plot_all_cmaps()
+    learn_date_xlim()
+    learn_datetime_xlim()
+
     # # The object-oriented interface and the pyplot interface
     learn_oo_style()
 
@@ -1295,8 +1416,13 @@ if false
     learn_non_rectilinear_pcolormesh()
     learn_centered_coordinates()
     learn_making_levels_using_norms()
+    # Text, labels and annotations
+    learn_date_tick_labels()
+    learn_custom_tick_formatter_for_time_series()
 
-    plot_all_cmaps()
+
+
+    
 
     ## Tutorials
     ## https://matplotlib.org/stable/tutorials/index.html
@@ -1335,7 +1461,12 @@ if false
     
 end
 
-learn_styling_with_cycler()
+
+learn_date_tick_labels()
+#learn_custom_tick_formatter_for_time_series()
+
+
+#learn_styling_with_cycler()
 
 #learn_creating_listed_colormaps()
 #learn_creating_linear_segmented_colormaps()
