@@ -155,6 +155,21 @@ function learn_datetime_xlim()
     savefig("datetime_xlim", fig)
 end
 
+function learn_marker_color()
+    fig,ax = plt.subplots()
+
+    ax.plot([0,1], [0,1], linestyle="-", color="green")
+    
+    # Transparent inside
+    ax.plot([0], [0], marker=".", linestyle="", fillstyle="none", markersize=50,
+        markeredgecolor="red",
+    )
+    ax.plot([1], [1], marker=".", linestyle="", fillstyle="full", markersize=50,
+        markeredgecolor="red", markerfacecolor="blue",
+    )
+    
+    savefig("marker_color", fig)
+end
 
 
 
@@ -569,8 +584,17 @@ function learn_date_tick_labels()
         mdates.ConciseDateFormatter(ax.xaxis.get_major_locator())
     )
 
+    # YYYY-mm format
     ax = axs[3]
-
+    ax.set_title("Manual DateFormatter", loc="left", x=0.02, y=0.85, fontsize="medium")
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y-%b"))
+    # Rotate text
+    for label in ax.get_xticklabels(which="major")
+        #label.set(rotation=30, horizontalalignment="right")
+        label.set(rotation=-30, horizontalalignment="left")
+    end
+    # This line replace the for-loop above
+    #plt.setp(ax.get_xticklabels(), rotation=-30, ha="left")
 
     savefig("date_tick_labels", fig)
 end
@@ -1385,6 +1409,7 @@ if false
     plot_all_cmaps()
     learn_date_xlim()
     learn_datetime_xlim()
+    learn_marker_color()
 
     # # The object-oriented interface and the pyplot interface
     learn_oo_style()
@@ -1462,8 +1487,9 @@ if false
 end
 
 
-learn_date_tick_labels()
+#learn_date_tick_labels()
 #learn_custom_tick_formatter_for_time_series()
+learn_marker_color()
 
 
 #learn_styling_with_cycler()
@@ -1478,7 +1504,7 @@ learn_date_tick_labels()
 #learn_colormap_power_law()
 #learn_colormap_discrete_bounds()
 #learn_colormap_two_slope_norm()
-learn_colormap_func_norm()
+learn_colormap_func_norm() # TODO
 
 learn_colormaps_diverging()
 learn_colormaps_cyclic()

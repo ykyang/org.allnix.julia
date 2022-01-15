@@ -67,6 +67,20 @@ function learn_Node2()
     nothing
 end
 
+function learn_DefaultDict()
+    default = "Hello World!"
+    db = DefaultDict(default)
+
+    db[1] = 1
+    db[2] = 2
+
+    @test db[1] == 1
+    @test db[2] == 2
+    @test db[3] == default
+     
+    nothing
+end
+
 function learn_Dict()
     db = Dict{Node2,Int64}()
     # @show db
@@ -76,7 +90,7 @@ function learn_Dict()
     @test 14 == db[Node2(1,2)]
     #@show getindex(db, Node2(1,2))
 
-    @show db
+    #@show db
 end
 
 function learn_OrderedSet()
@@ -281,11 +295,16 @@ end
     learn_OrderedSet()
     learn_SortedSet()
 end
-#learn_Dict()
+
+@testset "Dict" begin
+    learn_DefaultDict()
+    learn_Dict()
+end
 #A = learn_PriorityQueue()
 #A = learn_Queue()
 #A = learn_Set()
 #A = learn_Stack()
 #learn_OrderedSet()
-#A
+
+
 nothing

@@ -139,6 +139,7 @@ function learn_comprehension()
 end
 
 function learn_for_zip()
+    # Learn zip 3 arrays
     Ans = []
     for (i,j,k) in zip([1,2], [3,4], [5,6])
         push!(Ans, (i,j,k))
@@ -148,6 +149,18 @@ function learn_for_zip()
         (1,3,5),
         (2,4,6)
     ] == Ans
+
+
+    # Learn enumerate with zip
+    Ans = []
+    for (ind, (i,j,k)) in enumerate(zip([1,2], [3,4], [5,6]))
+        push!(Ans, [ind, i,j,k])
+    end
+
+    @test Ans == [
+        [1,1,3,5],
+        [2,2,4,6],
+    ]
 end
 
 function learn_CartesianIndex()

@@ -17,10 +17,8 @@ def write_table(df, filename):
     return n
 
 
-def learn_simplest_tokenizer(): # 2.3.1
-    text = ("Trust me, though, the words were on their way, and when "
-            "they arrived, Liesel would hold them in her hands like "
-            "the clouds, and she would wring them out, like the rain.")
+def learn_simplest_tokenizer(texts): # 2.3.1
+    text = texts[0]
     tokens = text.split()
     
     #['Trust', 'me,', 'though,', 'the', 'words', 'were', 'on', 'their']
@@ -29,18 +27,18 @@ def learn_simplest_tokenizer(): # 2.3.1
 import re
 import numpy as np
 
-def learn_rule_based_tokenization(): # 2.3.2
+def learn_rule_based_tokenization(texts): # 2.3.2
     
     pattern = r'\w+(?:\'\w+)?|[^\w\s]'
-    text = ("Trust me, though, the words were on their way, and when "
-            "they arrived, Liesel would hold them in her hands like "
-            "the clouds, and she would wring them out, like the rain.")
-    texts = [text]
-    #print(text)
-    texts.append("There's no such thing as survival of the fittest. "
-                 "Survival of the most adequate, maybe.")
-    tokens = list(re.findall(pattern, texts[-1]))
-    #print(texts[-1])
+    # text = ("Trust me, though, the words were on their way, and when "
+    #         "they arrived, Liesel would hold them in her hands like "
+    #         "the clouds, and she would wring them out, like the rain.")
+    # texts = [text]
+    # #print(text)
+    # texts.append("There's no such thing as survival of the fittest. "
+    #  "Survival of the most adequate, maybe.")
+    tokens = list(re.findall(pattern, texts[1]))
+    #print(texts[1])
     print(tokens[:8])
     print(tokens[8:16])
     print(tokens[16:])
@@ -56,7 +54,7 @@ import spacy
 def learn_spacy(texts): # 2.3.3
     #spacy.cli.download('en_core_web_sm') # Only need to run once?
     nlp = spacy.load('en_core_web_sm')
-    doc = nlp(texts[-1])
+    doc = nlp(texts[1])
     #print(type(doc))
     tokens = [tok.text for tok in doc]
     #print(tokens)
@@ -124,7 +122,7 @@ def learn_clumping_characters(texts): # 2.4.1
 ## 2.5.1 One-hot Vectors
 def learn_one_hot_vectors(texts):
     pattern = r'\w+(?:\'\w+)?|[^\w\s]'
-    tokens = list(re.findall(pattern, texts[-1]))
+    tokens = list(re.findall(pattern, texts[1]))
     vocab = sorted(set(tokens))
     #vocab_size = len(vocab)
     
@@ -148,6 +146,54 @@ def learn_bag_of_words(texts):
     print(bow[9:19])
     print(bow[19:27])
 
+## 2.5.3 Dot product
+def learn_dot_product(texts):
+    # Dot product
+    v1 = np.array([1,2,3])
+    v2 = np.array([2,3,4])
+
+    Ans = v1.dot(v2)
+    #print(Ans) # 20
+
+    Ans = v1 * v2
+    #print(Ans) # [ 2  6 12]
+    #print(Ans.sum()) # 20
+
+    # PennTreebank tokenizer
+    from nltk.tokenize import TreebankWordTokenizer
+    tokenizer = TreebankWordTokenizer()
+    print(texts[2])
+    tokens = tokenizer.tokenize(texts[2])
+    print(tokens[:8])
+    print(tokens[8:16])
+    print(tokens[16:])
+
+## 2.6 Challenging tokens
+def learn_challenging_tokens(text):
+    import jieba
+    seg_list = jieba.cut(text, cut_all=True)
+    print('Full Mode: ' + '/'.join(seg_list))
+    seg_list = jieba.cut(text)
+    print('Accurate Mode: ' + '/'.join(seg_list))
+    seg_list = jieba.cut_for_search(text)
+    print('Search Engine Mode: ', '/'.join(seg_list))
+
+    from jieba import posseg
+    words = posseg.cut(text)
+    # jieba.enable_paddle()
+    # words = posseg.cut(text, use_paddle=True)
+    # for word,flag in words:
+    #     print(f'{word<5} {flag}')
+    
+    # paddlepaddle does not support Python-3.8
+    # Use spaCy instead
+    #spacy.cli.download("zh_core_web_sm")
+    nlp = spacy.load("zh_core_web_sm")
+    doc = nlp(text)
+    for token in doc:
+        print(token.text, token.pos_)
+
+    
 
 texts = [] # Store 2 strings
 texts.append(
@@ -160,12 +206,26 @@ texts.append(
     "Survival of the most adequate, maybe."
 )
 
-#learn_simplest_tokenizer()
-#learn_rule_based_tokenization()
-#learn_spacy(texts)
-#df = learn_clumping_characters(texts)
-#learn_one_hot_vectors(texts)
-#write_table(df, join('output', 'clumping_characters.txt'))
-learn_bag_of_words(texts)
+
+# learn_simplest_tokenizer(texts)
+# learn_rule_based_tokenization(texts)
+# learn_spacy(texts)
+# df = learn_clumping_characters(texts)
+# learn_one_hot_vectors(texts)
+# write_table(df, join('output', 'clumping_characters.txt'))
+# learn_bag_of_words(texts)
+
+texts.append(
+"""
+If conscience and empathy were impediments to the advancement of
+self-interest, then we would have evolved to be amoral sociopaths.
+"""    
+)
+
+#learn_dot_product(texts)
+text = "西安是一座举世闻名的文化古城"
+text = "西安是一座舉世聞名的文化古城"
+learn_challenging_tokens(text)
+
 
 #print(df.style)
