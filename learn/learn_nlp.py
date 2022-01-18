@@ -193,7 +193,19 @@ def learn_challenging_tokens(text):
     for token in doc:
         print(token.text, token.pos_)
 
-    
+## 2.6.2 Extending your vocabulary with n-grams
+def learn_stop_words():
+    import requests
+    url = ("https://gitlab.com/tangibleai/nlpia/-/raw/master/"
+        "src/nlpia/data/stopword_lists.json")
+    response = requests.get(url)
+    #print(response.text)
+    stop_words = response.json()['exhaustive']
+    #print(stop_words)
+    tokens = 'the words were just as I remembered them'.split()
+    #print('tokens: {}'.format(tokens))
+    tokens_without_stopwords = [x for x in tokens if x not in stop_words]
+    print('tokens w/o stop words: {}'.format(tokens_without_stopwords))
 
 texts = [] # Store 2 strings
 texts.append(
@@ -221,11 +233,16 @@ If conscience and empathy were impediments to the advancement of
 self-interest, then we would have evolved to be amoral sociopaths.
 """    
 )
-
 #learn_dot_product(texts)
+
+## 2.6 Challenging tokens
 text = "西安是一座举世闻名的文化古城"
 text = "西安是一座舉世聞名的文化古城"
-learn_challenging_tokens(text)
+#learn_challenging_tokens(text)
+
+## 2.6.2 Extending your vocabulary with n-grams
+learn_stop_words()
+
 
 
 #print(df.style)
