@@ -193,6 +193,9 @@ def learn_challenging_tokens(text):
     for token in doc:
         print(token.text, token.pos_)
 
+## 2.6.1
+## 2.6.2 Extending your vocabulary with n-grams
+
     
 
 texts = [] # Store 2 strings
