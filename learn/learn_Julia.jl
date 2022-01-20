@@ -1,9 +1,9 @@
 # Learn basic Julia stuff
+module MyJulia
+
 using Test
 import Serialization
 
-module MyJulia
-using Test
 # Learn operator overloading
 mutable struct Node
     id::Int64
@@ -46,9 +46,29 @@ function learn_Node()
     @test Node(13) >= Node(13)
 end
 
-end # module MyJulia
 
-mj = MyJulia
+
+
+function learn_exception()
+    ## Show stack trace after catch
+    # https://docs.julialang.org/en/v1/manual/stacktraces/#Exception-stacks-and-[current_exceptions](@ref)
+    try
+        error("(A) The root cause")
+    catch
+        try
+            error("(B) An exception in catch")
+        catch
+            # (exception,backtrace)
+            for (exc, bt) in current_exceptions()
+                showerror(stdout, exc, bt)
+                println(stdout)                
+            end
+        end
+    end
+end
+
+
+#mj = MyJulia
 
 #mj.learn_Node()
 
@@ -205,7 +225,8 @@ function learn_rand()
 end
 
 @testset "Node" begin
-    MyJulia.learn_Node()
+    #MyJulia.learn_Node()
+    learn_Node()
 end
 @testset "Basic" begin
     learn_resize!()
@@ -221,5 +242,9 @@ end
     learn_comprehension()
     learn_for_zip()
 end
+
+learn_exception()
+
+end # module MyJulia
 
 nothing
