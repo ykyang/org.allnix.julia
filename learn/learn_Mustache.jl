@@ -20,12 +20,36 @@ function learn_example_1()
         "in_ca" => true,
     )
     
-    text = render(tpl,db)
+    text = render(tpl,db) # this way
+    text = tpl(db)        # or this way
+    
     print(text)
 end
 
-learn_example_1()
+function learn_sections()
+    # a is replaced by function length
+    # one is the argument
+    tpl = mt"length(one)={{#a}}one{{/a}}"
+    text = render(tpl, Dict("a"=>length))
+    println(text)
 
+    # | indicates that value is substituted before invoking lambda
+    tpl = mt"""{{|lambda}}{{value}}{{/lambda}} dollars"""
+    fmt(txt) = string(round(parse(Float64,txt),digits=2)) # return type is string
+    text = render(tpl, Dict("value"=>1.23456, "lambda"=>fmt))
+    println(text)
 end
+
+function learn_inverted()
+    tpl = mt"{{^sec}}sec == false{{/sec}}"
+    text = render(tpl, Dict("sec"=>false))
+    println(text)
+end
+
+#learn_example_1()
+#learn_sections()
+learn_inverted()
+
+end # module MyMustache
 
 nothing
