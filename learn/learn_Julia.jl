@@ -32,6 +32,23 @@ Base.isless(x::Node, y::Node) = error("Unsupported operation")
 # isequal => ===
 #Base.isequal(x::Node, y::Node) = x.id == y.id
 
+"""
+
+Boolean product
+See pp.193 of Discrete Mathematics and Its Applications
+"""
+function product(A::Matrix{Bool}, B::Matrix{Bool})
+    # Check size(A)[2] == size(B)[1] ???
+    X = Matrix{Bool}(undef, size(A)[1], size(B)[2])
+    for i in 1:size(A)[1]
+        for j in 1:size(B)[2]
+            X[i,j] = any(A[i,:] .& B[:,j])
+        end
+    end
+
+    return X
+end
+
 
 function learn_Node()
     @test Node(7) == Node(7)
@@ -202,6 +219,46 @@ function learn_Serialization()
     @test node_deserialized == node
 end
 
+function learn_Matrix()
+    A = Matrix{Int64}(undef, 2, 2)
+    A .= [1 2; 
+          3 4;]
+    @test A == [1 2; 3 4;]
+    @test A[2,1] == 3
+    @test A[1,2] == 2
+    
+    A = Int64[1 2; 3 4] # Another way to init a matrix
+    @test A == [1 2; 3 4;]
+    @test A[2,1] == 3
+    @test A[1,2] == 2
+
+    B = Matrix{Bool}(undef, 2,2)
+    B .= [
+        1 1;
+        0 0;
+    ]
+    @test B == [true true; false false;]
+    @test B[2,1] == 0
+    @test B[1,2] == 1
+
+    B = Bool[true true; false false;]
+    @test B == [true true; false false;]
+    @test B[2,1] == false
+    @test B[1,2] == true
+
+    # pp.193 of Discrete Mathematics and Its Applications
+    # Example 9
+    C = Bool[0 0 1; 1 0 0; 1 1 0;]
+    C2 = product(C,C)
+    @test C2 == [1 1 0; 0 0 1; 1 0 1;]
+    C3 = product(C2,C)
+    @test C3 == [1 0 1; 1 1 0; 1 1 1;]
+    C4 = product(C3,C)
+    @test C4 == [1 1 1; 1 0 1; 1 1 1;]
+    C5 = product(C4,C)
+    @test C5 == [1 1 1; 1 1 1; 1 1 1;]
+end
+
 """
 
 See ``learn_Distributions.jl`` for more examples and
@@ -242,8 +299,11 @@ end
     learn_comprehension()
     learn_for_zip()
 end
+@testset "Matrix" begin
+    learn_Matrix()
+end
+#learn_exception()
 
-learn_exception()
 
 end # module MyJulia
 
