@@ -209,6 +209,17 @@ def learn_stop_words():
     tokens_without_stopwords = [x for x in tokens if x not in stop_words]
     print('tokens w/o stop words: {}'.format(tokens_without_stopwords))
 
+def learn_stop_words_2():
+    import nltk
+    nltk.download('stopwords')
+    stop_words = nltk.corpus.stopwords.words('english')
+    print('No. of stop words = {}'.format(len(stop_words)))
+    print('First 7 stop words = {}'.format(stop_words[:7]))
+    print('Single char stop words = {}'.format(
+        [sw for sw in stop_words if len(sw) == 1]
+    ))
+
+
 texts = [] # Store 2 strings
 texts.append(
     "Trust me, though, the words were on their way, and when "
@@ -244,6 +255,7 @@ text = "西安是一座舉世聞名的文化古城"
 
 ## 2.6.2 Extending your vocabulary with n-grams
 learn_stop_words()
+learn_stop_words_2()
 
 
 
