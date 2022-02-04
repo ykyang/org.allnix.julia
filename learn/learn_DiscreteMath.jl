@@ -8,7 +8,7 @@ Algorithm 4 The Bubble Sort on pp.208.
 
 Sort array `a` using bubble sort.
 """
-function bubblesort!(a)
+function bubble_sort!(a)
     n = length(a)
     for i in 1:n-1
         for j in 1:n-i
@@ -17,6 +17,29 @@ function bubblesort!(a)
             end
         end
     end
+
+    nothing
+end
+
+"""
+
+Algorithm 5 The Insertion Sort, pp.208
+"""
+function insertion_sort!(a)
+    for j in 2:length(a)
+        i = 1
+        while a[j] > a[i]
+            i += 1
+        end
+        # a[j] <= a[i], move a[j] to where a[i] is
+        m = a[j] # tmp storage
+        # shift a[i]..a[j-1] one position to the right
+        # this is easier to understand then the k stuff in the book
+        a[i+1:j] .= a[i:j-1] 
+        a[i] = m
+    end
+
+    nothing
 end
 
 """
@@ -43,13 +66,7 @@ using Test
 
 dm = DiscreteMath # short hand
 
-@testset "Bubble Sort" begin
-    a = [5,4,3,2,1]
 
-    b = copy(a)
-    dm.bubblesort!(b)
-    @test b == [1,2,3,4,5]
-end
 
 @testset "Boolean Product" begin
     # Example 9, pp.193
@@ -62,6 +79,22 @@ end
     @test C4 == [1 1 1; 1 0 1; 1 1 1;]
     C5 = dm.product(C4,C)
     @test C5 == [1 1 1; 1 1 1; 1 1 1;]
+end
+
+@testset "Bubble Sort" begin
+    a = [5,4,3,2,1]
+
+    b = copy(a)
+    dm.bubble_sort!(b)
+    @test b == [1,2,3,4,5]
+end
+
+@testset "Insertion Sort" begin
+    a = [5,4,3,2,1]
+
+    b = copy(a)
+    dm.insertion_sort!(b)
+    @test b == [1,2,3,4,5]
 end
 
 nothing
