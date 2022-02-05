@@ -4,6 +4,22 @@ module DiscreteMath
 
 """
 
+Boolean product on pp.193
+"""
+function product(A::Matrix{Bool}, B::Matrix{Bool})
+    # Check size(A)[2] == size(B)[1] ???
+    X = Matrix{Bool}(undef, size(A)[1], size(B)[2])
+    for i in 1:size(A)[1]
+        for j in 1:size(B)[2]
+            X[i,j] = any(A[i,:] .& B[:,j])
+        end
+    end
+
+    return X
+end
+
+"""
+
 Algorithm 4 The Bubble Sort on pp.208.
 
 Sort array `a` using bubble sort.
@@ -44,21 +60,49 @@ end
 
 """
 
-Boolean product on pp.193
+Algorithm 6 Navie String Matcher, pp.209.  Return indices where `p` matches
+substring of `t`.  That is `t` is the text and `p` is the pattern.
+
+Notice the returned indices is not the shifts.  Shifts is one less of indices.
 """
-function product(A::Matrix{Bool}, B::Matrix{Bool})
-    # Check size(A)[2] == size(B)[1] ???
-    X = Matrix{Bool}(undef, size(A)[1], size(B)[2])
-    for i in 1:size(A)[1]
-        for j in 1:size(B)[2]
-            X[i,j] = any(A[i,:] .& B[:,j])
+function string_match(t,p)
+    n = length(t)
+    m = length(p)
+    shifts = Int64[]
+    for s in 0:n-m # shift
+        j = 1
+        while (j<=m && t[s+j] == p[j])
+            j += 1
+        end
+        if j > m
+            push!(shifts, s)
         end
     end
 
-    return X
+    return shifts .+ 1
 end
 
+"""
 
+Algorithm 7 Cashier's Algorithm, pp.210.  Calculate making `cents` change with 
+quarters, dimes, nickels, and pennies, and using the least total number of coins.
+The argument `denominations` is a list of values of denominations, such as
+`[25,10,5,1]`.  Return number of coins for each denomination.
+"""
+function change(denominations, cents)
+    # denomations must be sorted from large to small
+    # number of coins for each denomation
+    counts = fill(Int64(0), length(denominations))
+    n = cents # remaining number of cents
+    for (i,denomination) in enumerate(denominations)
+        while n >= denomination
+            counts[i] += 1
+            n -= denomination
+        end
+    end
+
+    return counts
+end
 
 end # module DiscreteMath
 
@@ -97,4 +141,18 @@ end
     @test b == [1,2,3,4,5]
 end
 
+@testset "Navie String Matcher" begin
+    t = "eceyeye"
+    p = "eye"
+
+    inds = dm.string_match(t,p)
+    @test inds == [3,5]
+end
+
+@testset "Cashier's Algorithm" begin
+    # 67 cents in
+    # denomations of quarter, dime, nickle, penny
+    changes = dm.change([25, 10, 5, 1], 67)
+    @test changes == [2, 1, 1, 2]
+end
 nothing
