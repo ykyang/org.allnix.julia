@@ -1,4 +1,6 @@
 # Discrete Mathematics and its Application
+# See test_DiscreteMath.jl for testing functions.
+# See runtest_DiscreteMath.jl for running tests.
 
 module DiscreteMath
 
@@ -60,7 +62,9 @@ end
 
 """
 
-Algorithm 6 Navie String Matcher, pp.209.  Return indices where `p` matches
+Algorithm 6 Navie String Matcher, pp.209.  
+
+Return indices where `p` matches
 substring of `t`.  That is `t` is the text and `p` is the pattern.
 
 Notice the returned indices is not the shifts.  Shifts is one less of indices.
@@ -104,55 +108,57 @@ function change(denominations, cents)
     return counts
 end
 
+"""
+
+Algorithm 8 Greedy Algorithm for Scheduleing Talks.
+
+```
+df = DataFrame(
+        "topic" => ["Talk 1", "Talk 2", "Talk 3"],
+        "start" => [Time(8,00),  Time(9,00),  Time(11,00)],
+        "end"   => [Time(12,00), Time(10,00), Time(12,00)],
+    )
+```
+"""
+function schedule(df)
+    S = similar(df,0) # Copy df types without rows
+    pdf = sort(df, ["end"])
+    for row in eachrow(pdf)
+        if compatible(S, row["start"], row["end"])
+            push!(S, row)
+        end
+    end
+
+    return S
+end
+
+"""
+
+Test if the new talk with start time `s` and end time `e` is compatible
+with existing talks stored in `S`.  `S` is a DataFrame with columns of
+`topic`, `start`, `end`.
+"""
+function compatible(S, s, e)
+    if isempty(S)
+        return true
+    end
+    # The new start and end time cannot be within any talk
+    for row in eachrow(S)
+        start_time = row["start"]
+        end_time = row["end"]
+        if s > end_time 
+            return true
+        end
+        if e < start_time
+            return true
+        end
+    end
+
+    return false
+end
+
+export product, bubble_sort!, insertion_sort!, string_match, change,
+       schedule
+
 end # module DiscreteMath
 
-using Test
-
-dm = DiscreteMath # short hand
-
-
-
-@testset "Boolean Product" begin
-    # Example 9, pp.193
-    C = Bool[0 0 1; 1 0 0; 1 1 0;]
-    C2 = dm.product(C,C)
-    @test C2 == [1 1 0; 0 0 1; 1 0 1;]
-    C3 = dm.product(C2,C)
-    @test C3 == [1 0 1; 1 1 0; 1 1 1;]
-    C4 = dm.product(C3,C)
-    @test C4 == [1 1 1; 1 0 1; 1 1 1;]
-    C5 = dm.product(C4,C)
-    @test C5 == [1 1 1; 1 1 1; 1 1 1;]
-end
-
-@testset "Bubble Sort" begin
-    a = [5,4,3,2,1]
-
-    b = copy(a)
-    dm.bubble_sort!(b)
-    @test b == [1,2,3,4,5]
-end
-
-@testset "Insertion Sort" begin
-    a = [5,4,3,2,1]
-
-    b = copy(a)
-    dm.insertion_sort!(b)
-    @test b == [1,2,3,4,5]
-end
-
-@testset "Navie String Matcher" begin
-    t = "eceyeye"
-    p = "eye"
-
-    inds = dm.string_match(t,p)
-    @test inds == [3,5]
-end
-
-@testset "Cashier's Algorithm" begin
-    # 67 cents in
-    # denomations of quarter, dime, nickle, penny
-    changes = dm.change([25, 10, 5, 1], 67)
-    @test changes == [2, 1, 1, 2]
-end
-nothing
