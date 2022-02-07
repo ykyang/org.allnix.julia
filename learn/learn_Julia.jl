@@ -261,6 +261,16 @@ end
 
 """
 
+Print "01234543210"
+"""
+function learn_123()
+    for i in -5:5
+        print(5 - abs(i))
+    end
+end
+
+"""
+
 See ``learn_Distributions.jl`` for more examples and
 more advanced usage.
 """
@@ -304,6 +314,7 @@ end
 end
 #learn_exception()
 
+learn_123()
 
 end # module MyJulia
 
