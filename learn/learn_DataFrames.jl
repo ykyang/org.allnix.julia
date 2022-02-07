@@ -128,6 +128,15 @@ function learn_constructor()
 end
 
 """
+
+Get column types
+"""
+function learn_eltype()
+    df = simple_table()
+    @test [Float64, Float64, Float64] == eltype.(eachcol(df))
+end
+
+"""
 Create a empty DataFrame then fill row-by-row.
 """
 function learn_empty_constructor()
@@ -145,6 +154,12 @@ function learn_empty_constructor()
     @test [ 13.0,  17.0] == df[!, "cond"]
     @test ["H-1", "H-2"] == df[!, "name"]
     @test [    5,     7] == df[!, :count]
+
+    # Create empty data frame from existing DataFrame
+    df = similar(simple_table(), 0)
+    @test (0,3) == size(df)
+    @test ["A", "B", "C"] == names(df)
+    @test [Float64, Float64, Float64] == eltype.(eachcol(df))
 end
 
 function learn_csv()
@@ -477,6 +492,7 @@ end
     unsupported_DataFrame()
 
     learn_add_column()
+    learn_eltype()
     learn_get_column()
 
     learn_constructor()

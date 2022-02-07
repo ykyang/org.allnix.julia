@@ -27,8 +27,12 @@ using Dates
 
 # https://docs.julialang.org/en/v1/stdlib/Dates/#Constructors
 function learn_constructors()
+    # Partial construction
     @test DateTime(2013,1,1) == DateTime(2013)   # partial
     @test DateTime(2013,7,1) == DateTime(2013,7) # partial
+
+    # Formatter
+    @test DateTime(2022,02,05) == DateTime("2022-02-05", "yyyy-mm-dd")
 
     @test_throws ArgumentError DateTime(2013,2,29) # 29 out of range (1:28)
 
@@ -38,6 +42,11 @@ function learn_constructors()
 
     # Construct DateTime from Date
     @test DateTime(2020,1,1) == DateTime(Date(2020,1,1))
+
+    # Construct Time
+    @test Time(10,30,00) == Time("10:30")
+    @test Time(22,30,00) == Time("22:30")
+    @test Time(22,30,00) == Time("10:30PM", "HH:MMp") 
 end
 # https://docs.julialang.org/en/v1/stdlib/Dates/#Durations/Comparisons
 function learn_durations_comparisons()
@@ -222,6 +231,9 @@ function learn_arithemtic()
 
     # DateTime - DateTime = Millisecond
     @test isa(DateTime(2021,6,21) - DateTime(2021,6,18), Millisecond)
+
+    # Time - Time = Nanosecond
+    @show Time(10,00,01) - Time(10,00,00)
 
     # +
     @test Date(2021,6,21) == Date(2021,6,18) + Day(3)
