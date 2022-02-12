@@ -301,9 +301,13 @@ function learn_axes_step()
     x = [1,2,3,4]
     y = [1,2,3,4]
 
+    # use plot
+    # ax.plot(drawstyle="steps-pre")
+	# {'default', 'steps', 'steps-pre', 'steps-mid', 'steps-post'}, default: 'default'
+    
     fig,axs = plt.subplots(1,3, figsize=(9,3))
     ax = axs[1]
-    ax.step(x, y, where="pre")
+    ax.step(x, y, where="pre") # backward time difference
     ax.set_title("pre")
     
     ax = axs[2]
