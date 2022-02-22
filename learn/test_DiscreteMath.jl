@@ -72,5 +72,18 @@ function test_schedule()
     @test ["Talk 1", "Talk 3"] == rdf[!, "topic"]
 end 
 
+function test_closest_pair()
+    P = [1 1 1; 2 2 2; 3 3 3; 4 4 4]
+    ans,dist = DiscreteMath.closest_pair(P)
+    @test ans == [1,2]
+    @test dist == 3^0.5
+
+    P = [1 1 1; 3 3 3; 4 4 4]
+    ans,dist = DiscreteMath.closest_pair(P)
+    @test ans == [2,3]
+    @test dist == 3^0.5
+
+    nothing
+end
 
 end # module TestDiscreteMath

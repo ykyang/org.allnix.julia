@@ -27,4 +27,8 @@ end
     TestDiscreteMath.test_schedule()
 end
 
+@testset "Brute-Force Algorithm for Closest Pair of Points" begin
+    TestDiscreteMath.test_closest_pair()
+end
+
 nothing

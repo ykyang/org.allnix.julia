@@ -110,7 +110,7 @@ end
 
 """
 
-Algorithm 8 Greedy Algorithm for Scheduleing Talks.
+Algorithm 8 Greedy Algorithm for Scheduleing Talks, pp.212.
 
 ```
 df = DataFrame(
@@ -155,6 +155,41 @@ function compatible(S, s, e)
     end
 
     return false
+end
+
+"""
+    closest_pair(P)
+
+Algorithm 3 Brute-Force Algorithm for Closest Pair of Points, pp.238.
+
+Find the closest pair of points in `P`.  Each row of `P` is a point, and the
+number of rows in `P` is the number of points.  Return the row numbers of the
+two closes points, and the shortest distance.  
+If two pairs are the same minimum distance then the first
+pair is returned.
+
+# Example
+```
+julia> P = [1 1 1; 2 2 2; 3 3 3; 4 4 4]
+julia> ans,dist = DiscreteMath.closest_pair(P)
+julia> @test ans == [1,2]
+julia> @test dist == 3^0.5
+```
+"""
+function closest_pair(P)
+    min_pair =[0,0]
+    min_dist_sqr = typemax(Float64)
+    for i in 2:size(P)[1] # row
+        for j in 1:i-1    # compare 1:i-1 with i
+            dist_sqr = sum((P[j,:] .- P[i,:]).^2)
+            if dist_sqr < min_dist_sqr
+                min_pair = [j,i]
+                min_dist_sqr = dist_sqr
+            end
+        end
+    end
+
+    return min_pair, min_dist_sqr^0.5
 end
 
 export product, bubble_sort!, insertion_sort!, string_match, change,
