@@ -189,6 +189,11 @@ function learn_CartesianIndex()
     ind = CartesianIndex(1,2,3)
 
     @test (1,2,3) == ind.I
+
+    inds = [CartesianIndex(1,2,3), CartesianIndex(4,5,6)]
+    shifted_inds = [ind + CartesianIndex(1,0,0) for ind in inds]
+    @test shifted_inds == [CartesianIndex(2,2,3), CartesianIndex(5,5,6)]
+    
 end
 
 function learn_Serialization()
@@ -230,6 +235,70 @@ function learn_Matrix()
     @test B == [true true; false false;]
     @test B[2,1] == false
     @test B[1,2] == true
+end
+
+function learn_floor_fld_ceil_cld()
+    @test floor(11/3) == 3
+    @test floor(11/3) isa Float64
+    @test   fld(11,3) == 3
+    @test   fld(11,3) isa Int64
+
+    @test floor(-11/3) == -4
+    @test floor(-11/3) isa Float64
+    @test   fld(-11,3) == -4
+    @test   fld(-11,3) isa Int64
+
+    @test ceil(11/3) == 4
+    @test ceil(11/3) isa Float64
+    @test  cld(11,3) == 4
+    @test  cld(11,3) isa Int64
+
+    @test ceil(-11/3) == -3
+    @test ceil(-11/3) isa Float64
+    @test  cld(-11,3) == -3
+    @test  cld(-11,3) isa Int64
+end
+
+"""
+
+The Division Algorithm, `a = dq + r`, `q = a div d`, `r = a mod d`.
+The functions for `div` are `fld(a,d)` or `div(a,d,RoundDown)`.
+The function for `mod` is `mod(a,d)`.
+"""
+function learn_div_mod()
+    # Discrete Mathematics and Its Applications, pp.253
+
+    a = 101; d = 11; q = 9; r = 2;
+    # a   =  d*q + r
+    # 101 = 11*9 + 2
+    @test div( a,  d, RoundDown) == q
+    @test div(101,11, RoundDown) == 9
+    @test fld(a,d) == div(a,d,RoundDown) # from doc of func
+    @test div( a,  d)            == q
+    @test div(101,11)            == 9
+
+    @test mod(  a, d) == r
+    @test mod(a,d) == a - d*fld(a,d) # from doc of func
+    @test mod(101,11) == 2
+    @test a - d*q        == r
+    @test a - d*fld(a,d) == r
+
+    # Notice the use of RoundDown
+    a = -11; d = 3; q = -4; r = 1;
+    #   a=  d*q    + r
+    # -11 = 3*(-4) + 1
+    @test div( a,  d, RoundDown) == q
+    @test div(-11, 3, RoundDown) == -4  # Follow the definition in math
+    @test fld(a,d) == div(a,d,RoundDown) # from doc of func
+    @test div( a,  d)            == q + 1
+    @test div(-11, 3)            == -3  # Default RoundToZero
+    
+
+    @test mod(  a, d) == r
+    @test mod(a,d) == a - d*fld(a,d) # from doc of func
+    @test mod(-11, 3) == 1
+    @test a - d*q        == r
+    @test a - d*fld(a,d) == r
 end
 
 """
@@ -285,9 +354,13 @@ end
 @testset "Matrix" begin
     learn_Matrix()
 end
+@testset "Math" begin
+    learn_floor_fld_ceil_cld()
+    learn_div_mod()
+end
 #learn_exception()
+#learn_123()
 
-learn_123()
 
 end # module MyJulia
 
