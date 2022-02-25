@@ -261,7 +261,16 @@ end
 
 """
 
-The Division Algorithm, `a = dq + r`, `q = a div d`, `r = a mod d`.
+The Division Algorithm, 
+```
+a = dq + r
+q = a div d 
+r = a mod d
+
+0 ≤ r < d
+```
+
+
 The functions for `div` are `fld(a,d)` or `div(a,d,RoundDown)`.
 The function for `mod` is `mod(a,d)`.
 """

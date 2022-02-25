@@ -1,5 +1,8 @@
 import DSP
 import PlotlyJS
+using Random
+import PyPlot as plt
+
 
 pjs = PlotlyJS
 
@@ -79,4 +82,33 @@ function learn_smooth(;method=1)
     nothing
 end
 
-learn_smooth(method=2)
+function learn_simple()
+    Random.seed!(123)
+    no_x = 100 # number of points
+
+    x = range(0, stop=4π, length=no_x)
+
+    y_perfect = sin.(x) # y from function
+    # 0.1: scaling factor
+    # rand()-0.5: positive and negative shift
+    y_noise   = @. sin(x) + 0.2*(rand()-0.5) # 0 <= rand() < 1
+    #@show y_noise
+
+    win_len = 5 #9 # average window length, odd number please
+    w = ones(win_len)
+    padding = fld(win_len,2)
+
+    y_smooth = DSP.conv(y_noise, w/sum(w))
+    y_smooth = y_smooth[win_len-padding:end-padding]
+
+    fig, ax = plt.subplots()
+    ax.plot(x,y_perfect, )
+    ax.plot(x,y_noise, marker="o", markersize=2, linestyle="")
+    ax.plot(x,y_smooth)
+
+    nothing
+end
+#learn_smooth(method=2)
+learn_simple()
+
+nothing
