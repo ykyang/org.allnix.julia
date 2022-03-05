@@ -1,9 +1,21 @@
 # Use runtest_DiscreteMath.jl to run all tests.
 # Use function to run individual test.
+#   include()
+
 
 include("learn_DiscreteMath.jl")
 
+"""
+Use `runtest_DiscreteMath.jl` to run all tests.
+Use function from this module to run individual test.
+
+```julia-repl
+julia> include("test_DiscreteMath.jl")
+julia> TestDiscreteMath.test_product()
+```
+"""
 module TestDiscreteMath
+
 using Test
 using DataFrames
 using Dates
@@ -86,4 +98,15 @@ function test_closest_pair()
     nothing
 end
 
+function test_gcd()
+    @test DiscreteMath.gcd(91,287) == 7
+    @test DiscreteMath.gcd(287,91) == 7
+    
+    @test DiscreteMath.gcd(29,29)  == 29
+    @test DiscreteMath.gcd(28,28)  == 28
+    
+    @test DiscreteMath.gcd(2,0) == 2
+
+    nothing
+end
 end # module TestDiscreteMath

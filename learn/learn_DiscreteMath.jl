@@ -192,6 +192,38 @@ function closest_pair(P)
     return min_pair, min_dist_sqr^0.5
 end
 
+"""
+    gcd(a::Int64,b::Int64)
+
+Learn The Euclidean Algorithm, pp.283
+```
+a = bq + r
+gcd(a,b) == gcd(b,r)
+gcd(287,91)
+287 = 91 * 3 + 14
+91  = 14 * 6 + 7
+14  = 7 * 2  + 0
+```
+"""
+function gcd(a::Int64,b::Int64)
+    # a1 = a, b1 = b
+    #
+    # if b1 == 0 return a1
+    # a1 = b1q1 + r1
+    # a2 = b1, b2 = r1
+    # if b2 == 0, return a2
+    # a2 = b2q2 + r2
+    # a3 = b2, b3 = r2
+    # if b3 == 0, return a3
+    r = mod(a,b)
+    while r != 0
+        a,b = b,r
+        r = mod(a,b)    
+    end
+
+    return b
+end
+
 export product, bubble_sort!, insertion_sort!, string_match, change,
        schedule
 
