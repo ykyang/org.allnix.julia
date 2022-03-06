@@ -197,31 +197,101 @@ end
 
 Learn The Euclidean Algorithm, pp.283
 ```
-a = bq + r
+a = b⋅q + r
 gcd(a,b) == gcd(b,r)
 gcd(287,91)
 287 = 91 * 3 + 14
 91  = 14 * 6 + 7
 14  = 7 * 2  + 0
 ```
+Is this easier to understand?
+```
+gcd(r0, r1)
+
+For hand calculation,
+r0 = r1·q1 + r2 
+r1 = r2·q2 + r3
+r2 = r3·q3 + r4 
+
+For code,
+r0 = r1·q1 + r2
+r0 = r1, r1 = r2
+repeat until r1 == 0, return r0
+
+
+If need to store results in a arrays,
+j = 2:n
+r[0] = r[1]·q[1] + r[2]
+...
+r[j-2] = r[j-1]·q[j-1] + r[j]
+...
+r[n-2] = r[n-1]·q[n-1] + r[n]
+r[n-1] = r[n]·q[n]
+
+
+```
 """
-function gcd(a::Int64,b::Int64)
+function gcd(r0::Int64,r1::Int64)
+    # r0 = r1·q1 + r2
+    # r0 = r1, r1 = r2
+    # repeat until r1 == 0, return r0
+    #
+    
+    while r1 != 0
+        r2 = mod(r0,r1)
+        r0, r1 = r1, r2
+    end
+
+    return r0
+
     # a1 = a, b1 = b
     #
     # if b1 == 0 return a1
-    # a1 = b1q1 + r1
+    # a1 = b1·q1 + r1
     # a2 = b1, b2 = r1
+    #
     # if b2 == 0, return a2
     # a2 = b2q2 + r2
     # a3 = b2, b3 = r2
-    # if b3 == 0, return a3
-    r = mod(a,b)
-    while r != 0
-        a,b = b,r
-        r = mod(a,b)    
-    end
 
-    return b
+    # Old approach
+    # gcd(a::Int64,b::Int64)
+    # while b != 0
+    #     r = mod(a,b)
+    #     a,b = b,r
+    # end
+
+    # return a
+end
+"""
+
+Learn finding Bezout coefficients with backward Euclidean Algorithm,
+Example 17, on pp.286.
+
+```
+Bezout's Theorem
+gcd(a,b) = s·a + t·b
+
+s0 = 1, s1 = 0
+t0 = 0, t1 = 1
+
+j = 2
+s2 = s0 - q1·s1
+t2 = t0 - q1·t1
+
+j = 2:n
+s[j] = s[j-2] - q[j-1]*s[j-1]
+t[j] = t[j-2] - q[j-1]*t[j-1]
+
+
+a = 252, b = 198
+a1 = 252, b1 = 198
+
+a1 = 
+```
+"""
+function bezout_backward(a, b)
+
 end
 
 export product, bubble_sort!, insertion_sort!, string_match, change,

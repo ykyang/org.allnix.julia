@@ -99,13 +99,19 @@ function test_closest_pair()
 end
 
 function test_gcd()
+    @test DiscreteMath.gcd(2,0) == 2
+    @test DiscreteMath.gcd(0,2) == 2
+
     @test DiscreteMath.gcd(91,287) == 7
     @test DiscreteMath.gcd(287,91) == 7
+
+    @test DiscreteMath.gcd(414,662) == 2
+    @test DiscreteMath.gcd(662,414) == 2
     
     @test DiscreteMath.gcd(29,29)  == 29
     @test DiscreteMath.gcd(28,28)  == 28
     
-    @test DiscreteMath.gcd(2,0) == 2
+    
 
     nothing
 end
