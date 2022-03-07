@@ -290,7 +290,7 @@ a1 = 252, b1 = 198
 a1 = 
 ```
 """
-function bezout_backward(a, b)
+function gcd_backward(a, b)
 
 end
 
