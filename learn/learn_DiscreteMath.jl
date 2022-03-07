@@ -206,12 +206,16 @@ gcd(287,91)
 ```
 Is this easier to understand?
 ```
-gcd(r0, r1)
+gcd(r0,r1)
 
 For hand calculation,
 r0 = r1·q1 + r2 
 r1 = r2·q2 + r3
-r2 = r3·q3 + r4 
+r2 = r3·q3 + r4
+r3 = r4·q4 + r5
+r4 = r5·q5 + 0
+
+r5 = gcd(r0,r1) = gcd(r1,r2) = gcd(r2,r3) = gcd(r3,r4)
 
 For code,
 r0 = r1·q1 + r2
@@ -219,7 +223,7 @@ r0 = r1, r1 = r2
 repeat until r1 == 0, return r0
 
 
-If need to store results in a arrays,
+Store results in arrays, r, q
 j = 2:n
 r[0] = r[1]·q[1] + r[2]
 ...
@@ -292,6 +296,86 @@ a1 =
 """
 function gcd_backward(a, b)
 
+end
+
+"""
+
+Use the extended Euclidean algorithm to find Bezout coefficients, pp.286.
+```
+Bezout's Theorem
+gcd(a,b) = s·a + t·b
+
+s0 = 1, t0 = 0
+s1 = 0, t1 = 1
+
+j = 2
+s2 = s0 - q1·s1
+t2 = t0 - q1·t1
+j = 3
+s3 = s1 - q2·s2
+t3 = t1 - q2·t2
+
+j = 2:n
+s[j] = s[j-2] - q[j-1]*s[j-1]
+t[j] = t[j-2] - q[j-1]*t[j-1]
+```
+
+Using to Julia index
+```
+The Euclidean Algorithm, find gcd(r1,r2)
+r1 = r2·q2 + r3 # j = 3
+r2 = r3·q3 + r4 # j = 4
+r3 = r4·q4 + r5
+r4 = r5·q5 + r6 # j = 6
+r5 = r6·q6      # j = 7
+
+r6 = gcd(r1,r2) = r[j-1]
+
+j = 3:n
+r[j-2] = r[j-1]·q[j-1] + r[j]
+Solve q[j-1], r[j]
+
+s1 = 1, t1 = 0
+s2 = 0, t2 = 1
+
+j = 3
+s3 = s1 - q2·s2
+t3 = t1 - q2·t2
+
+j = 3:n
+s[j] = s[j-2] - q[j-1]*s[j-1]
+t[j] = t[j-2] - q[j-1]*t[j-1]
+
+
+```
+
+Return `gcd(r1,r2), s, t`
+"""
+function extended_euclidean_algorighm(r1::Int64,r2::Int64)
+    rs = Int64[r1, r2]
+    qs = Int64[-9999]
+    ss = Int64[1,0]
+    ts = Int64[0,1]
+
+    n = 0 # TODO: Fix me
+    for j = 3:1000
+        # q3 = fld(r1,r2)
+        q = fld(rs[j-2], rs[j-1]) # q[j-1]
+        r = mod(rs[j-2], rs[j-1]) # r[j]
+        push!(qs, q)
+        push!(rs, r)
+        s = ss[j-2] - qs[j-1]*ss[j-1] # s[j]
+        t = ts[j-2] - qs[j-1]*ts[j-1] # t[j]
+        push!(ss, s)
+        push!(ts, t)
+        if r == 0
+            n = j-1
+            break
+        end
+    end
+
+    @show rs
+    return (rs[n], ss[n], ts[n])
 end
 
 export product, bubble_sort!, insertion_sort!, string_match, change,

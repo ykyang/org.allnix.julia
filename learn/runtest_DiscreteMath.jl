@@ -31,4 +31,8 @@ end
     TestDiscreteMath.test_closest_pair()
 end
 
+@testset "GCD" begin
+    TestDiscreteMath.test_gcd()
+end
+
 nothing

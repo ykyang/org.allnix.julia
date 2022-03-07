@@ -89,16 +89,18 @@ function learn_simple()
     x = range(0, stop=4π, length=no_x)
 
     y_perfect = sin.(x) # y from function
+    @show y_perfect
     # 0.1: scaling factor
     # rand()-0.5: positive and negative shift
     y_noise   = @. sin(x) + 0.2*(rand()-0.5) # 0 <= rand() < 1
     #@show y_noise
 
-    win_len = 5 #9 # average window length, odd number please
+    win_len = 3 #9 # average window length, odd number please
     w = ones(win_len)
     padding = fld(win_len,2)
 
     y_smooth = DSP.conv(y_noise, w/sum(w))
+    @show y_smooth
     y_smooth = y_smooth[win_len-padding:end-padding]
 
     fig, ax = plt.subplots()

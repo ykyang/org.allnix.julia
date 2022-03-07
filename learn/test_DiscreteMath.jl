@@ -110,9 +110,8 @@ function test_gcd()
     
     @test DiscreteMath.gcd(29,29)  == 29
     @test DiscreteMath.gcd(28,28)  == 28
-    
-    
 
+    @test DiscreteMath.extended_euclidean_algorighm(252,198) == (18, 4, -5)
     nothing
 end
 end # module TestDiscreteMath
