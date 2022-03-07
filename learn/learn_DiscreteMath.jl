@@ -352,30 +352,38 @@ t[j] = t[j-2] - q[j-1]*t[j-1]
 Return `gcd(r1,r2), s, t`
 """
 function extended_euclidean_algorighm(r1::Int64,r2::Int64)
-    rs = Int64[r1, r2]
-    qs = Int64[-9999]
-    ss = Int64[1,0]
-    ts = Int64[0,1]
+    # rs = Int64[r1, r2]
+    # qs = Int64[-9999]
+    # ss = Int64[1,0]
+    # ts = Int64[0,1]
 
-    n = 0 # TODO: Fix me
-    for j = 3:1000
-        # q3 = fld(r1,r2)
-        q = fld(rs[j-2], rs[j-1]) # q[j-1]
-        r = mod(rs[j-2], rs[j-1]) # r[j]
-        push!(qs, q)
-        push!(rs, r)
-        s = ss[j-2] - qs[j-1]*ss[j-1] # s[j]
-        t = ts[j-2] - qs[j-1]*ts[j-1] # t[j]
-        push!(ss, s)
-        push!(ts, t)
-        if r == 0
-            n = j-1
-            break
-        end
+    # for j = 3:1000
+    #     # q3 = fld(r1,r2)
+    #     q = fld(rs[j-2], rs[j-1]) # q[j-1]
+    #     r = mod(rs[j-2], rs[j-1]) # r[j]
+    #     if r == 0    break    end
+    #     push!(qs, q)
+    #     push!(rs, r)
+    #     s = ss[j-2] - qs[j-1]*ss[j-1] # s[j]
+    #     t = ts[j-2] - qs[j-1]*ts[j-1] # t[j]
+    #     push!(ss, s)
+    #     push!(ts, t)
+    # end
+    # return (rs[end], ss[end], ts[end])
+
+    s1, s2 = 1, 0
+    t1, t2 = 0, 1
+    while r2 != 0
+        r3 = mod(r1,r2)
+        q2 = fld(r1,r2)
+        s3 = s1 - q2*s2
+        t3 = t1 - q2*t2
+
+        r1,r2 = r2,r3
+        s1,s2 = s2,s3
+        t1,t2 = t2,t3
     end
-
-    @show rs
-    return (rs[n], ss[n], ts[n])
+    return r1,s1,t1
 end
 
 export product, bubble_sort!, insertion_sort!, string_match, change,
