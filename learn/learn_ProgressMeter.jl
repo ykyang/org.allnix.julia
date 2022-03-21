@@ -31,8 +31,20 @@ function learn_update()
     finish!(p)
 end
 
+function learn_unknown_update()
+    n = 10
+    step = 1
+    prog = ProgressUnknown("Waiting for lock:")
+    for i in 1:n
+        ProgressMeter.update!(prog, i*1)
+        sleep(1.0)
+    end
+    ProgressMeter.finish!(prog)
+end
+
 #learn_basic()
 #learn_showvalues()
-learn_update()
+#learn_update()
+learn_unknown_update()
 
 nothing

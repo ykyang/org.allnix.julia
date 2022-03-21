@@ -53,3 +53,14 @@ end
 #import .A.AAB
 @test 42 == A.AAB.foo()
 
+## Use variable for shortcut
+x = A
+@test x.foo() == 17
+x = A.AA
+@test x.foo() == 19
+x = A.AB
+@test x.foo() == 23
+x = A.AAB
+@test x.foo() == 42
+nothing
+
