@@ -342,6 +342,13 @@ function learn_rand()
     @test size(Ans) == (50,)
 end
 
+function learn_reduce()
+    @test reduce(*, [2,3,4])          == 24
+    @test reduce(*, [2,3,4], init=-1) == -24
+    @test reduce(*, [], init=-1)      == -1
+    @test_throws MethodError reduce(*, [])  # [] must specify init
+end
+
 @testset "Node" begin
     #MyJulia.learn_Node()
     learn_Node()
@@ -367,6 +374,11 @@ end
     learn_floor_fld_ceil_cld()
     learn_div_mod()
 end
+
+@testset "Reduce" begin
+    learn_reduce()
+end
+
 #learn_exception()
 #learn_123()
 
