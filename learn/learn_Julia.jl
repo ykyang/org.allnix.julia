@@ -346,7 +346,7 @@ function learn_reduce()
     @test reduce(*, [2,3,4])          == 24
     @test reduce(*, [2,3,4], init=-1) == -24
     @test reduce(*, [], init=-1)      == -1
-    @test_throws MethodError reduce(*, [])  # [] must specify init
+    @test_throws MethodError reduce(*, [])  # must specify init
 end
 
 @testset "Node" begin
