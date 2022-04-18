@@ -1,3 +1,4 @@
+module LearnDates
 # See Julia Dates
 # https://docs.julialang.org/en/v1/stdlib/Dates/#stdlib-dates-api-1
 
@@ -7,7 +8,10 @@ using Logging
 logger = ConsoleLogger(stdout, Logging.Info)
 global_logger(logger)
 
+using DataFrames
+
 using Dates
+
 # https://docs.julialang.org/en/v1/stdlib/Dates/#Dates.DateFormat
 # y	        1996, 96	    Returns year of 1996, 0096
 # Y	        1996, 96	    Returns year of 1996, 0096. Equivalent to y
@@ -233,7 +237,7 @@ function learn_arithemtic()
     @test isa(DateTime(2021,6,21) - DateTime(2021,6,18), Millisecond)
 
     # Time - Time = Nanosecond
-    @show Time(10,00,01) - Time(10,00,00)
+    #@show Time(10,00,01) - Time(10,00,00)
 
     # +
     @test Date(2021,6,21) == Date(2021,6,18) + Day(3)
@@ -260,6 +264,95 @@ function learn_arithemtic()
     @test Date(2021,10,31) < DateTime(2021,10,31, 1)
 end
 
+
+"""
+
+Create a list of dates from `t1` to `t2` such that
+`[t1, lastdayofmonth(t1), lastdayofmonth(t1+Month(1)) ... t2]`
+
+"""
+function schedule(t1::DateTime, t2::DateTime)
+    df = DataFrame(
+        "date" => DateTime[],
+        "data" => Int64[],    # Data for testing
+    )
+
+    push!(df, [t1, 1])
+    push!(df, [t2, 10000])
+
+    endofmonths = lastdayofmonth.(collect(t1:Month(1):t2))
+    df2 = DataFrame(
+        "date" => endofmonths,
+        "data" => fill(Int64(-9999), size(endofmonths))
+    )
+
+    append!(df, df2)
+
+    # Remove rows later than t2
+    df = subset(df, :date => x -> x .<= t2)
+    # Remove duplicated rows (keep first occurance)
+    df = unique(df, :date)
+    # Sort
+    df = sort(df, [:date])
+end
+
+function learn_schedule_monthly()
+    # Create a monthly schedule to print at the end of each month
+    # start date
+    # lastdayofmonth()
+    # ...
+    # end data
+
+    # In addition, there are data associated with each date.
+    # Using a DataFrame seem like an easy solution.
+    
+
+
+    
+
+    # Create a list of date including t1, lastdayofmonth(t1), lastdayofmonth(t1+Month(1)) ... t2
+    # t1 = DateTime(2022,01,15) # Start date
+    # t2 = DateTime(2023,02,16) # End date
+
+    
+
+    df = schedule(DateTime(2022,01,01), DateTime(2023,02,19))
+    @test nrow(df) == 15
+    df = schedule(DateTime(2022,01,01), DateTime(2023,02,01))
+    @test nrow(df) == 15
+    df = schedule(DateTime(2022,01,01), DateTime(2023,02,15))
+    @test nrow(df) == 15
+    df = schedule(DateTime(2022,01,01), DateTime(2023,02,28))
+    @test nrow(df) == 15
+    
+
+    df = schedule(DateTime(2022,01,15), DateTime(2023,02,19))
+    @test nrow(df) == 15
+    df = schedule(DateTime(2022,01,15), DateTime(2023,02,01))
+    @test nrow(df) == 15
+    df = schedule(DateTime(2022,01,15), DateTime(2023,02,15))
+    @test nrow(df) == 15
+    df = schedule(DateTime(2022,01,15), DateTime(2023,02,28))
+    @test nrow(df) == 15
+
+    df = schedule(DateTime(2022,01,31), DateTime(2023,02,19))
+    @test nrow(df) == 14
+    df = schedule(DateTime(2022,01,31), DateTime(2023,02,01))
+    @test nrow(df) == 14
+    df = schedule(DateTime(2022,01,31), DateTime(2023,02,15))
+    @test nrow(df) == 14
+    df = schedule(DateTime(2022,01,31), DateTime(2023,02,28))
+    @test nrow(df) == 14
+
+
+    df = schedule(DateTime(2022,01,31), DateTime(2023,02,28))
+    @test nrow(df) == 14
+    
+    
+
+    return df
+end
+
 """
 Use to generate a list of dates for use in production schedule.
 """
@@ -272,27 +365,12 @@ end
 
 # generate a list of date
 
+# @test DateTime("2019-2-1T00:00:00") == DateTime(2019, 2, 1)
 
-@test DateTime("2019-2-1T00:00:00") == DateTime(2019, 2, 1)
+# @test DateTime(2020, 12, 29) > DateTime(2020, 12, 25)
+# io = stdout
+# io = devnull
+# print_dates(io)
 
-@test DateTime(2020, 12, 29) > DateTime(2020, 12, 25)
-io = stdout
-io = devnull
-print_dates(io)
 
-@testset "Base" begin
-    learn_constructors()
-    learn_durations_comparisons()
-    learn_accessor()
-    learn_query()
-    learn_time_type_period_arithmetic()
-    learn_adjuster()
-    learn_period_types()
-    learn_rounding()
-    learn_parse()
-    learn_print()
-    learn_arithemtic()
-
-    
-end
-nothing # suppress last line printout
+end # module LearnDates
