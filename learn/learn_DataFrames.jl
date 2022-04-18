@@ -1,3 +1,9 @@
+"""
+Use `runtest_DataFrames.jl` to run tests.  Load the file to run individual
+function.
+"""
+module LearnDataFrames
+
 using DataFrames
 #using UrlDownload
 using CSV, HTTP
@@ -395,6 +401,30 @@ function learn_transform_1()
     #@show df
 end
 
+function learn_unique()
+    df = DataFrame(i=1:4, x=[1,2,1,2])
+    # julia> df
+    # 4×2 DataFrame
+    #  Row │ i      x
+    #      │ Int64  Int64
+    # ─────┼──────────────
+    #    1 │     1      1
+    #    2 │     2      2
+    #    3 │     3      1
+    #    4 │     4      2
+
+    # Keep the first occurance of duplicated rows
+    udf = unique(df, :x)
+    # julia> udf
+    #  2×2 DataFrame
+    #  Row │ i      x
+    #      │ Int64  Int64
+    # ─────┼──────────────
+    #    1 │     1      1
+    #    2 │     2      2
+    @test udf[!,:i] == [1,2]
+end
+
 function learn_unstack()
 end
 
@@ -488,32 +518,10 @@ function test_simple_table2()
     @test eltype(df.B) == Float64
 end
 
-@testset "Base" begin
-    unsupported_DataFrame()
-
-    learn_add_column()
-    learn_eltype()
-    learn_get_column()
-
-    learn_constructor()
-    learn_empty_constructor()
-    #learn_csv()
-    learn_csv_io()
-
-    learn_groupby_1()
-    learn_hcat()
-
-    learn_rename()
-
-    learn_row_iteration()
-    learn_set_value()
-    learn_sort()
-    learn_transform_1()
-    learn_filter_1()
-
-    test_simple_table2()
-end
+# For using
+export learn_unique
 
 #df = learn_csv()
 
-nothing
+#nothing
+end
