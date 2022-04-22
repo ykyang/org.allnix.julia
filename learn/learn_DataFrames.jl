@@ -300,6 +300,7 @@ end
 function learn_row_iteration()
     df = simple_table()
     for row in eachrow(df)
+        # @show A,B,C = Tuple(row)
         # @show typeof(row)
         # @show row["A"]
     end

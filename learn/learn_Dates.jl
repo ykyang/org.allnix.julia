@@ -280,7 +280,8 @@ function schedule(t1::DateTime, t2::DateTime)
     push!(df, [t1, 1])
     push!(df, [t2, 10000])
 
-    endofmonths = lastdayofmonth.(collect(t1:Month(1):t2))
+    #endofmonths = lastdayofmonth.(collect(t1:Month(1):t2))
+    endofmonths = lastdayofmonth.(t1:Month(1):t2)
     df2 = DataFrame(
         "date" => endofmonths,
         "data" => fill(Int64(-9999), size(endofmonths))
