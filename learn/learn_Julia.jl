@@ -349,6 +349,12 @@ function learn_reduce()
     @test_throws MethodError reduce(*, [])  # must specify init
 end
 
+function learn_types()
+    supertype(Int64)
+    supertypes(Int64)
+    subtypes(Real)
+end
+
 @testset "Node" begin
     #MyJulia.learn_Node()
     learn_Node()
