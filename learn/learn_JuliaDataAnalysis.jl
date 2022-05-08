@@ -5,6 +5,7 @@
 # k-times winsorized mean
 
 module JuliaDataAnalysis
+using Logging
 
 function learn_memory_layout()
     # https://livebook.manning.com/book/julia-for-data-analysis/chapter-2/v-3/23
@@ -21,11 +22,18 @@ function learn_types()
     @show [1,2,3] isa Vector{Int}
 end
 
+function learn_ch2()
+    # https://livebook.manning.com/book/julia-for-data-analysis/chapter-2/v-3/87
+    @show (0.1+0.2) == 0.3
+    @show isapprox(0.1+0.2, 0.3)
+end
+
 current_logger = global_logger()
 global_logger(ConsoleLogger(stdout, Logging.Info))
 
 learn_memory_layout()
 learn_types()
+learn_ch2()
 
 global_logger(current_logger)
 end
