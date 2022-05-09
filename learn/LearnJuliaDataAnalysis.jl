@@ -59,7 +59,14 @@ function learn_ch2()
             y[end-i+1] = y[end-k]
         end
         @test y == [3,3,5,7,7]
+        s = 0
+        for v in y
+            s += v
+        end
+        @test s == 25
+        @test s/length(y) == 5
     end
+
 end
 
 current_logger = global_logger()
