@@ -7,6 +7,11 @@
 module LearnJuliaDataAnalysis
 using Logging
 using Test
+using InteractiveUtils # supertypes()
+using DataStructures
+
+include("Learn.jl")
+using .Learn
 
 function learn_memory_layout()
     # https://livebook.manning.com/book/julia-for-data-analysis/chapter-2/v-3/23
@@ -51,6 +56,8 @@ function learn_ch2()
     # ( ; )
 
     ## 2.3.4 A first approach to calculating the winsorized mean
+    
+    
     let x=[8,3,1,5,7], k=1 
         y = sort(x)
         @test y == [1,3,5,7,8]
@@ -67,7 +74,112 @@ function learn_ch2()
         @test s/length(y) == 5
     end
 
+    
+    ## 2.4 Defining functions
+
+
+    let ## Anonymous functions
+        @test map(x->x^2, [1,2,3]) == [1,4,9]
+        @test sum(x->x^2, [1,2,3]) == 14
+    end
+
+    let # do blocks
+        Ans = sum([1,2,3]) do x # This is the first argument function
+            x^2
+        end
+        @test Ans == 14
+    end
+
+    function winsorized_mean(x, k)
+        y = sort(x)
+        for i in 1:k
+            y[i] = y[k+1]
+            y[end-i+1] = y[end - k ]
+        end
+        s = 0
+        for v in y
+            s += v
+        end
+        return s/length(y)
+    end
+
+    # A simplified definition of function computing the winsorized mean
+    let
+        @test winsorized_mean([8,3,1,5,7], 1) == 5 
+    end
+
+    ## Variable scoping rules
+
+    ## Deciding what type restrictions to put in method signature
+
 end
+
+
+
+function learn_ch3()
+    ## 3.1 Understand Julia's type system
+
+    ## Finding all supertypes of a type
+    # print_supertypes(Int64)
+
+    ## Finding all subtypes of a type
+    # print_subtypes(Integer, 0)
+
+    ## Union of types
+    # Union{String, Missing}
+
+    ## Deciding what type restrictions to put in method signature
+    # print_supertypes(typeof([1.0,2.0,3.0]))
+    # print_supertypes(typeof(1:3))
+    @test AbstractVector == typejoin(typeof([1.0,2.0,3.0]), typeof(1:3))
+
+
+    ## 3.2 Multiple dispatch in Julia
+
+
+    ## Rules of defining methods for a function
+    fun(x) = println("unsupported type")
+    fun(x::Number) = println("a number was passed")
+    fun(x::Float64) = println("a Float64 value")
+    # fun("hello!")
+    # fun(1)
+    # fun(1.0)
+end
+
+function print_supertypes(T)
+    map(println, supertypes(T))
+
+    nothing
+end
+
+function print_subtypes(T, indent_level=0)
+    println(" " ^ indent_level, T)
+    for S in subtypes(T)
+        print_subtypes(S, indent_level+2)
+    end
+   
+
+    # OK
+    # stack = Stack{Any}()
+    # push!(stack, (T,indent_level))
+    # while !isempty(stack)
+    #     (t,indent) = pop!(stack)
+    #     println(" " ^ indent, t)
+    #     for subtype in reverse(subtypes(t))
+    #         push!(stack, (subtype, indent+2))
+    #     end
+    # end
+
+    # Wrong
+    # que = Queue{Tuple}()
+    # enqueue!(que, (T, indent_level))
+    # while !isempty(que)
+    #     (t,indent) = dequeue!(que)
+    #     println(" " ^ indent, t)
+    #     map(x->enqueue!(que,x), [(i,indent+2) for i in subtypes(t)])
+    # end
+end
+
 
 current_logger = global_logger()
 global_logger(ConsoleLogger(stdout, Logging.Info))
