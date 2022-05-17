@@ -10,6 +10,7 @@ global_logger(ConsoleLogger(stdout, Logging.Info))
 @testset "Chapters" begin
     LearnJuliaDataAnalysis.learn_ch2()
     LearnJuliaDataAnalysis.learn_ch3()
+    LearnJuliaDataAnalysis.learn_ch4()
 end
 
 global_logger(current_logger)

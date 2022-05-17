@@ -10,6 +10,9 @@ using Test
 using InteractiveUtils # supertypes()
 using DataStructures
 
+using StatsBase      # Chapter 3
+using BenchmarkTools # Chapter 3
+
 include("Learn.jl")
 using .Learn
 
@@ -114,8 +117,6 @@ function learn_ch2()
 
 end
 
-
-
 function learn_ch3()
     ## 3.1 Understand Julia's type system
 
@@ -138,12 +139,62 @@ function learn_ch3()
 
 
     ## Rules of defining methods for a function
-    fun(x) = println("unsupported type")
-    fun(x::Number) = println("a number was passed")
-    fun(x::Float64) = println("a Float64 value")
-    # fun("hello!")
-    # fun(1)
-    # fun(1.0)
+    fun(x)          = "unsupported type"
+    fun(x::Number)  = "a number was passed"
+    fun(x::Float64) = "a Float64 value"
+    # showrepl(methods(fun))
+    @test fun("hello!") == "unsupported type"
+    @test fun(1)        == "a number was passed"
+    @test fun(1.0)      == "a Float64 value"
+
+    ## Method ambiguity problem
+
+    ## Improved implementation of winsorized mean
+    # See winsorized_mean_ch3()
+    @test winsorized_mean_ch3([8,3,1,5,7], 1) == 5.0
+    @test winsorized_mean_ch3(1:10, 2) == 5.5
+    @test_throws MethodError   winsorized_mean_ch3(1:10, "a")
+    @test_throws MethodError   winsorized_mean_ch3(10, 1)
+    @test_throws ArgumentError winsorized_mean_ch3(1:10, -1)
+    @test_throws ArgumentError winsorized_mean_ch3(1:10, 5)
+
+
+    ## 3.3 Working with packages and modules
+
+    ## How can packages be used in Julia?
+
+    ## Using the StatsBase.jl package to compute winsorized mean
+    @test collect(winsor([8,3,1,5,7], count=1)) == [7,3,3,5,7]
+    @test mean(winsor([8,3,1,5,7], count=1)) == 5.0
+    @test collect(winsor([1,3,5,7,8],prop=0.20)) == [3,3,5,7,7]
+
+
+    ## Using marcors
+    x = rand(10^6)
+    # showrepl(@benchmark winsorized_mean_ch3($x, 10^5))
+    # @btime winsorized_mean_ch3($x, 10^5)
+    # @edit winsor(x, count=10^5)
+   
+    ## EXERCISE 3.1
+    let x = 1:10^6
+        y = collect(x)
+        # @btime sort($x)
+        # @btime sort($y)
+    end
+end
+
+function winsorized_mean_ch3(x::AbstractVector, k::Integer)
+    # https://livebook.manning.com/book/julia-for-data-analysis/chapter-3/v-3/74
+    if k < 0 throw(ArgumentError("k must be non-negative")) end
+    if !(2*k < length(x)) throw(ArgumentError("k is too large")) end
+
+    y = sort!(collect(x))
+    for i in 1:k
+        y[i] = y[k+1]
+        y[end-k+i] = y[end-k]
+    end
+
+    return sum(y)/length(y)
 end
 
 function print_supertypes(T)
@@ -180,6 +231,28 @@ function print_subtypes(T, indent_level=0)
     # end
 end
 
+function learn_ch4()
+    ## 4.1 Working with arrays
+
+
+    ## 4.1.1 Getting the data into a matrix
+    aq = [10.0   8.04  10.0  9.14  10.0   7.46   8.0   6.58
+        8.0   6.95   8.0  8.14   8.0   6.77   8.0   5.76
+        13.0   7.58  13.0  8.74  13.0  12.74   8.0   7.71
+        9.0   8.81   9.0  8.77   9.0   7.11   8.0   8.84
+        11.0   8.33  11.0  9.26  11.0   7.81   8.0   8.47
+        14.0   9.96  14.0  8.1   14.0   8.84   8.0   7.04
+        6.0   7.24   6.0  6.13   6.0   6.08   8.0   5.25
+        4.0   4.26   4.0  3.1    4.0   5.39  19.0  12.50
+        12.0  10.84  12.0  9.13  12.0   8.15   8.0   5.56
+        7.0   4.82   7.0  7.26   7.0   6.42   8.0   7.91
+        5.0   5.68   5.0  4.74   5.0   5.73   8.0   6.89]
+    @test size(aq) == (11,8)
+    @test size(aq,1) == 11
+    @test size(aq,2) == 8
+
+    ## 4.2 Mapping key-value pairs with dictionaries
+end
 
 current_logger = global_logger()
 global_logger(ConsoleLogger(stdout, Logging.Info))
@@ -189,4 +262,4 @@ global_logger(ConsoleLogger(stdout, Logging.Info))
 # learn_ch2()
 
 global_logger(current_logger)
-end
+end # LearnJuliaDataAnalysis
