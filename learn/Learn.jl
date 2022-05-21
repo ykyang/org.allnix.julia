@@ -12,5 +12,12 @@ function showrepl(x;io=stdout)
     println(io)
 end
 
-export showrepl
+# macro replshow(x)
+#     return :( 
+#         show(stdout, "text/plain", repr(begin local value = $(esc(x)) end));
+#         println(stdout);
+#     )
+# end
+
+export showrepl, @replshow
 end
