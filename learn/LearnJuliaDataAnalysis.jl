@@ -183,6 +183,8 @@ function learn_ch3()
         # @btime sort($x)
         # @btime sort($y)
     end
+
+    ## 3.4 Using macros
 end
 
 function winsorized_mean_ch3(x::AbstractVector, k::Integer)
@@ -314,11 +316,43 @@ function learn_ch4()
 
     ## 4.1.6 Fitting a linear regression
     let
+        # x = A\B solve
+        # Ax= B when A is square
+        # norm(A*x - B)
         y = aq[:,2]
-        #X = 
+        X = [ones(axes(y,1)) aq[:,1]]
+        #@show X\y
+    end
+    let
+        n = axes(aq,1)
+        Ans = [[ones(n) aq[:,i]] \ aq[:,j] for (i,j) in zip(1:2:7,2:2:8)]
+        showrepl(Ans)
     end
 
+    # Coefficient of determination, R²
+    # R² = 1 - RSS/TSS
+    # RSS = sum of squares of residuals
+    # TSS = total sum of squares
+    """
+    x feature, y target
+    """
+    function R²(x,y) # Coef of det of error
+        X = [ones(axes(x,1)) x]
+        model = X \ y
+        prediction = X*model
+        error = y - prediction
 
+        SS_res = sum(v->v^2, error)
+        mean_y = mean(y)
+        SS_tot = sum(v->(v-mean_y)^2, y)
+        return 1 - SS_res/SS_tot
+    end
+    let
+        Ans = [R²(aq[:,i],aq[:,j]) for (i,j) in zip(1:2:7,2:2:8)]
+        showrepl(Ans)
+    end
+
+    ## 4.1.7 Plotting the Anscombe's quartet data
 
 
     ## 4.2 Mapping key-value pairs with dictionaries
