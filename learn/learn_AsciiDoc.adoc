@@ -1,0 +1,53 @@
+// asciidoctorj  -b html5 -d article -o learn_AsciiDoc.html learn_AsciiDoc.adoc
+= Hello, AsciiDoc!
+:toc: left
+:source-highlighter: pygments
+:stem: latexmath
+
+This is an interactive editor.
+
+== Section Title
+* A list item
+* Another list item `code`
+
+[source,julia,numbered]
+----
+println("Hello")
+----
+
+*bold*
+**b**old
+_italic_
+`monospace`
+`+http://localhost+`
+https://asciidoctor.org[Asciidoctor]
+
+----
+Quoted text.
+----
+
+    $ gem install
+
+....
+$ gem install
+....
+
+'''
+
+The '90s popularized  "`grunge`".
+
+[latexmath]
+++++
+\lambda=\sqrt{4} = 2 
+++++
+
+latexmath:[C = \alpha + \beta Y^{\gamma} + \epsilon]
+
+[cols="1,1"]
+|===
+|Header 1 | Header 2
+
+|Cell in column 1, row 1|Cell in column 2, row 1
+|Cell in column 1, row 2|Cell in column 2, row 2
+|Cell in column 1, row 3|Cell in column 2, row 3
+|===

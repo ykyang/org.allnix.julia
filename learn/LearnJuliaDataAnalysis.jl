@@ -13,7 +13,9 @@ using DataStructures
 using StatsBase      # Chapter 3
 using BenchmarkTools # Chapter 3
 
+
 using Statistics # Chapter 4
+using Plots      # 4.1.7
 
 include("Learn.jl")
 using .Learn
@@ -326,7 +328,7 @@ function learn_ch4()
     let
         n = axes(aq,1)
         Ans = [[ones(n) aq[:,i]] \ aq[:,j] for (i,j) in zip(1:2:7,2:2:8)]
-        showrepl(Ans)
+        #showrepl(Ans)
     end
 
     # Coefficient of determination, R²
@@ -349,13 +351,91 @@ function learn_ch4()
     end
     let
         Ans = [R²(aq[:,i],aq[:,j]) for (i,j) in zip(1:2:7,2:2:8)]
-        showrepl(Ans)
+        #showrepl(Ans)
     end
 
     ## 4.1.7 Plotting the Anscombe's quartet data
-
+    # plot(
+    #     scatter(aq[:,1], aq[:,2]; legend=false),
+    #     scatter(aq[:,3], aq[:,4]; legend=false),
+    #     scatter(aq[:,5], aq[:,6]; legend=false),
+    #     scatter(aq[:,7], aq[:,8]; legend=false)
+    # )
+    plot([scatter(aq[:,i], aq[:,i+1]; legend=false) for i in 1:2:7]...)
 
     ## 4.2 Mapping key-value pairs with dictionaries
+    ## The Sicherman puzzle
+    ## Creating a dictionary
+    two_std = let 
+        two_std = Dict{Int,Int}()
+        for i in 1:6, j in 1:6
+            s = i+j
+            two_std[s] = get(two_std, s, 0) + 1
+        end
+        #showrepl(two_std)
+        scatter(collect(keys(two_std)), collect(values(two_std));
+            legend=false, xaxis=2:12
+        )
+        
+        two_std
+    end
+    ## Solving the Sicherman puzzle
+    let
+        all_dice = [
+            [1, x2, x3, x4, x5, x6]
+            for x2 in 2:11 for x3 in x2:11 for x4 in x3:11 for x5 in x4:11
+                for x6 in x5:11
+        ]
+        #showrepl(all_dice)
+
+        # for d1 in all_dice, d2 in all_dice
+        #     test = Dict{Int,Int}()
+        #     for i in d1, j in d2
+        #         s = i+j
+        #         test[s] = get(test, s, 0) + 1
+        #     end
+        #     if test == two_std
+        #         println(d1, " ", d2)
+        #     end
+        # end
+        
+        # [1, 2, 2, 3, 3, 4] [1, 3, 4, 5, 6, 8]
+    end
+    ## Exercise 4.2
+    #test_dice()
+
+    ## 4.3 Putting structure to your data using named tuples
+
+    ## 4.3.1 Defining named tuples and accessing their contents
+    let
+        dataset1 = (x=aq[:,1], y=aq[:,2])
+        showrepl(dataset1)
+    end
+
+    nothing
+end
+function dice_distribution(d1, d2)
+    rolls = Dict{Int,Int}()
+    for i in d1, j in d2
+        s = i+j
+        rolls[s] = get(rolls, s, 0) + 1
+    end
+
+    return rolls
+end
+function test_dice()
+    two_std = dice_distribution(1:6, 1:6)
+    all_dice = [
+        [1, x2, x3, x4, x5, x6]
+        for x2 in 2:11 for x3 in x2:11 for x4 in x3:11 for x5 in x4:11
+            for x6 in x5:11
+    ]
+    for d1 in all_dice, d2 in all_dice
+        test = dice_distribution(d1,d2)
+        if test == two_std
+            println(d1, " ", d2)
+        end
+    end
 end
 
 current_logger = global_logger()

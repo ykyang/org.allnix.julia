@@ -11,6 +11,7 @@ Welcome to Z-Corp's documentation!
    :caption: Contents:
 
    myst
+   rest
 
 
 Indices and tables
