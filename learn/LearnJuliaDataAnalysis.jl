@@ -16,6 +16,9 @@ using BenchmarkTools # Chapter 3
 
 using Statistics # Chapter 4
 using Plots      # 4.1.7
+#pyplot()
+# use display() to show plots
+using GLM        # 4.3.2
 
 include("Learn.jl")
 using .Learn
@@ -237,6 +240,20 @@ function print_subtypes(T, indent_level=0)
     # end
 end
 
+function aq_data()
+    return [10.0   8.04  10.0  9.14  10.0   7.46   8.0   6.58
+          8.0   6.95   8.0  8.14   8.0   6.77   8.0   5.76
+          13.0   7.58  13.0  8.74  13.0  12.74   8.0   7.71
+          9.0   8.81   9.0  8.77   9.0   7.11   8.0   8.84
+          11.0   8.33  11.0  9.26  11.0   7.81   8.0   8.47
+          14.0   9.96  14.0  8.1   14.0   8.84   8.0   7.04
+          6.0   7.24   6.0  6.13   6.0   6.08   8.0   5.25
+          4.0   4.26   4.0  3.1    4.0   5.39  19.0  12.50
+          12.0  10.84  12.0  9.13  12.0   8.15   8.0   5.56
+          7.0   4.82   7.0  7.26   7.0   6.42   8.0   7.91
+          5.0   5.68   5.0  4.74   5.0   5.73   8.0   6.89]
+end
+
 function learn_ch4()
     ## 4.1 Working with arrays
 
@@ -409,8 +426,42 @@ function learn_ch4()
     ## 4.3.1 Defining named tuples and accessing their contents
     let
         dataset1 = (x=aq[:,1], y=aq[:,2])
-        showrepl(dataset1)
+        #showrepl(dataset1)
+        data = (
+            set1=(x=aq[:,1], y=aq[:,2]),
+            set2=(x=aq[:,3], y=aq[:,4]),
+            set3=(x=aq[:,5], y=aq[:,6]),
+            set4=(x=aq[:,7], y=aq[:,8]),
+        )
+        #showrepl(data)
     end
+
+    ## 4.3.2 Analyzing Anscombe's quartet data stored in a named tuple
+    let
+        data = (
+            set1=(x=aq[:,1], y=aq[:,2]),
+            set2=(x=aq[:,3], y=aq[:,4]),
+            set3=(x=aq[:,5], y=aq[:,6]),
+            set4=(x=aq[:,7], y=aq[:,8]),
+        )
+        Ans = map(s -> mean(s.x), data)
+        @test Ans isa NamedTuple
+        #showrepl(Ans)
+        Ans = map(s -> cor(s.x,s.y), data)
+        #showrepl(Ans)
+        model = lm(@formula(y ~ x), data.set1)
+        #showrepl(model)
+        Ans = r2(model)
+        #showrepl(Ans)
+
+        ## Exercise 4.3
+        display(plot([scatter(s.x,s.y;legend=false) for s in data]...))
+        # for s in data
+        #     scatter(s.x,s.y;legend=false)
+        # end
+    end
+
+    ## 4.3.3 Understanding composite types and mutability of values in Julia
 
     nothing
 end
@@ -438,12 +489,54 @@ function test_dice()
     end
 end
 
+function learn_ch5()
+    ## 5.1 Vectorizing your code using broadcasting
+    ## 5.1.1 Syntax and meaning of boradcasting in Julia
+    let
+        x = [1 2 3] # 1x3
+        y = [1,2,3] # 3x1
+        @test x*y == [14]
+        a = [1,2,3]
+        b = [4,5,6]
+        @test a.*b == [4,10,18]
+        @test map(*, a, b) == [4,10,18]
+        ## eachindex()
+        @test [a[i]*b[i] for i in eachindex(a,b)] == [4,10,18]
+    end
+    ## 5.1.2 Expansion of length-1 dimensions in broadcasting
+    let
+        @test [1,2,3] .^ 2 == [1,4,9]
+        @test [1,2,3] .* [1 2 3] == [
+            1 2 3
+            2 4 6
+            3 6 9
+        ]
+        Ans = ["x", "y", "z"] .=> [sum minimum maximum]
+        #showrepl(Ans)
+        @test abs.([1,-2,3,-4]) == [1,2,3,4]
+        @test string(1,2,3) == "123"
+        @test string.("x", 1:3) == ["x1", "x2", "x3"]
+
+        f(i::Int) = string("Got integer ", i)
+        f(s::String) = string("Got string ", s)
+        #showrepl(f.([1, "1"]))
+    end
+    ## 5.1.3 Protection of collections from being broadcasted over
+    let
+        @test in.([1,3,5], Ref([1,2,3,4])) == [true,true,false]
+        ## BitMatrix display as 0s, 1s
+        showrepl(isodd.([1,2,3,4].*[1 2 3 4]))
+    end
+end
+
 current_logger = global_logger()
 global_logger(ConsoleLogger(stdout, Logging.Info))
 
 # learn_memory_layout()
 # learn_types()
 # learn_ch2()
+# learn_ch4()
+learn_ch5()
 
 global_logger(current_logger)
 end # LearnJuliaDataAnalysis
