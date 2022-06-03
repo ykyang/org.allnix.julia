@@ -271,6 +271,7 @@ function learn_ch4()
           12.0  10.84  12.0  9.13  12.0   8.15   8.0   5.56
           7.0   4.82   7.0  7.26   7.0   6.42   8.0   7.91
           5.0   5.68   5.0  4.74   5.0   5.73   8.0   6.89]
+    aq = aq_data()
     @test size(aq) == (11,8)
     @test size(aq,1) == 11
     @test size(aq,2) == 8
@@ -338,6 +339,17 @@ function learn_ch4()
         # x = A\B solve
         # Ax= B when A is square
         # norm(A*x - B)
+        """
+        | 1  x1 |  * | c |   | y1 |
+        | 1  x2 |    | a | = | y2 |
+        | ...   |            | .. |
+        | 1  x3 |            | y3 |
+
+        Minimize
+        c + a*x1 - y1 = e1
+        c + a*x2 - y2 = e2
+
+        """
         y = aq[:,2]
         X = [ones(axes(y,1)) aq[:,1]]
         #@show X\y
@@ -378,7 +390,7 @@ function learn_ch4()
     #     scatter(aq[:,5], aq[:,6]; legend=false),
     #     scatter(aq[:,7], aq[:,8]; legend=false)
     # )
-    plot([scatter(aq[:,i], aq[:,i+1]; legend=false) for i in 1:2:7]...)
+    # display(plot([scatter(aq[:,i], aq[:,i+1]; legend=false) for i in 1:2:7]...))
 
     ## 4.2 Mapping key-value pairs with dictionaries
     ## The Sicherman puzzle
@@ -455,7 +467,7 @@ function learn_ch4()
         #showrepl(Ans)
 
         ## Exercise 4.3
-        display(plot([scatter(s.x,s.y;legend=false) for s in data]...))
+        # display(plot([scatter(s.x,s.y;legend=false) for s in data]...))
         # for s in data
         #     scatter(s.x,s.y;legend=false)
         # end
@@ -525,8 +537,48 @@ function learn_ch5()
     let
         @test in.([1,3,5], Ref([1,2,3,4])) == [true,true,false]
         ## BitMatrix display as 0s, 1s
-        showrepl(isodd.([1,2,3,4].*[1 2 3 4]))
+        #showrepl(isodd.([1,2,3,4].*[1 2 3 4]))
     end
+    ## Exercise 5.1
+    let
+        Ans = parse.(Int, ["1", "2", "3"])
+        @test Ans == [1,2,3]
+    end
+    ## 5.1.4 Analyzing Anscombe's quartet data using broadcasting
+    let
+        aq = aq_data()
+        ## eachcol
+        Ans = mean.(eachcol(aq))
+        #showrepl(Ans)
+    end
+    """
+    Given x, y, solve c, a where
+
+        | 1  x1 |  * | c |   | y1 |
+        | 1  x2 |    | a | = | y2 |
+        | ...   |            | .. |
+        | 1  x3 |            | y3 |
+
+        Minimize
+        c + a*x1 - y1 = e1
+        c + a*x2 - y2 = e2
+
+    """
+    function R2(x, y)
+        X = [ones(length(y)) x]
+        model = X \ y
+        #showrepl(model)
+        pred = X * model
+        SS_res = sum( (y .- pred) .^ 2 )
+        SS_tot = sum( (y .- mean(y)) .^ 2 )
+        return 1 - SS_res/SS_tot
+    end
+    let
+        aq = aq_data()
+        Ans = [R2(aq[:,i],aq[:,j]) for (i,j) in zip(1:2:7,2:2:8)]
+        #showrepl(Ans)
+    end
+    ## 5.2 Defining methods with parametric types
 end
 
 current_logger = global_logger()
@@ -535,7 +587,7 @@ global_logger(ConsoleLogger(stdout, Logging.Info))
 # learn_memory_layout()
 # learn_types()
 # learn_ch2()
-# learn_ch4()
+learn_ch4()
 learn_ch5()
 
 global_logger(current_logger)
