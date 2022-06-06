@@ -579,6 +579,32 @@ function learn_ch5()
         #showrepl(Ans)
     end
     ## 5.2 Defining methods with parametric types
+    ## 5.2.1 Most collection types in Julia are parametric
+    @test typeof([]) == Vector{Any}
+    @test eltype([]) == Any
+    @test eltype(Float64[]) == Float64
+    @test typeof(Dict()) == Dict{Any,Any}
+    @test eltype(Dict()) == Pair{Any,Any}
+    @test typeof(1 => 2) == Pair{Int,Int}
+    ## 5.2.2 Rules for subtyping of parametric types
+    @test [1,2] isa AbstractVector{Int}
+    @test !([1,2] isa AbstractVector{Real})
+    @test [1,2] isa AbstractVector{<:Real}
+    @test [1,2] isa AbstractVector{T} where T<:Real
+    ## 5.2.3 Using the subtyping rules to define the covariance function
+    function ourcov(x::AbstractVector{<:Real}, y::AbstractVector{<:Real}) # Covariance
+        len = length(x)
+        @assert len == length(y)
+        return sum((x .- mean(x)) .* (y .- mean(y)))/(len - 1)
+    end
+    @test isapprox( ourcov(1:4, [1,3,2,4]), 1.333, atol=1e-3 )
+    @test isapprox( cov(1:4, [1,3,2,4]), 1.333, atol=1e-3 )
+
+    ## identity() narrow down element type
+    @test typeof( identity.(Any[1,2,3]) ) == Vector{Int}
+    @test typeof( identity.(Any[1, 2.0]) ) == Vector{Real}
+    ## 5.3 Integration with Python
+    
 end
 
 current_logger = global_logger()
@@ -587,7 +613,7 @@ global_logger(ConsoleLogger(stdout, Logging.Info))
 # learn_memory_layout()
 # learn_types()
 # learn_ch2()
-learn_ch4()
+# learn_ch4()
 learn_ch5()
 
 global_logger(current_logger)
