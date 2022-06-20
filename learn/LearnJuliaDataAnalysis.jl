@@ -13,12 +13,14 @@ using DataStructures
 using StatsBase      # Chapter 3
 using BenchmarkTools # Chapter 3
 
-
 using Statistics # Chapter 4
 using Plots      # 4.1.7
 #pyplot()
 # use display() to show plots
 using GLM        # 4.3.2
+
+using Random # 5.3
+using PyCall # 5.3
 
 include("Learn.jl")
 using .Learn
@@ -603,8 +605,37 @@ function learn_ch5()
     ## identity() narrow down element type
     @test typeof( identity.(Any[1,2,3]) ) == Vector{Int}
     @test typeof( identity.(Any[1, 2.0]) ) == Vector{Real}
-    ## 5.3 Integration with Python
     
+    ## 5.3 Integration with Python
+    let
+        Random.seed!(1234) 
+        cluster1 = randn(100, 5) .- 1; @test (100,5)==size(cluster1); #showrepl(cluster1)
+        cluster2 = randn(100, 5) .+ 1; @test (100,5)==size(cluster2); #showrepl(cluster1)
+        data5 = vcat(cluster1, cluster2); @test (200,5)==size(data5)
+        # using Conda
+        # Conda.add("scikit-learn")
+        manifold = pyimport("sklearn.manifold"); #showrepl(manifold)
+        tsne = manifold.TSNE(n_components=2, init="random", learning_rate="auto",
+            random_state=1234); #showrepl(tsne)
+        data2 = tsne.fit_transform(data5); @test (200,2)==size(data2); #showrepl(data2)
+        p = scatter(data2[:,1], data2[:,2]; color=[fill("black",100); fill("gold",100)], legend=false)
+        display(p)
+    end
+    ## Exercise 5.2
+    let
+        Random.seed!(1234) 
+        cluster1 = randn(100, 5) .- 0.4; @test (100,5)==size(cluster1); #showrepl(cluster1)
+        cluster2 = randn(100, 5) .+ 0.4; @test (100,5)==size(cluster2); #showrepl(cluster1)
+        data5 = vcat(cluster1, cluster2); @test (200,5)==size(data5)
+        # using Conda
+        # Conda.add("scikit-learn")
+        manifold = pyimport("sklearn.manifold"); #showrepl(manifold)
+        tsne = manifold.TSNE(n_components=2, init="random", learning_rate="auto",
+            random_state=1234); #showrepl(tsne)
+        data2 = tsne.fit_transform(data5); @test (200,2)==size(data2); #showrepl(data2)
+        p = scatter(data2[:,1], data2[:,2]; color=[fill("black",100); fill("gold",100)], legend=false)
+        display(p)
+    end
 end
 
 current_logger = global_logger()
