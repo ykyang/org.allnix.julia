@@ -22,6 +22,8 @@ using GLM        # 4.3.2
 using Random # 5.3
 using PyCall # 5.3
 
+import Downloads # Chapter 6
+
 include("Learn.jl")
 using .Learn
 
@@ -638,6 +640,86 @@ function learn_ch5()
     end
 end
 
+function learn_ch6()
+    movie_file = "movies.dat"
+
+    ## 6.1 Getting and inspecting the data
+    let file = movie_file # Download file
+        if !isfile(file)    
+            Downloads.download("https://raw.githubusercontent.com/" *
+                               "sidooms/MovieTweetings/" *
+                                "44c525d0c766944910686c60697203cda39305d6/" *
+                                "snapshots/10K/movies.dat",
+                                file)
+
+            # Content of movies.dat
+            """
+            0002844::Fantômas - À l'ombre de la guillotine (1913)::Crime|Drama
+            0007264::The Rink (1916)::Comedy|Short
+            0008133::The Immigrant (1917)::Short|Comedy|Drama|Romance
+            .
+            .
+            .
+            """
+        end
+    end
+
+    let x=10 # Interpolate variable
+        @test "I have $x apples"    == "I have 10 apples"
+        @test "I have $(2x) apples" == "I have 20 apples"
+    end
+
+    let # Line continuation in String
+        a = "https://raw.githubusercontent.com/" *
+            "sidooms/MovieTweetings/" *
+            "44c525d0c766944910686c60697203cda39305d6/" *
+            "snapshots/10K/movies.dat"
+        b = "https://raw.githubusercontent.com/\
+            sidooms/MovieTweetings/\
+            44c525d0c766944910686c60697203cda39305d6/\
+            snapshots/10K/movies.dat"
+        @test a == b
+    end
+
+    let # raw string literals
+        @test raw"C:\Users" == "C:\\Users"
+    end
+
+    ## Reading contents of a file
+    movies = readlines(movie_file)
+    @test typeof(movies) == Vector{String}
+
+    ## 6.2 Splitting strings
+    
+    let
+        movie = first(movies) # first line
+        movie_parts = split(movie, "::")
+        @test typeof(movie_parts) == Vector{SubString{String}}
+        @test movie_parts == ["0002844", "Fantômas - À l'ombre de la guillotine (1913)", "Crime|Drama"]
+
+        @test supertype(String) == AbstractString
+        @test supertype(SubString{String}) == AbstractString
+    end
+
+    ## 6.3 Working with strings using regular expressions
+
+    let
+        movie = first(movies) # first line
+        movie_parts = split(movie, "::")
+
+        @test movie_parts[2] == "Fantômas - À l'ombre de la guillotine (1913)"
+
+        rx = r"(.+) \((\d{4})\)"
+        m = match(rx, movie_parts[2]); #showrepl(m)
+
+        @test m[1] == "Fantômas - À l'ombre de la guillotine"
+        @test m[2] == "1913"
+        @test parse(Int, m[2]) == 1913
+    end
+
+
+end
+
 current_logger = global_logger()
 global_logger(ConsoleLogger(stdout, Logging.Info))
 
@@ -645,7 +727,8 @@ global_logger(ConsoleLogger(stdout, Logging.Info))
 # learn_types()
 # learn_ch2()
 # learn_ch4()
-learn_ch5()
+# learn_ch5()
+learn_ch6()
 
 global_logger(current_logger)
 end # LearnJuliaDataAnalysis
