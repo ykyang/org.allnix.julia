@@ -8,6 +8,7 @@ Resources
 """
 module LearnRegularExpressions
 
+using Dates
 using Test
 
 include("Learn.jl")
@@ -57,11 +58,77 @@ function julia_man_regex_literals()
     let
         re = r"[0-9]"
         text = "aaaa1aaaa2aaaa3"
-        rem = match(re, text, 1); @test rem.match == "1"
-        rem = match(re, text, 6); @test rem.match == "2"
-        rem = match(re, text, 11); @test rem.match == "3"
+        rem = match(re, text, 1); @test rem.match == "1"; @test rem.offset == 5
+        rem = match(re, text, 6); @test rem.match == "2"; @test rem.offset == 10
+        rem = match(re, text, 11); @test rem.match == "3"; @test rem.offset == 15
     end
-end
+    ## Access RegexMatch
+    let
+        """
+        * the entire substring matched: m.match
+        * the captured substrings as an array of strings: m.captures
+        * the offset at which the whole match begins: m.offset
+        * the offsets of the captured substrings as a vector: m.offsets 
+        """
+        rem = match(r"(a|b)(c)?(d)", "acd")
+        @test rem.match == "acd"
+        @test rem.captures == ["a", "c", "d"]
+        @test rem.offset == 1
+        @test rem.offsets == [1,2,3]
+
+        rem = match(r"(a|b)(c)?(d)", "ad")
+        @test rem.match == "ad"
+        @test rem.captures == ["a", nothing, "d"]
+        @test rem.offset == 1
+        @test rem.offsets == [1,0,2]
+
+        rem = match(r"(a|b)(c)?(d)", "xadx")
+        @test rem.match == "ad"
+        @test rem.captures == ["a", nothing, "d"]
+        @test rem.offset == 2
+        @test rem.offsets == [2,0,3]
+        ## Use iterator method
+        first, second, third = rem.captures
+        @test first == "a"; @test isnothing(second); @test third == "d"
+    end
+    ## replace()
+    let
+        ## Refer to group by number
+        ## s"" is a SubstitutionString
+        text = "first second"
+        Ans = replace(text, r"(\w+) (\w+)" => s"\2 \1");
+        @test Ans == "second first"
+        Ans = replace(text, r"(\w+) (\w+)" => s"\g<2> \g<1>"); # by g<> syntax
+        @test Ans == "second first"
+        ## Named capture group, G in the example below
+        Ans = replace(text, r"(\w+) (?<G>\w+)" => s"\g<G> \1")
+        @test Ans == "second first"
+    end
+    ## flags i, m, s, and x
+    let
+        re = r"a+.*b+.*?d$"ism
+        rem = match(re, "Goodbye,\nOh, angry,\nBad world\n")
+        @test rem.match == "angry,\nBad world"
+    end
+    ## Using Regex()
+    let
+        re_d = Regex("Day " * string(day(Date(1962,7,10))))
+        @test re_d == r"Day 10"
+        rem = match(re_d, "It happened on Day 10")
+        @test rem.match == "Day 10"
+
+        ## \Q \E removes special meaning, so we can use $name
+        name = "Jon"
+        #                  " (              " ) 
+        re_name = Regex("[\" (]\\Q$name\\E[\" )]")
+        # re_name = r"[\" (]\\Q$name\\E[\" )]" # does not work
+        rem = match(re_name, " Jon "); @test rem.match == " Jon "
+        rem = match(re_name, "(Jon)"); @test rem.match == "(Jon)"
+        rem = match(re_name, "[Jon]"); @test isnothing(rem)
+
+    end
+
+end 
 
 # https://docs.microsoft.com/en-us/dotnet/standard/base-types/quantifiers-in-regular-expressions#match-one-or-more-times-
 

@@ -717,8 +717,38 @@ function learn_ch6()
         @test parse(Int, m[2]) == 1913
     end
 
+    ## Writing a parser of a single line of movies.dat file
+    let movies=movies
+        record = parseline(movies[1]); showrepl(record_1)
+        @test record.id == "0002844" 
+        @test record.name == "Fantômas - À l'ombre de la guillotine"
+        @test record.year == 1918
+        @test record.genres == ["Crime", "Drama"]
+    end
+
+    ## 6.4 Extracting a subset from a string with indexing
+    
 
 end
+"""
+
+Parse line formated like this
+```
+0002844::Fantômas - À l'ombre de la guillotine (1913)::Crime|Drama
+```
+"""
+function parseline(line::AbstractString)
+    parts = split(line, "::")
+    re = Regex("(.+) \((\d{4})\)")
+    rem = match(re, parts[2])
+    return (
+        id = parts[1],
+        name = rem[1],
+        year = parse(Int, rem[2]),
+        genres = split(parts[3], "|")
+    )
+end
+
 
 current_logger = global_logger()
 global_logger(ConsoleLogger(stdout, Logging.Info))
