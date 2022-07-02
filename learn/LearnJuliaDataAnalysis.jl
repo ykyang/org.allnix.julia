@@ -719,17 +719,42 @@ function learn_ch6()
 
     ## Writing a parser of a single line of movies.dat file
     let movies=movies
-        record = parseline(movies[1]); showrepl(record_1)
+        record = parseline(movies[1]); #showrepl(record)
         @test record.id == "0002844" 
         @test record.name == "Fantômas - À l'ombre de la guillotine"
-        @test record.year == 1918
+        @test record.year == 1913
         @test record.genres == ["Crime", "Drama"]
     end
 
     ## 6.4 Extracting a subset from a string with indexing
-    
+    let
+        codeunits("a")
+        codeunits("ε")
+        codeunits("∀")
+    end
+    let movies = movies
+        record = parseline(movies[1]); #showrepl(record)
+        word = first(record.name, 8)
+        @test word == "Fantômas" # as expected
+        @test record.name[1:8] == "Fantôma" # missing 1 char
+        # Check with eachindex()
+        for i in eachindex(word)
+            #println(i, ": ", word[i])
+        end
+        # Useful string functions
+        @test length(word) == 8
+        @test chop(word, head=1, tail=2) == "antôm"
+        @test first(word, 2) == "Fa"
+        @test last(word, 2) == "as"
+    end
+    ## ASCII strings
+    let
+        @test isascii("Hello World!")
+        @test !isascii("∀ x: x≥0")
+    end
 
 end
+
 """
 
 Parse line formated like this
@@ -739,7 +764,8 @@ Parse line formated like this
 """
 function parseline(line::AbstractString)
     parts = split(line, "::")
-    re = Regex("(.+) \((\d{4})\)")
+    re = r"(.+) \((\d{4})\)"
+    # re = Regex(raw"(.+) \((\d{4})\)") # same as above
     rem = match(re, parts[2])
     return (
         id = parts[1],
