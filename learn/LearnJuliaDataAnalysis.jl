@@ -23,9 +23,42 @@ using Random # 5.3
 using PyCall # 5.3
 
 import Downloads # Chapter 6
+using FreqTables # 6.5
+using NamedArrays # 6.5
 
 include("Learn.jl")
 using .Learn
+
+"""
+    parseline(line::AbstractString)
+
+Function from Chapter 6.  Parse line formatted like this
+```
+0002844::Fantômas - À l'ombre de la guillotine (1913)::Crime|Drama
+```
+
+Return record
+```
+(
+    id = "0002844", 
+    name = "Fantômas - À l'ombre de la guillotine", 
+    year = 1913, 
+    genres = SubString{String}["Crime", "Drama"]
+)
+```
+"""
+function parseline(line::AbstractString)
+    parts = split(line, "::")
+    re = r"(.+) \((\d{4})\)"
+    # re = Regex(raw"(.+) \((\d{4})\)") # same as above
+    rem = match(re, parts[2])
+    return (
+        id = parts[1],
+        name = rem[1],
+        year = parse(Int, rem[2]),
+        genres = split(parts[3], "|")
+    )
+end
 
 function learn_memory_layout()
     # https://livebook.manning.com/book/julia-for-data-analysis/chapter-2/v-3/23
@@ -684,10 +717,15 @@ function learn_ch6()
     let # raw string literals
         @test raw"C:\Users" == "C:\\Users"
     end
-
+    
     ## Reading contents of a file
-    movies = readlines(movie_file)
-    @test typeof(movies) == Vector{String}
+    movies = let 
+        movies = readlines(movie_file)
+        @test typeof(movies) == Vector{String}
+        @test length(movies) == 3096 # rows
+
+        movies
+    end
 
     ## 6.2 Splitting strings
     
@@ -728,9 +766,9 @@ function learn_ch6()
 
     ## 6.4 Extracting a subset from a string with indexing
     let
-        codeunits("a")
-        codeunits("ε")
-        codeunits("∀")
+        @test codeunits("a") == Base.CodeUnits("a") == UInt8[0x61] 
+        @test codeunits("ε") == UInt8[0xce,0xb5]
+        @test codeunits("∀") == UInt8[0xe2,0x88,0x80]
     end
     let movies = movies
         record = parseline(movies[1]); #showrepl(record)
@@ -752,28 +790,60 @@ function learn_ch6()
         @test isascii("Hello World!")
         @test !isascii("∀ x: x≥0")
     end
+    ## The Char type
+    let word = "Fantômas"
+        #           57  
+        @test word[1] == 'F'
+        @test word[5] == 'ô'
+        @test_throws StringIndexError word[6] == 'm' # StringIndexError: invalid index [6], valid nearby indices [5]=>'ô', [7]=>'m'
+        @test word[7] == 'm'
+    end
+    ## 6.5 Analyzing genres frequency in movies.dat
+    let movies = movies
+        records = parseline.(movies)
+        @test length(records) == 3096
 
+        """1. Create a single vector containing genres"""
+        genres = String[]
+        for record in records
+            append!(genres, record.genres)
+        end
+        
+        """2. Create a frequency table using the freqtable() from FreqTables.jl"""
+        table = freqtable(genres); #showrepl(table)
+        @test table isa NamedArrays.NamedVector
+        sort!(table); #showrepl(table)
+        @test table["News"]  == 4    # min
+        @test table["Drama"] == 1583 # max
+        @test names(table) isa Vector{Vector{String}}; #showrepl(names(table))
+        @test names(table)[1][1] == "News"
+        @test names(table)[1][2] == "Film-Noir"
+
+        #showrepl(movies)
+        years = [record.year for record in records]
+        has_drama = ["Drama" in record.genres for record in records]
+        """
+        Use FreqTables to calculate proportions of true/false for 
+        each year.
+        """
+        drama_prop = proptable(years, has_drama; margins=1);
+        """
+        Dim1 ╲ Dim2 │    false      true
+        ────────────+───────────────────
+        1913        │      0.0       1.0
+        1916        │      1.0       0.0
+        1917        │      0.0       1.0
+        """
+        #showrepl(drama_prop)
+        # display(plot(names(drama_prop,1), drama_prop[:,2]; legend=false,
+        #     xlabel="year", ylabel="Drama probability"
+        # ))
+    end        
+
+    ## Understanding genre popularity evolution over the years
 end
 
-"""
 
-Parse line formated like this
-```
-0002844::Fantômas - À l'ombre de la guillotine (1913)::Crime|Drama
-```
-"""
-function parseline(line::AbstractString)
-    parts = split(line, "::")
-    re = r"(.+) \((\d{4})\)"
-    # re = Regex(raw"(.+) \((\d{4})\)") # same as above
-    rem = match(re, parts[2])
-    return (
-        id = parts[1],
-        name = rem[1],
-        year = parse(Int, rem[2]),
-        genres = split(parts[3], "|")
-    )
-end
 
 
 current_logger = global_logger()
