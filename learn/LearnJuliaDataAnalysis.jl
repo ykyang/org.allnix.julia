@@ -26,6 +26,8 @@ import Downloads # Chapter 6
 using FreqTables # 6.5
 using NamedArrays # 6.5
 
+using InlineStrings # 6.7
+
 include("Learn.jl")
 using .Learn
 
@@ -766,7 +768,10 @@ function learn_ch6()
 
     ## 6.4 Extracting a subset from a string with indexing
     let
-        @test codeunits("a") == Base.CodeUnits("a") == UInt8[0x61] 
+        # Note, 0x61 is hex
+        # 0o is octal
+        # 0b is binary
+        @test codeunits("a") == Base.CodeUnits("a") == UInt8[0x61] # 97 in dec
         @test codeunits("ε") == UInt8[0xce,0xb5]
         @test codeunits("∀") == UInt8[0xe2,0x88,0x80]
     end
@@ -798,8 +803,12 @@ function learn_ch6()
         @test_throws StringIndexError word[6] == 'm' # StringIndexError: invalid index [6], valid nearby indices [5]=>'ô', [7]=>'m'
         @test word[7] == 'm'
     end
+
     ## 6.5 Analyzing genres frequency in movies.dat
+    
+    
     let movies = movies
+        ## Finding common movie genres
         records = parseline.(movies)
         @test length(records) == 3096
 
@@ -818,6 +827,8 @@ function learn_ch6()
         @test names(table) isa Vector{Vector{String}}; #showrepl(names(table))
         @test names(table)[1][1] == "News"
         @test names(table)[1][2] == "Film-Noir"
+
+        ## Understanding genre popularity evolution over the years
 
         #showrepl(movies)
         years = [record.year for record in records]
@@ -839,8 +850,88 @@ function learn_ch6()
         #     xlabel="year", ylabel="Drama probability"
         # ))
     end        
+    ## Exercise 6.1
+    let movies = movies
+        records = parseline.(movies)
+        years = [record.year for record in records]; #showrepl(years)
+        table = freqtable(years); #showrepl(table)
+        # display(plot(names(table), table[:]; legend=false,
+        #     xlabel="Year", ylabel="No. of Movies"
+        # ))
+    end
+   
+    ## 6.6 Introducint symbols
+    """
+    comparison for equality, but you want it to be very fast
+    create values that have a Symbol type
+    """
+    ## 6.6.1 Creating symbols
+    let
+        s1 = Symbol("x"); @test s1 == :x; @test s1 isa Symbol
+        s2 = Symbol("hello world!"); # no other way to construct?
+        s3 = Symbol("x", 1); @test s3 == :x1
+    end
+    ## 6.6.2 Using symbols
+    let
+        @test supertype(Symbol) isa Any
+        @test :x == :x
+        @test :x != :y
 
-    ## Understanding genre popularity evolution over the years
+        ## Listing 6.6
+        n = 10^6
+        names = string.("x", 1:n); @test length(names) == n
+        symbols = Symbol.(names);  @test length(symbols) == n
+        #@btime "x" in $names  # 5.000 ms (0 allocations: 0 bytes)
+        #@btime :x in $symbols # 397.000 μs (0 allocations: 0 bytes)
+
+        """
+        CHOOSING BETWEEN STRING AND SYMBOL IN YOUR CODE
+        ... prefer to use strings in your program ...
+        ... perform a lot of comparisons ... do not expect to have to manipulate
+        ... and you require maximum performance, ... using Symbol
+        """
+    end
+
+    ## 6.7 Using fixed-width string types to improve performance
+    """
+    ... even more efficient storage format than both standard String and
+    Symbol.
+    """
+    ## Available fixed-width strings
+    """
+    ... recommended to perform an appropriate type selection automatically ...
+    ... InlineString ... inlinestrings ...
+    """
+    let
+        s1 = InlineString("x"); @test s1 isa String1
+        s2 = InlineString("∀"); @test s2 isa String3
+        sv = inlinestrings(["The", "quick", "brown"]); @test sv isa Vector{String7}
+        # @test Int[] isa Vector{Int64}
+    end
+    ## Performance of fixed-width strings
+    let 
+        ## Listing 6.7
+        n = 10^6
+        Random.seed!(1234)
+        s1 = [randstring(3) for i in 1:n]; @test length(s1) == n
+        s2 = inlinestrings(s1); @test s2 isa Vector{String3}; @test length(s2) == n
+        """... compare how much memory ..."""
+        @test Base.summarysize(s1) == 19000040
+        @test Base.summarysize(s2) ==  4000040
+        """... the performance of sorting ..."""
+        # @btime sort($s1)   # 257.064 ms (4 allocations: 11.44 MiB)
+        # @btime sort($s2)   #   6.541 ms (6 allocations: 7.65 MiB)
+
+        ## Exercise 6.2
+        s3 = Symbol.(s1); @test length(s3) == n
+        # @btime sort($s3)   # 209.589 ms (4 allocations: 11.44 MiB)
+        # @btime unique($s1) # 150.966 ms (49 allocations: 10.46 MiB)
+        # @btime unique($s2) #  30.505 ms (48 allocations: 6.16 MiB)
+        # @btime unique($s3) #  27.572 ms (49 allocations: 10.46 MiB)
+    end
+
+    ## 6.8 Compressing vectors of strings with PooledArrays.jl
+
 end
 
 

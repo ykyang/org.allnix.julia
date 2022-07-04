@@ -320,27 +320,7 @@ function learn_123()
     end
 end
 
-"""
 
-See ``learn_Distributions.jl`` for more examples and
-more advanced usage.
-"""
-function learn_rand()
-    # 1 random number bewteen 1:50
-    @test 1<= rand(1:50) <= 50
-    
-    # 1000 random numbers between 1:10
-    r = rand(1:10, 1000)
-    @test all(1 .<= r .<= 10)
-
-    # 10x10 random numbers
-    Ans = rand(10,10)
-    @test size(Ans) == (10,10)
-    
-    # Random numbers in normal distribution
-    Ans = randn(50)
-    @test size(Ans) == (50,)
-end
 
 function learn_reduce()
     @test reduce(*, [2,3,4])          == 24
@@ -349,10 +329,31 @@ function learn_reduce()
     @test_throws MethodError reduce(*, [])  # must specify init
 end
 
+"""
+    learn_summarysize()
+
+Size of array, type, etc
+"""
+function learn_summarysize()
+    @test Base.summarysize(Int(13))       == 8
+    @test Base.summarysize(fill(Int, 1))  == 40 +  1*8 # Overhead 40 bytes
+    @test Base.summarysize(fill(Int, 2))  == 40 +  2*8
+    @test Base.summarysize(fill(Int, 10)) == 40 + 10*8
+
+
+end
+
 function learn_types()
     supertype(Int64)
     supertypes(Int64)
     subtypes(Real)
+end
+
+function learn_bin_oct_dec_hex_()
+    @test string(17, base=10) == "17"
+    @test string(17, base=8)  == "21"
+    @test string(17, base=16) == "11"
+    @test string(17, base=2)  == "10001"
 end
 
 @testset "Node" begin
@@ -366,7 +367,9 @@ end
     learn_CartesianIndex()
     learn_Serialization()
 
-    learn_rand()
+    # learn_rand(); # Moved to learn_Random.jl
+
+    learn_summarysize()
 end
 @testset "For-Loop" begin
     learn_for_comma()
@@ -384,6 +387,8 @@ end
 @testset "Reduce" begin
     learn_reduce()
 end
+
+learn_bin_oct_dec_hex_()
 
 #learn_exception()
 #learn_123()
