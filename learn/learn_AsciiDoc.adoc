@@ -1,4 +1,6 @@
-// add_ruby_31
+// conda activate py38
+// add_ruby
+// 
 // asciidoctor   -b html5 -d article -o learn_AsciiDoc.html learn_AsciiDoc.adoc
 // asciidoctorj  -b html5 -d article -o learn_AsciiDoc.html learn_AsciiDoc.adoc
 = Hello, AsciiDoc!
@@ -17,12 +19,13 @@ This is an interactive editor.
 println("Hello")
 ----
 
-*bold*
-**b**old
-_italic_
-`monospace`
-`+http://localhost+`
-https://asciidoctor.org[Asciidoctor]
+* *bold*
+* **b**old
+* _italic_
+* `monospace`
+* `+http://localhost+`
+* https://asciidoctor.org[Asciidoctor]
+* [.line-through]#line through#
 
 ----
 Quoted text.
