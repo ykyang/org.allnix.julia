@@ -23,9 +23,44 @@ using Random # 5.3
 using PyCall # 5.3
 
 import Downloads # Chapter 6
+using FreqTables # 6.5
+using NamedArrays # 6.5
+
+using InlineStrings # 6.7
 
 include("Learn.jl")
 using .Learn
+
+"""
+    parseline(line::AbstractString)
+
+Function from Chapter 6.  Parse line formatted like this
+```
+0002844::Fantômas - À l'ombre de la guillotine (1913)::Crime|Drama
+```
+
+Return record
+```
+(
+    id = "0002844", 
+    name = "Fantômas - À l'ombre de la guillotine", 
+    year = 1913, 
+    genres = SubString{String}["Crime", "Drama"]
+)
+```
+"""
+function parseline(line::AbstractString)
+    parts = split(line, "::")
+    re = r"(.+) \((\d{4})\)"
+    # re = Regex(raw"(.+) \((\d{4})\)") # same as above
+    rem = match(re, parts[2])
+    return (
+        id = parts[1],
+        name = rem[1],
+        year = parse(Int, rem[2]),
+        genres = split(parts[3], "|")
+    )
+end
 
 function learn_memory_layout()
     # https://livebook.manning.com/book/julia-for-data-analysis/chapter-2/v-3/23
@@ -684,10 +719,15 @@ function learn_ch6()
     let # raw string literals
         @test raw"C:\Users" == "C:\\Users"
     end
-
+    
     ## Reading contents of a file
-    movies = readlines(movie_file)
-    @test typeof(movies) == Vector{String}
+    movies = let 
+        movies = readlines(movie_file)
+        @test typeof(movies) == Vector{String}
+        @test length(movies) == 3096 # rows
+
+        movies
+    end
 
     ## 6.2 Splitting strings
     
@@ -728,9 +768,12 @@ function learn_ch6()
 
     ## 6.4 Extracting a subset from a string with indexing
     let
-        codeunits("a")
-        codeunits("ε")
-        codeunits("∀")
+        # Note, 0x61 is hex
+        # 0o is octal
+        # 0b is binary
+        @test codeunits("a") == Base.CodeUnits("a") == UInt8[0x61] # 97 in dec
+        @test codeunits("ε") == UInt8[0xce,0xb5]
+        @test codeunits("∀") == UInt8[0xe2,0x88,0x80]
     end
     let movies = movies
         record = parseline(movies[1]); #showrepl(record)
@@ -752,28 +795,146 @@ function learn_ch6()
         @test isascii("Hello World!")
         @test !isascii("∀ x: x≥0")
     end
+    ## The Char type
+    let word = "Fantômas"
+        #           57  
+        @test word[1] == 'F'
+        @test word[5] == 'ô'
+        @test_throws StringIndexError word[6] == 'm' # StringIndexError: invalid index [6], valid nearby indices [5]=>'ô', [7]=>'m'
+        @test word[7] == 'm'
+    end
+
+    ## 6.5 Analyzing genres frequency in movies.dat
+    
+    
+    let movies = movies
+        ## Finding common movie genres
+        records = parseline.(movies)
+        @test length(records) == 3096
+
+        """1. Create a single vector containing genres"""
+        genres = String[]
+        for record in records
+            append!(genres, record.genres)
+        end
+        
+        """2. Create a frequency table using the freqtable() from FreqTables.jl"""
+        table = freqtable(genres); #showrepl(table)
+        @test table isa NamedArrays.NamedVector
+        sort!(table); #showrepl(table)
+        @test table["News"]  == 4    # min
+        @test table["Drama"] == 1583 # max
+        @test names(table) isa Vector{Vector{String}}; #showrepl(names(table))
+        @test names(table)[1][1] == "News"
+        @test names(table)[1][2] == "Film-Noir"
+
+        ## Understanding genre popularity evolution over the years
+
+        #showrepl(movies)
+        years = [record.year for record in records]
+        has_drama = ["Drama" in record.genres for record in records]
+        """
+        Use FreqTables to calculate proportions of true/false for 
+        each year.
+        """
+        drama_prop = proptable(years, has_drama; margins=1);
+        """
+        Dim1 ╲ Dim2 │    false      true
+        ────────────+───────────────────
+        1913        │      0.0       1.0
+        1916        │      1.0       0.0
+        1917        │      0.0       1.0
+        """
+        #showrepl(drama_prop)
+        # display(plot(names(drama_prop,1), drama_prop[:,2]; legend=false,
+        #     xlabel="year", ylabel="Drama probability"
+        # ))
+    end        
+    ## Exercise 6.1
+    let movies = movies
+        records = parseline.(movies)
+        years = [record.year for record in records]; #showrepl(years)
+        table = freqtable(years); #showrepl(table)
+        # display(plot(names(table), table[:]; legend=false,
+        #     xlabel="Year", ylabel="No. of Movies"
+        # ))
+    end
+   
+    ## 6.6 Introducint symbols
+    """
+    comparison for equality, but you want it to be very fast
+    create values that have a Symbol type
+    """
+    ## 6.6.1 Creating symbols
+    let
+        s1 = Symbol("x"); @test s1 == :x; @test s1 isa Symbol
+        s2 = Symbol("hello world!"); # no other way to construct?
+        s3 = Symbol("x", 1); @test s3 == :x1
+    end
+    ## 6.6.2 Using symbols
+    let
+        @test supertype(Symbol) isa Any
+        @test :x == :x
+        @test :x != :y
+
+        ## Listing 6.6
+        n = 10^6
+        names = string.("x", 1:n); @test length(names) == n
+        symbols = Symbol.(names);  @test length(symbols) == n
+        #@btime "x" in $names  # 5.000 ms (0 allocations: 0 bytes)
+        #@btime :x in $symbols # 397.000 μs (0 allocations: 0 bytes)
+
+        """
+        CHOOSING BETWEEN STRING AND SYMBOL IN YOUR CODE
+        ... prefer to use strings in your program ...
+        ... perform a lot of comparisons ... do not expect to have to manipulate
+        ... and you require maximum performance, ... using Symbol
+        """
+    end
+
+    ## 6.7 Using fixed-width string types to improve performance
+    """
+    ... even more efficient storage format than both standard String and
+    Symbol.
+    """
+    ## Available fixed-width strings
+    """
+    ... recommended to perform an appropriate type selection automatically ...
+    ... InlineString ... inlinestrings ...
+    """
+    let
+        s1 = InlineString("x"); @test s1 isa String1
+        s2 = InlineString("∀"); @test s2 isa String3
+        sv = inlinestrings(["The", "quick", "brown"]); @test sv isa Vector{String7}
+        # @test Int[] isa Vector{Int64}
+    end
+    ## Performance of fixed-width strings
+    let 
+        ## Listing 6.7
+        n = 10^6
+        Random.seed!(1234)
+        s1 = [randstring(3) for i in 1:n]; @test length(s1) == n
+        s2 = inlinestrings(s1); @test s2 isa Vector{String3}; @test length(s2) == n
+        """... compare how much memory ..."""
+        @test Base.summarysize(s1) == 19000040
+        @test Base.summarysize(s2) ==  4000040
+        """... the performance of sorting ..."""
+        # @btime sort($s1)   # 257.064 ms (4 allocations: 11.44 MiB)
+        # @btime sort($s2)   #   6.541 ms (6 allocations: 7.65 MiB)
+
+        ## Exercise 6.2
+        s3 = Symbol.(s1); @test length(s3) == n
+        # @btime sort($s3)   # 209.589 ms (4 allocations: 11.44 MiB)
+        # @btime unique($s1) # 150.966 ms (49 allocations: 10.46 MiB)
+        # @btime unique($s2) #  30.505 ms (48 allocations: 6.16 MiB)
+        # @btime unique($s3) #  27.572 ms (49 allocations: 10.46 MiB)
+    end
+
+    ## 6.8 Compressing vectors of strings with PooledArrays.jl
 
 end
 
-"""
 
-Parse line formated like this
-```
-0002844::Fantômas - À l'ombre de la guillotine (1913)::Crime|Drama
-```
-"""
-function parseline(line::AbstractString)
-    parts = split(line, "::")
-    re = r"(.+) \((\d{4})\)"
-    # re = Regex(raw"(.+) \((\d{4})\)") # same as above
-    rem = match(re, parts[2])
-    return (
-        id = parts[1],
-        name = rem[1],
-        year = parse(Int, rem[2]),
-        genres = split(parts[3], "|")
-    )
-end
 
 
 current_logger = global_logger()
