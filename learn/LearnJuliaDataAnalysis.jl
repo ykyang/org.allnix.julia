@@ -28,6 +28,8 @@ using NamedArrays # 6.5
 
 using InlineStrings # 6.7
 
+using PooledArrays # 6.8
+
 include("Learn.jl")
 using .Learn
 
@@ -860,7 +862,7 @@ function learn_ch6()
         # ))
     end
    
-    ## 6.6 Introducint symbols
+    ## 6.6 Introducing symbols
     """
     comparison for equality, but you want it to be very fast
     create values that have a Symbol type
@@ -909,8 +911,8 @@ function learn_ch6()
         # @test Int[] isa Vector{Int64}
     end
     ## Performance of fixed-width strings
+    ## Listing 6.7
     let 
-        ## Listing 6.7
         n = 10^6
         Random.seed!(1234)
         s1 = [randstring(3) for i in 1:n]; @test length(s1) == n
@@ -931,7 +933,55 @@ function learn_ch6()
     end
 
     ## 6.8 Compressing vectors of strings with PooledArrays.jl
+    """... compare the memory footprint of uncompressed vs. compressed data."""
+    ## 6.8.1 Creating a file containing flower names
+    ## 6.8.2 Reading in the data to a vector and compressing it
+    let filename = "iris.txt", n = 10^6 
+        if !isfile(filename) open(filename, "w") do io
+            for i in 1:n
+                println(io, "Iris setosa")
+                println(io, "Iris virginica")
+                println(io, "Iris versicolor")
+            end
+        end end
 
+        @test isfile(filename)
+
+        uncompressed = readlines(filename)
+        @test length(uncompressed) == 3*n
+        """...compress this vector..."""
+        compressed = PooledArray(uncompressed) # slow
+        @test length(compressed) == 3*n
+        @test Base.summarysize(uncompressed) == 88000040
+        @test Base.summarysize(compressed)   == 12000600
+    end
+    ## 6.8.3 Internal design of PooledArray
+    """
+    ... It will be beneficial to use pooled vectors if you have a collection
+    of strings that have few unique values ...
+    """
+    ## 6.9 Choosing an appropriate storage for collections of strings
+    """
+    ... premature optimization is the root of all evil. ...
+    """
+    ## 6.10 Summary
+    raw"""
+    ... Downloads.download() ...
+    ... "a" * "b" == "ab" ...
+    ... x = 10 ... "$x" == "10" ...
+    ... raw"C:\DIR" ...
+    ... split("a,b", ",") ...
+    ... SubString{String} ...
+    ... specify AbstractString as a type parameter in function ...
+    ... regular expressions ... r"a.a" ...
+    ... parse(Int, "10") ...
+    ... length(), chop(), first(), and last() ...
+    ... FreqTables.freqtable and proptable ...
+    ... Symbol ... :some_symbole ...
+    ... InlineStrings ... inlinestrings() ... String1, String3 ...
+    ... PooledArrays ...
+    ... CSV.jl ...
+    """
 end
 
 
