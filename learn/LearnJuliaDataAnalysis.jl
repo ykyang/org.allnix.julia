@@ -22,13 +22,13 @@ using GLM        # 4.3.2
 using Random # 5.3
 using PyCall # 5.3
 
-import Downloads # Chapter 6
-using FreqTables # 6.5
-using NamedArrays # 6.5
-
+import Downloads    # 6
+using FreqTables    # 6.5
+using NamedArrays   # 6.5
 using InlineStrings # 6.7
-
-using PooledArrays # 6.8
+using PooledArrays  # 6.8
+using HTTP          # 7
+using JSON3         # 7
 
 include("Learn.jl")
 using .Learn
@@ -984,6 +984,150 @@ function learn_ch6()
     """
 end
 
+"""
+    learn_ch7()
+
+Handling time series data and missing values
+"""
+function learn_ch7()
+    """
+    ... analyzing the PLN/USD exchange ... Web API ... https://api.nbp.pl/en.html ...
+    format of the data ... HTTP GET ... handling errors ... extracting the PLN/USD
+    exchange rate ... statistical analysis ... plotting ... JSON format ...
+    """
+    ## 7.1 Understanding the NBP Web API
+    ## 7.1.1 Getting the data via a web browser
+    """
+    https://api.nbp.pl/api/exchangerates/rates/a/usd/2020-06-01/?format=json
+
+    {
+        "table":"A",
+        "currency":"dolar amerykański",
+        "code":"USD",
+        "rates":[
+            {"no":"105/A/NBP/2020", "effectiveDate":"2020-06-01", "mid":3.9680}
+        ]
+    }
+    """
+    ## 7.1.2 Getting the data using Julia
+    query = "https://api.nbp.pl/api/exchangerates/rates/a/usd/2020-06-01/?format=json"
+    
+    ## Read from server
+    # response = HTTP.get(query)
+    # @test response.body isa Vector{UInt8}
+    # json = JSON3.read(response.body)
+
+    ## Copied here so no need to query every time
+    # From UInt8
+    response = UInt8[0x7b, 0x22, 0x74, 0x61, 0x62, 0x6c, 0x65, 0x22, 0x3a, 0x22, 0x41, 0x22, 0x2c, 0x22, 0x63, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x63, 0x79, 0x22, 0x3a, 0x22, 0x64, 0x6f, 0x6c, 0x61, 0x72, 0x20, 0x61, 0x6d, 0x65, 0x72, 0x79, 0x6b, 0x61, 0xc5, 0x84, 0x73, 0x6b, 0x69, 0x22, 0x2c, 0x22, 0x63, 0x6f, 0x64, 0x65, 0x22, 0x3a, 0x22, 0x55, 0x53, 0x44, 0x22, 0x2c, 0x22, 0x72, 0x61, 0x74, 0x65, 0x73, 0x22, 0x3a, 0x5b, 0x7b, 0x22, 0x6e, 0x6f, 0x22, 0x3a, 0x22, 0x31, 0x30, 0x35, 0x2f, 0x41, 0x2f, 0x4e, 0x42, 0x50, 0x2f, 0x32, 0x30, 0x32, 0x30, 0x22, 0x2c, 0x22, 0x65, 0x66, 0x66, 0x65, 0x63, 0x74, 0x69, 0x76, 0x65, 0x44, 0x61, 0x74, 0x65, 0x22, 0x3a, 0x22, 0x32, 0x30, 0x32, 0x30, 0x2d, 0x30, 0x36, 0x2d, 0x30, 0x31, 0x22, 0x2c, 0x22, 0x6d, 0x69, 0x64, 0x22, 0x3a, 0x33, 0x2e, 0x39, 0x36, 0x38, 0x30, 0x7d, 0x5d, 0x7d]
+    json = JSON3.read(response) 
+    # From String
+    response = """{"table":"A","currency":"dolar amerykański","code":"USD","rates":[{"no":"105/A/NBP/2020","effectiveDate":"2020-06-01","mid":3.9680}]}"""
+    json = JSON3.read(response) 
+
+    let # Side note: String()
+        response = UInt8[0x7b, 0x22, 0x74, 0x61, 0x62, 0x6c, 0x65, 0x22, 0x3a, 0x22, 0x41, 0x22, 0x2c, 0x22, 0x63, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x63, 0x79, 0x22, 0x3a, 0x22, 0x64, 0x6f, 0x6c, 0x61, 0x72, 0x20, 0x61, 0x6d, 0x65, 0x72, 0x79, 0x6b, 0x61, 0xc5, 0x84, 0x73, 0x6b, 0x69, 0x22, 0x2c, 0x22, 0x63, 0x6f, 0x64, 0x65, 0x22, 0x3a, 0x22, 0x55, 0x53, 0x44, 0x22, 0x2c, 0x22, 0x72, 0x61, 0x74, 0x65, 0x73, 0x22, 0x3a, 0x5b, 0x7b, 0x22, 0x6e, 0x6f, 0x22, 0x3a, 0x22, 0x31, 0x30, 0x35, 0x2f, 0x41, 0x2f, 0x4e, 0x42, 0x50, 0x2f, 0x32, 0x30, 0x32, 0x30, 0x22, 0x2c, 0x22, 0x65, 0x66, 0x66, 0x65, 0x63, 0x74, 0x69, 0x76, 0x65, 0x44, 0x61, 0x74, 0x65, 0x22, 0x3a, 0x22, 0x32, 0x30, 0x32, 0x30, 0x2d, 0x30, 0x36, 0x2d, 0x30, 0x31, 0x22, 0x2c, 0x22, 0x6d, 0x69, 0x64, 0x22, 0x3a, 0x33, 0x2e, 0x39, 0x36, 0x38, 0x30, 0x7d, 0x5d, 0x7d]
+        @test !isempty(response)
+        String(response) # response is empty after this
+        @test isempty(response)
+    end
+
+    @test json.table    == "A"
+    @test json.currency == "dolar amerykański"
+    @test json.code     == "USD"
+    @test json.rates[1].no            == "105/A/NBP/2020"
+    @test json.rates[1].effectiveDate == "2020-06-01"
+    @test json.rates[1].mid           ==3.9680
+
+    let # Side note: only()
+        @test only([1]) == 1
+        @test_throws ArgumentError only([])
+        @test_throws ArgumentError only([1,2])
+    end
+
+    """7.1.3 Handling cases when NBP Web API query fails"""
+    """
+    https://api.nbp.pl/api/exchangerates/rates/a/usd/2020-06-06/?format=json
+
+    404 NotFound - Not Found - Brak danych
+    """
+    let
+        """Using the try-catch-end block to handle exceptions"""
+        function query_nbp(query)
+            try
+                response = HTTP.get(query)
+                json = JSON3.read(response.body)
+                return only(json.rates).mid
+            catch e
+                if e isa HTTP.ExceptionRequest.StatusError
+                    return missing
+                else
+                    rethrow(e)
+                end
+            end
+        end
+        ## Disabled so do not query all the time
+        # query = "https://api.nbp.pl/api/exchangerates/rates/a/usd/" *
+        #         "2020-06-01/?format=json"
+        # @test query_nbp(query) == 3.968
+        # query = "https://api.nbp.pl/api/exchangerates/rates/a/usd/" * 
+        #         "2020-06-06/?format=json"
+        # @test ismissing(query_nbp(query))
+    end
+    """7.2 Missing data in Julia"""
+    """7.2.1 Definition of the missing value"""
+    """
+    Julia provides support for representing missing values in the statistical
+    sense, that is for situations where no value is available for a variable in
+    an observation, but a valid value theoretically exists.
+    """
+    @test ismissing(missing)
+    @test !ismissing(1)
+    """
+    ... nothing ... absence of the value 
+    ... missing ... value exists but has not been recorded.
+    """
+    
+    """7.2.2 Working with missing values"""
+    """Propagation of missing values in functions"""
+
+    """
+    ... many functions silently propagate missing, ...
+    ... three-valued-logic ... true, false, or missing from logical operation.
+    """
+    @test ismissing(1 + missing)
+    @test ismissing(sin(missing))
+    @test ismissing(1 == missing)
+    @test ismissing(1 > missing)
+    @test ismissing(1 < missing)
+
+    @test_throws TypeError if missing end
+    @test_throws TypeError missing && true
+    @test_throws TypeError missing && false
+    """
+    ... coalesce() returns its first non-missing position argument or
+    missing if all ... missing
+    """
+    @test coalesce(missing, true) == true   # true if missing
+    @test coalesce(missing, false) == false # false if missing
+    """Comparison operators guaranteeing Boolean result"""
+    @test isequal(      1,missing) == false
+    @test isequal(missing,missing) == true
+    """... missing is greater than all numbers ..."""
+    @test isless(      1, missing) == true
+    @test isless(    Inf, missing) == true
+    @test isless(missing, missing) == false
+    """... === always returns a Bool ..."""
+    @test missing === missing
+    let
+        a = [1]
+        b = [1]
+        @test isequal(a,b)
+        @test a == b
+        @test !(a === b)
+    end
+
+end
 
 
 
@@ -995,7 +1139,8 @@ global_logger(ConsoleLogger(stdout, Logging.Info))
 # learn_ch2()
 # learn_ch4()
 # learn_ch5()
-learn_ch6()
+# learn_ch6()
+learn_ch7()
 
 global_logger(current_logger)
 end # LearnJuliaDataAnalysis
