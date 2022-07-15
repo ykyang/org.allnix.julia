@@ -29,6 +29,7 @@ using InlineStrings # 6.7
 using PooledArrays  # 6.8
 using HTTP          # 7
 using JSON3         # 7
+using Missings      # 7.2.2
 
 include("Learn.jl")
 using .Learn
@@ -1089,7 +1090,7 @@ function learn_ch7()
     """
     
     """7.2.2 Working with missing values"""
-    """Propagation of missing values in functions"""
+    """7.2.2. Propagation of missing values in functions"""
 
     """
     ... many functions silently propagate missing, ...
@@ -1110,7 +1111,7 @@ function learn_ch7()
     """
     @test coalesce(missing, true) == true   # true if missing
     @test coalesce(missing, false) == false # false if missing
-    """Comparison operators guaranteeing Boolean result"""
+    """7.2.2. Comparison operators guaranteeing Boolean result"""
     @test isequal(      1,missing) == false
     @test isequal(missing,missing) == true
     """... missing is greater than all numbers ..."""
@@ -1126,6 +1127,56 @@ function learn_ch7()
         @test a == b
         @test !(a === b)
     end
+    """Relationship between ===, == and isequal()"""
+    """1. === always returns Bool"""
+    """2. == falls back to ===, if no special method defined"""
+    @test ismissing(     13 == missing)
+    @test ismissing(missing == missing)
+    @test (13.0 == NaN) == false
+    @test (NaN  == NaN) == false
+    @test +0.0 == -0.0
+    """3. isequal() is like == but always return Bool, special values are..."""
+    @test isequal(   13.0, missing) == false
+    @test isequal(missing, missing) == true
+    """isequal() is used to compare keys in dictionaries"""
+
+    
+    let
+        """7.2.2. Replacing missing values in collections"""
+        x = [1, missing, 3, 4, missing]
+        @test coalesce.(x, 0) == [1,0,3,4,0]
+        @test ismissing(sum(x))      # Adding missing value results in missing
+        """7.2.2. Skipping missing values in computations"""
+        y = skipmissing(x)
+        @test sum(y) == 8
+    end
+
+    """7.2.2. Enabling missing propagation in a function"""
+    let
+        fun(x::Int, y::Int) = x + y # function does not accept missing
+        @test fun(1, 2) == 3
+        @test_throws MethodError fun(1, missing)
+        
+        fun2 = passmissing(fun) # Enable fun() to handle missing
+        @test fun2(1, 2) == 3
+        @test ismissing(fun2(1, missing)) # Accept missing and return missing
+    end
+    
+    let
+        """
+        Exercise 7.1
+
+        Given a vector v = ["1", "2", missing, "4"], parse it so that strings are
+        converted to numbers and missing value remains a missing value.
+        """        
+        v = ["1", "2", missing, "4"]
+        ms_parse = passmissing(parse)
+        Ans = ms_parse.(Int, v); #@show Ans
+        @test isequal(Ans, [1,2,missing,4])
+        
+    end
+    
+    """7.3 Getting the time series data from NBP Web API"""
 
 end
 
