@@ -30,6 +30,8 @@ using PooledArrays  # 6.8
 using HTTP          # 7
 using JSON3         # 7
 using Missings      # 7.2.2
+using Dates         # 7.3
+using Impute        # 7.4.2
 
 include("Learn.jl")
 using .Learn
@@ -1026,7 +1028,7 @@ function learn_ch7()
     response = """{"table":"A","currency":"dolar amerykański","code":"USD","rates":[{"no":"105/A/NBP/2020","effectiveDate":"2020-06-01","mid":3.9680}]}"""
     json = JSON3.read(response) 
 
-    let # Side note: String()
+    let ## Side note: String()
         response = UInt8[0x7b, 0x22, 0x74, 0x61, 0x62, 0x6c, 0x65, 0x22, 0x3a, 0x22, 0x41, 0x22, 0x2c, 0x22, 0x63, 0x75, 0x72, 0x72, 0x65, 0x6e, 0x63, 0x79, 0x22, 0x3a, 0x22, 0x64, 0x6f, 0x6c, 0x61, 0x72, 0x20, 0x61, 0x6d, 0x65, 0x72, 0x79, 0x6b, 0x61, 0xc5, 0x84, 0x73, 0x6b, 0x69, 0x22, 0x2c, 0x22, 0x63, 0x6f, 0x64, 0x65, 0x22, 0x3a, 0x22, 0x55, 0x53, 0x44, 0x22, 0x2c, 0x22, 0x72, 0x61, 0x74, 0x65, 0x73, 0x22, 0x3a, 0x5b, 0x7b, 0x22, 0x6e, 0x6f, 0x22, 0x3a, 0x22, 0x31, 0x30, 0x35, 0x2f, 0x41, 0x2f, 0x4e, 0x42, 0x50, 0x2f, 0x32, 0x30, 0x32, 0x30, 0x22, 0x2c, 0x22, 0x65, 0x66, 0x66, 0x65, 0x63, 0x74, 0x69, 0x76, 0x65, 0x44, 0x61, 0x74, 0x65, 0x22, 0x3a, 0x22, 0x32, 0x30, 0x32, 0x30, 0x2d, 0x30, 0x36, 0x2d, 0x30, 0x31, 0x22, 0x2c, 0x22, 0x6d, 0x69, 0x64, 0x22, 0x3a, 0x33, 0x2e, 0x39, 0x36, 0x38, 0x30, 0x7d, 0x5d, 0x7d]
         @test !isempty(response)
         String(response) # response is empty after this
@@ -1040,7 +1042,7 @@ function learn_ch7()
     @test json.rates[1].effectiveDate == "2020-06-01"
     @test json.rates[1].mid           ==3.9680
 
-    let # Side note: only()
+    let ## Side note: only()
         @test only([1]) == 1
         @test_throws ArgumentError only([])
         @test_throws ArgumentError only([1,2])
@@ -1177,9 +1179,197 @@ function learn_ch7()
     end
     
     """7.3 Getting the time series data from NBP Web API"""
+    
+    """
+    ... get the data for all days of June 2020 ... work with dates ...
+    timestamps ... Dates ...
+    """
+    
+    """7.3.1 Working with dates"""
 
+    let
+        d = Date("2020-06-01")
+        @test d isa Date
+        @test d == Date(2020,06,01)
+        @test year(d)  == 2020
+        @test month(d) == 6
+        @test day(d)   == 1
+
+        @test dayname(d)   == "Monday"
+        @test dayofweek(d) == 1
+
+        """... a vector of dates ..."""
+        dates = Date.(2020, 6, 1:30)
+        @test length(dates) == 30
+        @test first(dates) == Date(2020,6,1)
+        @test last(dates) == Date(2020,6,30)
+        """... add dates with durations to get new dates ..."""
+        @test Date(2020,6,1) + Day(1) == Date(2020,6,2)
+        """... a range of dates ..."""
+        dates = Date(2020,5,20):Day(1):Date(2020,7,5)
+        @test length(dates) == 47
+        @test first(dates) == Date(2020,5,20)
+        @test last(dates) == Date(2020,7,5)
+        @test collect(dates) isa Vector{Date}
+    end
+    
+    let
+        """
+        EXERCISE 7.2
+    
+        Create a vector containing first days of each month in the year 2021.
+        """
+        @test dayname.(Date(2021,1,1):Month(1):Date(2021,12,31)) == ["Friday", "Monday", "Monday", "Thursday", "Saturday", "Tuesday", "Thursday", "Sunday", "Wednesday", "Friday", "Monday", "Wednesday"]
+    end
+
+    """7.3.2 """
+    
+    let
+        dates = Date.(2020, 6, 1:30)
+        ## Disabled so do not query all the time
+        # rates = get_rate.(dates)
+        rates = Union{Missing, Float64}[3.968, 3.9303, 3.9121, 3.9573, 3.9217, missing, missing, 3.9197, 3.9453, 3.918, missing, 3.9299, missing, missing, 3.9413, 3.9058, 3.9532, 3.9589, 3.9741, missing, missing, 3.9667, 3.9311, 3.9395, 3.9623, 3.9697, missing, missing, 3.9656, 3.9806]
+    end
+    """7.4 Analyzing the data fetched from NBP Web API"""
+    """
+    ... basic summary statistics ... missing data ... plot ...
+    """
+
+    """7.4.1 Computing summary statistics"""
+    let
+        rates = Union{Missing, Float64}[3.968, 3.9303, 3.9121, 3.9573, 3.9217, missing, missing, 3.9197, 3.9453, 3.918, missing, 3.9299, missing, missing, 3.9413, 3.9058, 3.9532, 3.9589, 3.9741, missing, missing, 3.9667, 3.9311, 3.9395, 3.9623, 3.9697, missing, missing, 3.9656, 3.9806]
+        @test ismissing(mean(rates))
+        @test ismissing(std(rates))
+        let ## Side note
+            x = [1,2,missing]
+            @test ismissing(mean(x))
+            @test mean(skipmissing(x)) == 1.5 # not 1
+        end
+        @test isapprox(mean(skipmissing(rates)), 3.945; atol=1e-3)
+        @test isapprox(std(skipmissing(rates)), 0.022; atol=1e-3)
+    end
+    """7.4.2 Finding in which days of week we have the most missing values"""
+    let
+        dates = Date.(2020, 6, 1:30)
+        rates = Union{Missing, Float64}[3.968, 3.9303, 3.9121, 3.9573, 3.9217, missing, missing, 3.9197, 3.9453, 3.918, missing, 3.9299, missing, missing, 3.9413, 3.9058, 3.9532, 3.9589, 3.9741, missing, missing, 3.9667, 3.9311, 3.9395, 3.9623, 3.9697, missing, missing, 3.9656, 3.9806]
+        Ans = proptable(dayname.(dates), ismissing.(rates), margins=1)
+        
+        """... Boolean vector ..."""
+        Ans = dayname.(dates) .== "Thursday" .&& ismissing.(rates)
+        @test dates[Ans] == [Date(2020,6,11)] # Poland national holiday
+    
+        """7.4.3 Plotting the PLN/USD exchange rate"""
+        # display(
+        #     plot(dates, rates; xlabel="day", ylabel="PLN/USD", legend=false)
+        # )
+        """... skip ... missing ..."""
+        rates_ok = .!ismissing.(rates)
+        # display(
+        #     plot(dates[rates_ok], rates[rates_ok]; xlabel="day", ylabel="PLN/USD", legend=false)
+        # )
+        """
+        ... linearly interpolated ... missing ...
+        Impute.interp ... Impute.jl ...
+        """
+        rates_filled = Impute.interp(rates)
+        @test any(ismissing.(rates_filled)) == false # no missing
+        #display(plot(dates[rates_ok], rates[rates_ok]; legend=false))
+        #display(scatter!(dates, rates_filled; legend=false))
+    
+        """
+        EXERCISE 7.3
+    
+        The NBP Web API allows you to get a sequence of rates for a period of dates.
+        For example, the query "https://api.nbp.pl/api/exchangerates/rates/a/usd/2020-06-01/2020-06-30/?format=json"
+        returns a sequence of rates from June 2020 for dates where the rate is
+        present. In other words, dates for which there is no rate are skipped.
+        Your task is to parse the result of the above query and confirm that the
+        obtained result is consistent with the data we collected in the dates and
+        rates vectors.
+        """
+    
+        date_1 = Date(2020,6,1)
+        date_2 = Date(2020,6,30)
+        ## Disabled so do not query all the time
+        #dates,rates = query_nbp(date_1, date_2)
+        dates2 = ["2020-06-01", "2020-06-02", "2020-06-03", "2020-06-04", "2020-06-05", "2020-06-08", "2020-06-09", "2020-06-10", "2020-06-12", "2020-06-15", "2020-06-16", "2020-06-17", "2020-06-18", "2020-06-19", "2020-06-22", "2020-06-23", "2020-06-24", "2020-06-25", "2020-06-26", "2020-06-29", "2020-06-30"]
+        rates2 = [3.968, 3.9303, 3.9121, 3.9573, 3.9217, 3.9197, 3.9453, 3.918, 3.9299, 3.9413, 3.9058, 3.9532, 3.9589, 3.9741, 3.9667, 3.9311, 3.9395, 3.9623, 3.9697, 3.9656, 3.9806]
+
+        @test Date.(dates2) == dates[rates_ok]
+        @test rates2 == rates[rates_ok]
+    end
 end
 
+"""
+    query_nbp(query::AbstractString)
+
+Query NBP (National Bank of Poland?) with exception handling.
+The query is in this format
+```
+query = "https://api.nbp.pl/api/exchangerates/rates/" *
+        "a/usd/2020-06-01/?format=json"
+```
+
+Using the try-catch-end block to handle exceptions
+"""
+function query_nbp(query::AbstractString)
+    try
+        response = HTTP.get(query)
+        json = JSON3.read(response.body)
+        return only(json.rates).mid
+    catch e
+        if e isa HTTP.ExceptionRequest.StatusError
+            return missing
+        else
+            rethrow(e)
+        end
+    end
+end
+
+"""
+    get_rate(date::Date)
+
+Get exchange rate from NBP.
+"""
+function get_rate(date::Date)
+    query = "https://api.nbp.pl/api/exchangerates/rates/" *
+            "a/usd/$date/?format=json"
+    try
+        response = HTTP.get(query)
+        json = JSON3.read(response.body)
+        return only(json.rates).mid
+    catch e
+        if e isa HTTP.ExceptionRequest.StatusError
+            return missing
+        else
+            rethrow(e)
+        end
+    end
+end
+
+
+"""
+    query_nbp(date_1::Date, date_2::Date)
+
+Get exchange rates between two dates.  Only valid data is returned from the server.
+"""
+function query_nbp(date_1::Date, date_2::Date)
+    query = "https://api.nbp.pl/api/exchangerates/rates/" *
+                "a/usd/$(date_1)/$(date_2)/?format=json"
+    try
+        response = HTTP.get(query)
+        json = JSON3.read(response.body)
+        dates = [rate.effectiveDate for rate in json.rates]
+        rates = [rate.mid for rate in json.rates]
+        return dates, rates
+    catch e
+        if e isa HTTP.ExceptionRequest.StatusError
+            return missing
+        else
+            rethrow(e)
+        end
+    end
+end
 
 
 current_logger = global_logger()
