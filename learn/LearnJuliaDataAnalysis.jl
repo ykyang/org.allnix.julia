@@ -1,5 +1,6 @@
 # Book: Julia for Data Analysis
 # https://livebook.manning.com/book/julia-for-data-analysis/chapter-2/v-3/10
+# https://github.com/bkamins/JuliaForDataAnalysiss
 
 # 2 Getting started with Julia
 # k-times winsorized mean
@@ -1222,7 +1223,7 @@ function learn_ch7()
         @test dayname.(Date(2021,1,1):Month(1):Date(2021,12,31)) == ["Friday", "Monday", "Monday", "Thursday", "Saturday", "Tuesday", "Thursday", "Sunday", "Wednesday", "Friday", "Monday", "Wednesday"]
     end
 
-    """7.3.2 """
+    """7.3.2 Fetching data from NBP Web API for a range of dates"""
     
     let
         dates = Date.(2020, 6, 1:30)
@@ -1371,6 +1372,47 @@ function query_nbp(date_1::Date, date_2::Date)
     end
 end
 
+"""
+Part 2: Toolbox for Data Analysis
+
+... DataFrames.jl ... data analysis piplines ... 
+fetching, reading, transformation data ...
+"""
+
+"""
+    learn_ch8()
+
+Chapter 8: First steps with data frames
+```
+This chapter covers
+... compressed files
+... CSV ... Apache Arrow ... SQLite ...
+... get columns ...
+... statistics of data ...
+... visualization ... 
+
+... DataFrames.jl ... chess puzzle ... popularity vs. difficulty ...
+data ... Lichess ... bzip2 ... CSV ... select column ... Apache Arrow ...
+SQLite ...
+```
+"""
+function learn_ch8()
+    """8.1 Fetching, unpacking, and inspecting the data"""
+    let
+        
+        # https://github.com/bkamins/JuliaForDataAnalysis/blob/main/puzzles.csv.bz2
+        filename = "puzzles.csv.bz2"
+        url = "https://github.com/bkamins/JuliaForDataAnalysis/blob/main/puzzles.csv.bz2" 
+        #url = "https://database.lichess.org/lichess_db_puzzle.csv.bz2"
+       
+        if isfile(filename)
+            @info "$filename already present"
+        else
+            @info "Download $filename"
+            Download.download(url, filename)
+        end
+    end
+end
 
 current_logger = global_logger()
 global_logger(ConsoleLogger(stdout, Logging.Info))
@@ -1381,7 +1423,8 @@ global_logger(ConsoleLogger(stdout, Logging.Info))
 # learn_ch4()
 # learn_ch5()
 # learn_ch6()
-learn_ch7()
+# learn_ch7()
+learn_ch8()
 
 global_logger(current_logger)
 end # LearnJuliaDataAnalysis
