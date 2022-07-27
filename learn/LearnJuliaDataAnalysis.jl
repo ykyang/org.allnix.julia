@@ -33,6 +33,7 @@ using JSON3         # 7
 using Missings      # 7.2.2
 using Dates         # 7.3
 using Impute        # 7.4.2
+using CodecBzip2    # 8.1
 
 include("Learn.jl")
 using .Learn
@@ -1398,10 +1399,11 @@ SQLite ...
 """
 function learn_ch8()
     """8.1 Fetching, unpacking, and inspecting the data"""
-    let
-        
+    let 
+        """8.1. Downloading the file from the web"""
         # https://github.com/bkamins/JuliaForDataAnalysis/blob/main/puzzles.csv.bz2
         filename = "puzzles.csv.bz2"
+        ## Need to download manually from github
         url = "https://github.com/bkamins/JuliaForDataAnalysis/blob/main/puzzles.csv.bz2" 
         #url = "https://database.lichess.org/lichess_db_puzzle.csv.bz2"
        
@@ -1409,9 +1411,18 @@ function learn_ch8()
             @info "$filename already present"
         else
             @info "Download $filename"
-            Download.download(url, filename)
+            Downloads.download(url, filename)
         end
+
+        """8.1. Working with bzip2 archives"""
+        """
+        ... read ... UInt8[] ... decompress ... UInt8[] ...
+        """
+        compressed = read(filename)
+        @test compressed isa Vector{UInt8}
+        @test length(compressed) == 94032447
     end
+
 end
 
 current_logger = global_logger()
