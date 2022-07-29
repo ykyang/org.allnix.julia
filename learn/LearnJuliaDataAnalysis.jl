@@ -36,6 +36,7 @@ using Impute        # 7.4.2
 using CodecBzip2    # 8.1
 using CSV           # 8.2
 using DataFrames    # 8.2
+using Arrow         # 8.4
 
 include("Learn.jl")
 using .Learn
@@ -1567,7 +1568,28 @@ function learn_ch8()
     #display(plt)
 
     """8.4 Reading and writing data frames using different formats"""
+    """
+    ... Apache Arrow (Arrow.jl) ... Apache Avro (Avro.jl) ... 
+    Apache Parquet (Parquet.jl) ... Excel (XLSX.jl) ... MySQL (MySQL.jl) ...
+    PostgreSQL (LibPQ.jl) ... SQLite (SQLite.jl) ...
+    """
 
+    """8.4. Apache Arrow"""
+    if !isfile("puzzles.arrow")
+        Arrow.write("puzzles.arrow", puzzles)
+    end
+    @info """Arrow.Table("puzzles.arrow")"""
+    arrow_table = Arrow.Table("puzzles.arrow")
+    @info "Done"
+    puzzles_arrow = DataFrame(arrow_table)
+    @test puzzles_arrow == puzzles
+
+    """... Apache Arrow ... read-only ..."""
+    @test typeof(puzzles_arrow.PuzzleId) == Arrow.List{String, Int32, Vector{UInt8}}
+    @test length(puzzles_arrow.PuzzleId) == 2132989 
+
+    @test_throws ErrorException puzzles_arrow.PuzzleId[1] = "newID"
+    
     return db
 end
 

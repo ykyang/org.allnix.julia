@@ -59,6 +59,18 @@ git-tree-sha1 = "7d255eb1d2e409335835dc8624c35d97453011eb"
 uuid = "30b0a656-2188-435a-8636-2ec0e6a096e2"
 version = "0.1.14"
 
+[[deps.Arrow]]
+deps = ["ArrowTypes", "BitIntegers", "CodecLz4", "CodecZstd", "DataAPI", "Dates", "Mmap", "PooledArrays", "SentinelArrays", "Tables", "TimeZones", "UUIDs"]
+git-tree-sha1 = "4e7aa2021204bd9456ad3e87372237e84ee2c3c1"
+uuid = "69666777-d1a9-59fb-9406-91d4454c9d45"
+version = "2.3.0"
+
+[[deps.ArrowTypes]]
+deps = ["UUIDs"]
+git-tree-sha1 = "a0633b6d6efabf3f76dacd6eb1b3ec6c42ab0552"
+uuid = "31f734f8-188a-4ce0-8406-c8a06bd891cd"
+version = "1.2.1"
+
 [[deps.Artifacts]]
 uuid = "56f22d72-fd6d-98f1-02f0-08ddc0907c33"
 
@@ -105,6 +117,12 @@ deps = ["Libdl", "Logging", "SHA"]
 git-tree-sha1 = "ecdec412a9abc8db54c0efc5548c64dfce072058"
 uuid = "b99e7846-7c00-51b0-8f62-c81ae34c0232"
 version = "0.5.10"
+
+[[deps.BitIntegers]]
+deps = ["Random"]
+git-tree-sha1 = "5a814467bda636f3dde5c4ef83c30dd0a19928e0"
+uuid = "c3b6d118-76ef-56ca-8cc7-ebb389d030a1"
+version = "0.2.6"
 
 [[deps.Blink]]
 deps = ["Base64", "BinDeps", "Distributed", "JSExpr", "JSON", "Lazy", "Logging", "MacroTools", "Mustache", "Mux", "Reexport", "Sockets", "WebIO", "WebSockets"]
@@ -199,11 +217,23 @@ git-tree-sha1 = "2e62a725210ce3c3c2e1a3080190e7ca491f18d7"
 uuid = "523fee87-0ab8-5b00-afb7-3ecf72e48cfd"
 version = "0.7.2"
 
+[[deps.CodecLz4]]
+deps = ["Lz4_jll", "TranscodingStreams"]
+git-tree-sha1 = "59fe0cb37784288d6b9f1baebddbf75457395d40"
+uuid = "5ba52731-8f18-5e0d-9241-30f10d1ec561"
+version = "0.4.0"
+
 [[deps.CodecZlib]]
 deps = ["TranscodingStreams", "Zlib_jll"]
 git-tree-sha1 = "ded953804d019afa9a3f98981d99b33e3db7b6da"
 uuid = "944b1d66-785c-5afd-91f1-9de20f533193"
 version = "0.7.0"
+
+[[deps.CodecZstd]]
+deps = ["CEnum", "TranscodingStreams", "Zstd_jll"]
+git-tree-sha1 = "849470b337d0fa8449c21061de922386f32949d9"
+uuid = "6b39b394-51ab-5f42-8807-6242bab2b4c2"
+version = "0.7.2"
 
 [[deps.ColorBrewer]]
 deps = ["Colors", "JSON", "Test"]
@@ -470,6 +500,11 @@ deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
 git-tree-sha1 = "bad72f730e9e91c08d9427d5e8db95478a3c323d"
 uuid = "2e619515-83b5-522b-bb60-26c02a35a201"
 version = "2.4.8+0"
+
+[[deps.ExprTools]]
+git-tree-sha1 = "56559bbef6ca5ea0c0818fa5c90320398a6fbf8d"
+uuid = "e2ba6199-217a-4e67-a87a-7c52f15ade04"
+version = "0.1.8"
 
 [[deps.ExproniconLite]]
 git-tree-sha1 = "8b08cc88844e4d01db5a2405a08e9178e19e479e"
@@ -1130,6 +1165,12 @@ git-tree-sha1 = "590db54191f99a5016274784480fabf92ae7a034"
 uuid = "ae8d54c2-7ccd-5906-9d76-62fc9837b5bc"
 version = "3.3.0"
 
+[[deps.Lz4_jll]]
+deps = ["Artifacts", "JLLWrappers", "Libdl", "Pkg"]
+git-tree-sha1 = "5d494bc6e85c4c9b626ee0cab05daa4085486ab1"
+uuid = "5ced341a-0733-55b8-9ab6-a4889d929147"
+version = "1.9.3+0"
+
 [[deps.MD5]]
 deps = ["Random", "SHA"]
 git-tree-sha1 = "eeffe42284464c35a08026d23aa948421acf8923"
@@ -1226,6 +1267,12 @@ version = "1.0.2"
 
 [[deps.Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
+
+[[deps.Mocking]]
+deps = ["Compat", "ExprTools"]
+git-tree-sha1 = "29714d0a7a8083bba8427a4fbfb00a540c681ce7"
+uuid = "78c3b35d-d492-501b-9361-3d52fe80e533"
+version = "0.7.3"
 
 [[deps.ModernGL]]
 deps = ["Libdl"]
@@ -1874,6 +1921,12 @@ deps = ["OffsetArrays"]
 git-tree-sha1 = "5683455224ba92ef59db72d10690690f4a8dc297"
 uuid = "06e1c1a7-607b-532d-9fad-de7d9aa2abac"
 version = "0.3.1"
+
+[[deps.TimeZones]]
+deps = ["Dates", "Downloads", "InlineStrings", "LazyArtifacts", "Mocking", "Printf", "RecipesBase", "Scratch", "Unicode"]
+git-tree-sha1 = "d634a3641062c040fc8a7e2a3ea17661cc159688"
+uuid = "f269a46b-ccf7-5d73-abea-4c690281aa53"
+version = "1.9.0"
 
 [[deps.TranscodingStreams]]
 deps = ["Random", "Test"]
