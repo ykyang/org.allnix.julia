@@ -34,6 +34,8 @@ using Missings      # 7.2.2
 using Dates         # 7.3
 using Impute        # 7.4.2
 using CodecBzip2    # 8.1
+using CSV           # 8.2
+using DataFrames    # 8.2
 
 include("Learn.jl")
 using .Learn
@@ -1398,36 +1400,181 @@ SQLite ...
 ```
 """
 function learn_ch8()
+    db = Dict()
+    puzzles = nothing
     """8.1 Fetching, unpacking, and inspecting the data"""
+
+    """8.1. Downloading the file from the web"""
     let 
-        """8.1. Downloading the file from the web"""
         # https://github.com/bkamins/JuliaForDataAnalysis/blob/main/puzzles.csv.bz2
-        filename = "puzzles.csv.bz2"
-        ## Need to download manually from github
+        bz2_filename = "puzzles.csv.bz2"
+        ## Need to download manually from github due to github limit
         url = "https://github.com/bkamins/JuliaForDataAnalysis/blob/main/puzzles.csv.bz2" 
         #url = "https://database.lichess.org/lichess_db_puzzle.csv.bz2"
        
-        if isfile(filename)
-            @info "$filename already present"
+        if isfile(bz2_filename)
+            @debug "$bz2_filename already present"
         else
-            @info "Download $filename"
-            Downloads.download(url, filename)
+            @debug "Download $bz2_filename"
+            Downloads.download(url, bz2_filename)
         end
 
         """8.1. Working with bzip2 archives"""
         """
         ... read ... UInt8[] ... decompress ... UInt8[] ...
         """
-        compressed = read(filename)
-        @test compressed isa Vector{UInt8}
-        @test length(compressed) == 94032447
+        csv_filename = "puzzles.csv"
+        if !isfile(csv_filename)
+            compressed = read(bz2_filename)
+            @test compressed isa Vector{UInt8}
+            @test length(compressed) == 94032447
+            plain = transcode(Bzip2Decompressor, compressed) # long time
+            @test length(plain) == 366020640
+
+            ## column names given here https://database.lichess.org/#puzzles
+            open(csv_filename, "w") do io
+                println(io, "PuzzleId,FEN,Moves,Rating,RatingDeviation,Popularity,NbPlays,Themes,GameUrl")
+                write(io,plain)
+            end
+        end
+        """
+        ... transcode() ... string encoding ... transcoding data streams ...
+
+        1. ... converting ... UTF-8 ... UTF-16 ... UTF-32 ...
+        2. ... gzip, zlib ... CodecZlib.jl ... bzip2 ... CodecBzip2.jl ...
+        xz ... CodecXz.jl ... zsdf ... CodecZstd.jl ... base16, base32, 
+        base64 ... CodecBase.jl ...
+        """
     end
 
+    """8.1. Inspecting the CSV file"""
+    let
+        csv_filename = "puzzles.csv"
+        #lines = readlines(csv_filename)
+    end
+
+    """8.2 Loading the data to a data frame"""
+    let
+        """8.2. Reading a CSV file into a data frame"""
+        bz2_filename = "puzzles.csv.bz2"
+        csv_filename = "puzzles.csv"
+        """
+        ... read from file ...
+        """
+        @info "Read $(csv_filename)"
+        puzzles = CSV.read(csv_filename, DataFrame); db[:puzzles] = puzzles
+        @info "Done"
+        """
+        ... read from byte array ...
+        """
+        # @info "Read from byte array"
+        # compressed = read(bz2_filename)
+        # plain = transcode(Bzip2Decompressor, compressed) # long time
+        # puzzles2 = CSV.read(plain, DataFrame;
+        #     header = ["PuzzleId","FEN","Moves","Rating","RatingDeviation","Popularity","NbPlays","Themes","GameUrl"]
+        # )
+        # @info "Done"
+        # @test puzzles == puzzles2
+
+        """
+        https://csv.juliadata.org/stable/reading.html 
+        ... common CSV read keyword arguments ... header ... limit ... missingstring
+        ... delim ... ignorerepeated ... dateformat ... decimal ... stringtype
+        ... pool ...
+        """
+
+        ## https://dataframes.juliadata.org/stable/lib/functions/#DataAPI.describe
+        describe(puzzles)
+
+        @test ncol(puzzles) == 9       # no. of columns
+        @test nrow(puzzles) == 2132989 # no. of rows
+        @test names(puzzles) == [
+            "PuzzleId","FEN","Moves","Rating","RatingDeviation","Popularity",
+            "NbPlays","Themes","GameUrl"
+        ]
+
+        """8.2. Saving a data frame to a CSV file"""
+        if !isfile("puzzles2.csv")
+            CSV.write("puzzles2.csv", puzzles)
+        end
+
+        """
+        ... check if puzzles.csv == puzzles2.csv ...
+        """
+        @info """read("puzzles.csv") == read("puzzles2.csv")"""
+        @test read("puzzles.csv") == read("puzzles2.csv")
+        @info "Done"
+
+        """
+        https://csv.juliadata.org/stable/writing.html
+        ... common CSV write keyword arguments ... delim ... missingstring ...
+        dateformat ... append ... compress ... decimal ...
+        """
+    end
+
+    """8.3 Getting a column out of a data frame"""
+    """8.3.1 Data frame's storage model"""
+    """8.3.2 Treating a data frame column as a property"""
+    
+    @test puzzles.Rating === puzzles."Rating" === puzzles[!,:Rating]
+    
+    """
+    EXERCISE 8.1
+
+    Using the BenchmarkTools.jl package measure the performance of getting a
+    column from a data frame using the puzzles."Rating" syntax.
+    """
+    # @btime $(puzzles.Rating)   # 1.600 ns (0 allocations: 0 bytes)
+    # @btime $(puzzles."Rating") # 1.600 ns (0 allocations: 0 bytes)
+
+
+    """8.3.3 Getting a column using data frame indexing"""
+    @test puzzles[:,"Rating"] ==  puzzles[:,:Rating] ==  puzzles[:,4]
+    @test puzzles[:,"Rating"] !== puzzles[:,:Rating] !== puzzles[:,4]
+
+    @test columnindex(puzzles, "Rating")         == 4
+    @test columnindex(puzzles, :Rating)          == 4
+    @test columnindex(puzzles, "Does not exist") == 0
+
+    @test hasproperty(puzzles, "Rating")        == true
+    @test hasproperty(puzzles, "Does not exit") == false
+
+    @test puzzles[!,"Rating"] ==  puzzles[!,:Rating] ==  puzzles[!,4]
+    @test puzzles[!,"Rating"] === puzzles[!,:Rating] === puzzles[!,4]
+
+    """8.3.4 Visualizing data stored in columns of data frame"""
+    """
+    names(puzzles) == [
+        "PuzzleId","FEN","Moves","Rating","RatingDeviation","Popularity",
+        "NbPlays","Themes","GameUrl"
+    ]
+    """
+    """
+    Same as below but hard coded
+
+    plt = plot(
+        histogram(puzzles.Rating;          label="Rating"),
+        histogram(puzzles.RatingDeviation, label="RatingDeviation"),
+        histogram(puzzles.Popularity,      label="Popularity"),
+        histogram(puzzles.NbPlays,         label="NbPlays")
+    )
+    """
+    plt = plot([
+        histogram(puzzles[!,col], label=col) for col in [
+            "Rating","RatingDeviation","Popularity","NbPlays"
+        ]
+    ]...)
+    #display(plt)
+
+    """8.4 Reading and writing data frames using different formats"""
+
+    return db
 end
 
 current_logger = global_logger()
 global_logger(ConsoleLogger(stdout, Logging.Info))
 
+# db = Dict()
 # learn_memory_layout()
 # learn_types()
 # learn_ch2()
@@ -1435,7 +1582,8 @@ global_logger(ConsoleLogger(stdout, Logging.Info))
 # learn_ch5()
 # learn_ch6()
 # learn_ch7()
-learn_ch8()
+# learn_ch8()
+
 
 global_logger(current_logger)
 end # LearnJuliaDataAnalysis
