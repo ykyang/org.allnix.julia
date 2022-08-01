@@ -37,6 +37,7 @@ using CodecBzip2    # 8.1
 using CSV           # 8.2
 using DataFrames    # 8.2
 using Arrow         # 8.4
+using SQLite        # 8.4
 
 include("Learn.jl")
 using .Learn
@@ -1401,8 +1402,12 @@ SQLite ...
 ```
 """
 function learn_ch8()
-    db = Dict()
+    ans_db = Dict()
     puzzles = nothing
+    col_names = [
+        "PuzzleId","FEN","Moves","Rating","RatingDeviation","Popularity",
+        "NbPlays","Themes","GameUrl"
+    ]
     """8.1 Fetching, unpacking, and inspecting the data"""
 
     """8.1. Downloading the file from the web"""
@@ -1463,7 +1468,7 @@ function learn_ch8()
         ... read from file ...
         """
         @info "Read $(csv_filename)"
-        puzzles = CSV.read(csv_filename, DataFrame); db[:puzzles] = puzzles
+        puzzles = CSV.read(csv_filename, DataFrame); ans_db[:puzzles] = puzzles
         @info "Done"
         """
         ... read from byte array ...
@@ -1489,10 +1494,8 @@ function learn_ch8()
 
         @test ncol(puzzles) == 9       # no. of columns
         @test nrow(puzzles) == 2132989 # no. of rows
-        @test names(puzzles) == [
-            "PuzzleId","FEN","Moves","Rating","RatingDeviation","Popularity",
-            "NbPlays","Themes","GameUrl"
-        ]
+        @test names(puzzles) == col_names
+        
 
         """8.2. Saving a data frame to a CSV file"""
         if !isfile("puzzles2.csv")
@@ -1584,13 +1587,60 @@ function learn_ch8()
     puzzles_arrow = DataFrame(arrow_table)
     @test puzzles_arrow == puzzles
 
-    """... Apache Arrow ... read-only ..."""
+    """
+    ... Apache Arrow ... read-only ...
+    """
     @test typeof(puzzles_arrow.PuzzleId) == Arrow.List{String, Int32, Vector{UInt8}}
     @test length(puzzles_arrow.PuzzleId) == 2132989 
-
     @test_throws ErrorException puzzles_arrow.PuzzleId[1] = "newID"
     
-    return db
+    """
+    ... copy ... materizalize Apache Arror ...
+    """
+    puzzles_arrow = copy(puzzles_arrow)
+    @test puzzles_arrow isa DataFrame
+
+    """8.4. SQLite"""
+    """
+    ... create ... store ... select ...
+    """
+    db = SQLite.DB("puzzles.db")
+    @test db isa SQLite.DB
+    if filesize("puzzles.db") == 0
+        @info "Load puzzles.db"
+        SQLite.load!(puzzles, db, "puzzles") # last arg is table name in SQLite
+    end
+    let
+        tables = SQLite.tables(db) # List of tables
+        @test tables isa Vector{SQLite.DBTable}
+        @test length(tables) == 1
+        @test tables[1] isa SQLite.DBTable
+        @test SQLite.columns(db, "puzzles").name == col_names
+    end
+    # @info "Query SQLite" # slow
+    # query = DBInterface.execute(db, "SELECT * FROM puzzles")
+    # puzzles_db = DataFrame(query)
+    # @info "Done"
+    # @test puzzles_db == puzzles
+
+    close(db)
+
+    return ans_db
+end
+
+"""
+    learn_ch9
+
+Chapter 9: Getting data from a data frame
+```
+This chapter covers
+... subset
+... select
+... local linear regression
+... visualizing
+```
+"""
+function learn_ch9()
 end
 
 current_logger = global_logger()
@@ -1604,7 +1654,8 @@ global_logger(ConsoleLogger(stdout, Logging.Info))
 # learn_ch5()
 # learn_ch6()
 # learn_ch7()
-# learn_ch8()
+# learn_ch8() # include("LearnJuliaDataAnalysis.jl"); LearnJuliaDataAnalysis.learn_ch8();
+# learn_ch9() # include("LearnJuliaDataAnalysis.jl"); LearnJuliaDataAnalysis.learn_ch9();
 
 
 global_logger(current_logger)
