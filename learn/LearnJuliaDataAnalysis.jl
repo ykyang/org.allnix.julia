@@ -1636,11 +1636,117 @@ Chapter 9: Getting data from a data frame
 This chapter covers
 ... subset
 ... select
-... local linear regression
+... local linear regression (LOESS)
 ... visualizing
+
+... relationship ... difficulty ... popularity ... data cleaning ...
+removing unwanted observations ... data frame indexing ... select ... subset
 ```
 """
 function learn_ch9()
+    ans_db = Dict()
+
+    """9.1 Advanced data frame indexing"""
+
+    """
+    ... column selection ... row subsetting ... data ... skewed ...
+    keep ... Rating ... Popularity ... drop rows ...
+    """
+    """
+    ... conditions to keep puzzle ... played enough times ... too easy ...
+    too hard ...
+    """
+
+    puzzles = CSV.read("puzzles.csv", DataFrame)
+
+    """9.1.1 Getting a reduced puzzles data frame"""
+
+    """
+    No. of plays
+    """
+    plays_lo = median(puzzles.NbPlays) # No. of plays
+    @test plays_lo == 246
+    """
+    Rating
+    """
+    rating_lo = 1500
+    rating_hi = quantile(puzzles.Rating, 0.99)
+    @test rating_hi == 2658
+
+    """indicator vector"""
+    row_selector = 
+        (puzzles.NbPlays .> plays_lo) .&& 
+        (rating_lo .< puzzles.Rating .< rating_hi)
+    @test length(row_selector) == length(puzzles.NbPlays)
+    @test sum(row_selector)   == 513357
+    @test count(row_selector) == 513357
+
+    """good data frame"""
+    good = puzzles[row_selector, ["Rating", "Popularity"]]
+    ans_db[:good] = good
+    @test nrow(good) == 513357
+
+    plt = plot(
+        histogram(good.Rating; label="Rating"),
+        histogram(good.Popularity; label="Popularity")
+    )
+    #display(plt)
+    let
+        """
+        EXERCISE 9.1
+
+        Calculate summary statistics of the "NbPlays" column under two
+        conditions. In the first selecting only puzzles that have popularity
+        equal to 100, and in the second puzzles that have popularity equal to
+        -100. To calculate the summary statistics of a vector, use the
+        summarystats function from the StatsBase.jl package.
+        """
+
+        row_selector = puzzles.Popularity .== 100
+        summarystats(puzzles[row_selector, "NbPlays"])
+        """
+        Length:         148244
+        Missing Count:  0
+        Mean:           283.490280
+        Minimum:        0.000000
+        1st Quartile:   6.000000
+        Median:         124.000000
+        3rd Quartile:   396.000000
+        Maximum:        8899.000000
+        """
+        row_selector = puzzles.Popularity .== -100
+        summarystats(puzzles[row_selector, "NbPlays"])
+        """
+        Length:         13613
+        Missing Count:  0
+        Mean:           4.337839
+        Minimum:        0.000000
+        1st Quartile:   3.000000
+        Median:         4.000000
+        3rd Quartile:   5.000000
+        Maximum:        35.000000        
+        """
+    end
+
+    """9.1.2 Overview of allowed column selectors"""
+    """
+    ... select columns ... using conditions ... column selectors ...
+    single column selectors ... DataFrameRow ... NamedTuple ...
+    """
+    let
+        row1 = puzzles[1, ["Rating", "Popularity"]]
+        @test row1 isa DataFrameRow
+        @test row1["Rating"]     == 1765
+        @test row1["Popularity"] == 93
+        
+    end
+    """
+    ... Symbol ... name ... index ... vector of Boolean ...regular expression
+    ... Not ... Between ... : or All() ... Cols(r"Rating", "NbPlays") ...
+    Cols(startswith("P"))
+    """
+    @show Cols(startswith("P"))
+    return ans_db
 end
 
 current_logger = global_logger()
@@ -1654,8 +1760,8 @@ global_logger(ConsoleLogger(stdout, Logging.Info))
 # learn_ch5()
 # learn_ch6()
 # learn_ch7()
-# learn_ch8() # include("LearnJuliaDataAnalysis.jl"); LearnJuliaDataAnalysis.learn_ch8();
-# learn_ch9() # include("LearnJuliaDataAnalysis.jl"); LearnJuliaDataAnalysis.learn_ch9();
+# learn_ch8() # include("LearnJuliaDataAnalysis.jl"); Ans = LearnJuliaDataAnalysis.learn_ch8();
+# learn_ch9() # include("LearnJuliaDataAnalysis.jl"); Ans = LearnJuliaDataAnalysis.learn_ch9();
 
 
 global_logger(current_logger)
