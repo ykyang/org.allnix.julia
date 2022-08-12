@@ -558,6 +558,13 @@ function learn_making_levels_using_norms()
 
     savefig("making_levels_using_norms", fig)
 end
+
+#TODO
+# https://matplotlib.org/stable/gallery/lines_bars_and_markers/stem_plot.html#stem-plot
+function learn_stem_plot()
+
+end
+
 # https://matplotlib.org/stable/gallery/text_labels_and_annotations/date.html#date-tick-labels
 function learn_date_tick_labels()
     mdates = mpl.dates
@@ -650,6 +657,30 @@ function learn_default_color_cycler()
             "#8c564b", "#e377c2", "#7f7f7f", "#bcbd22", "#17becf"
         ]
     )
+end
+
+
+# TODO
+# https://matplotlib.org/stable/gallery/shapes_and_collections/artist_reference.html#reference-for-matplotlib-artists
+function learn_reference_matplotlib_artists()
+    mlines = plt.matplotlib.lines
+    collections = plt.matplotlib.collections
+    fig,axs = plt.subplots()
+    ax = axs
+    x = [-0.06,  0.0,  0.1]  .+ 0.5
+    y = [ 0.05, -0.05, 0.05] .+ 0.5
+
+    line = mlines.Line2D(x,y, lw=5, alpha=0.3)
+    ax.add_line(line)
+    lines = [
+        0.2 0.3
+        0.3 0.4
+        0.4 0.8
+    ]
+    @show size(line)
+    col = collections.LineCollection([lines], lw=4, alpha=0.5)
+    ax.add_collection(col)
+
 end
 
 # https://matplotlib.org/stable/tutorials/intermediate/color_cycle.html#styling-with-cycler
@@ -1488,12 +1519,13 @@ if false
     learn_colormaps_qualitative()
     learn_colormaps_miscellaneous()
     
+    learn_reference_matplotlib_artists()
 end
 
 
 #learn_date_tick_labels()
 #learn_custom_tick_formatter_for_time_series()
-learn_marker_color()
+#learn_marker_color()
 
 
 #learn_styling_with_cycler()
@@ -1508,13 +1540,14 @@ learn_marker_color()
 #learn_colormap_power_law()
 #learn_colormap_discrete_bounds()
 #learn_colormap_two_slope_norm()
-learn_colormap_func_norm() # TODO
+#learn_colormap_func_norm() # TODO
 
-learn_colormaps_diverging()
-learn_colormaps_cyclic()
-learn_colormaps_qualitative()
-learn_colormaps_miscellaneous()
+# learn_colormaps_diverging()
+# learn_colormaps_cyclic()
+# learn_colormaps_qualitative()
+# learn_colormaps_miscellaneous()
 
+learn_reference_matplotlib_artists()
 end
 nothing
 
