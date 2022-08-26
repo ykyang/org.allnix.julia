@@ -17,6 +17,7 @@ using ..LearnDataFrames
     LearnDataFrames.learn_groupby_1()
     LearnDataFrames.learn_hcat()
     LearnDataFrames.learn_rename()
+    LearnDataFrames.learn_reverse()
     LearnDataFrames.learn_row_iteration()
     LearnDataFrames.learn_set_value()
     LearnDataFrames.learn_sort()

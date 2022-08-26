@@ -356,6 +356,41 @@ function learn_bin_oct_dec_hex_()
     @test string(17, base=2)  == "10001"
 end
 
+function learn_Tuple()
+    let
+        x = (1,2,3)
+        @test x[1] == 1
+    end
+    let
+        x = (a=1, b=2, c=3)
+        @test x.a == 1
+    end
+    let
+        props = (a=Float64[], b=Int[])
+        #@show typeof(x.a)
+        #@show eltype(x.a)
+        z = eltype(props.a)[]
+        #@show z
+        push!(z, 123)
+        @test z[1] == 123
+
+
+        for prop in props
+            #@show prop
+        end
+    end 
+end
+
+function learn_Pair()
+    let
+        props = ["a"=>1, "b"=>2]
+        for prop in props
+            # @show prop
+            # @show prop[1]
+        end
+    end
+end
+
 @testset "Node" begin
     #MyJulia.learn_Node()
     learn_Node()
@@ -370,6 +405,9 @@ end
     # learn_rand(); # Moved to learn_Random.jl
 
     learn_summarysize()
+
+    learn_Pair()
+    learn_Tuple()
 end
 @testset "For-Loop" begin
     learn_for_comma()
@@ -388,7 +426,7 @@ end
     learn_reduce()
 end
 
-learn_bin_oct_dec_hex_()
+#learn_bin_oct_dec_hex_()
 
 #learn_exception()
 #learn_123()

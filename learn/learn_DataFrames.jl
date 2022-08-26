@@ -224,6 +224,20 @@ function learn_add_column()
     )
 
     @test ["4.17 below the mean", "4.17 below the mean", "0.17 below the mean"] == df[!,"note"]
+
+    df = DataFrame(
+        "name"  => ["Liam", "Sophie", "Jacob"],
+        "score" => [8.0, 8.0, 12.0],
+    )
+    insertcols!(
+        df,
+        ncol(df),
+        "age" => [10, 9, 10],
+        after = true,
+    )
+    @test df[!,"age"] == [10, 9, 10]
+    @test df[!, 3] == [10, 9, 10]
+
 end
 
 function learn_get_column()
@@ -304,6 +318,13 @@ function learn_row_iteration()
         # @show typeof(row)
         # @show row["A"]
     end
+end
+
+function learn_reverse()
+    df = simple_table()
+    
+    #@show reverse(df)
+    nothing
 end
 
 function learn_set_value()
