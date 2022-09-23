@@ -1,5 +1,5 @@
 # Learn basic Julia stuff
-module MyJulia
+module LearnJulia
 
 using Test
 import Serialization
@@ -49,7 +49,31 @@ function learn_Node()
 end
 
 
+function learn_arguments()
+    function varg(x, args...; nargs...)
+        # @show typeof(args)
+        # @show args
+        # @show typeof(nargs)
+        # @show nargs
+        for arg in args
+            @show arg
+        end
+        for narg in nargs
+            @show narg
+        end
+    end
+    function varg2(x, args...; nargs...)
+        varg(x, args...; nargs...)
+    end
 
+    varg2(1, 2, 3;x=1, y=2)
+    """
+    arg = 2
+    arg = 3
+    narg = :x => 1
+    narg = :y => 2
+    """
+end
 
 function learn_exception()
     ## Show stack trace after catch
@@ -197,7 +221,7 @@ function learn_CartesianIndex()
 end
 
 function learn_Serialization()
-    node = MyJulia.Node(13)
+    node = LearnJulia.Node(13)
 
     filename = "serialization.jls"
     open(filename, "w") do io
@@ -391,39 +415,19 @@ function learn_Pair()
     end
 end
 
-@testset "Node" begin
-    #MyJulia.learn_Node()
-    learn_Node()
-end
-@testset "Basic" begin
-    learn_resize!()
-    learn_searchsortedfirst()
-
-    learn_CartesianIndex()
-    learn_Serialization()
-
-    # learn_rand(); # Moved to learn_Random.jl
-
-    learn_summarysize()
-
-    learn_Pair()
-    learn_Tuple()
-end
-@testset "For-Loop" begin
-    learn_for_comma()
-    learn_comprehension()
-    learn_for_zip()
-end
-@testset "Matrix" begin
-    learn_Matrix()
-end
-@testset "Math" begin
-    learn_floor_fld_ceil_cld()
-    learn_div_mod()
-end
-
-@testset "Reduce" begin
-    learn_reduce()
+## Learn metaprogramming
+for op in (:set_xlim, :set_ylim)
+    eval(quote
+        function $op(a, b...; nargs...)
+            @show a
+            for arg in b
+                @show arg
+            end
+            for narg in nargs
+                @show narg
+            end
+        end
+    end)
 end
 
 #learn_bin_oct_dec_hex_()
