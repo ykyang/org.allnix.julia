@@ -139,7 +139,7 @@ end
 function learn_for_comma()
     ijs = []
 
-    for i in 1:2, j in 3:4
+    for i in 1:2, j in 3:4 # loop through j first
         push!(ijs, (i,j))
     end
 

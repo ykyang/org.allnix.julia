@@ -497,7 +497,7 @@ end
 function learn_centered_coordinates()
     Random.seed!(19680801)
     
-    Z = rand(6,10)
+    Z = rand(6,10); @show Z
     x = 0:9
     y = 0:5
     X,Y = meshgrid(x,y)
@@ -1522,6 +1522,7 @@ if false
     learn_reference_matplotlib_artists()
 end
 
+learn_centered_coordinates()
 
 #learn_date_tick_labels()
 #learn_custom_tick_formatter_for_time_series()
@@ -1547,7 +1548,7 @@ end
 # learn_colormaps_qualitative()
 # learn_colormaps_miscellaneous()
 
-learn_reference_matplotlib_artists()
+# learn_reference_matplotlib_artists()
 end
 nothing
 
