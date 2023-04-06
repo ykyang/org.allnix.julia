@@ -1,0 +1,4 @@
+[deps]
+matplotlib = ""
+numpy = ""
+python = "3.8.16"

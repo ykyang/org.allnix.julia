@@ -13,3 +13,4 @@ dev/
 .ipynb_checkpoints/
 __pycache__/
 
+.CondaPkg/
