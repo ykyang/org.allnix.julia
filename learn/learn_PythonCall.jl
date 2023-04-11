@@ -21,3 +21,5 @@ using PythonCall
 #plt.show(block=false)
 #display(fig)
 #show(fig)
+
+## https://cjdoris.github.io/PythonCall.jl/stable/pythoncall-reference/
