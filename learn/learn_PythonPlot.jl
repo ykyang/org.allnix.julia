@@ -9,10 +9,11 @@ plt = PythonPlot.matplotlib.pyplot
 
 function savefig(filename; fmt="png", force=true)
     filepath = joinpath("output", "$(filename).$(fmt)")
-    #filepath = joinpath("$(filename).$(fmt)")
+    
     if isfile(filepath) && force
         rm(filepath)
     end
+    
     plt.savefig(filepath, format=fmt, dpi=144)
 end
 
@@ -24,11 +25,17 @@ end
 function subplots()
     return plt.subplots()
 end
+
+"""
+    subplots(m,n; nargs...)
+
+Wrap `axs` returned by `plt.subplot(...)` in `PyArray` to make the array
+unit-offset.
+"""
 function subplots(m,n; nargs...)
     fig,axs = plt.subplots(m,n; nargs...)
-    axs = PyArray(axs)
 
-    return fig, axs
+    return fig, PyArray(axs)
 end
 
 # https://matplotlib.org/stable/tutorials/introductory/usage.html#a-simple-example
