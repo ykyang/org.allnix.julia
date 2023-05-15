@@ -1,4 +1,5 @@
 [deps]
 matplotlib = ""
 numpy = ""
+sympy = ""
 python = "3.8.16"

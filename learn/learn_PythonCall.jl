@@ -1,4 +1,7 @@
-# module MyPythonCall
+module MyPythonCall
+
+## Do not use matplotlib directly.  Use it through PythonPlot
+
 # import matplotlib as mpl
 # import matplot
 # end
@@ -23,3 +26,10 @@ using PythonCall
 #show(fig)
 
 ## https://cjdoris.github.io/PythonCall.jl/stable/pythoncall-reference/
+
+
+re = pyimport("re")
+@show re
+@show typeof(re)
+@show pytype(re)
+end
