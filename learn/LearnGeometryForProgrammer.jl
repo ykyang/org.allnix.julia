@@ -108,7 +108,29 @@ end
 3.    The geometry of linear equations
 3.1   Linear equations as lines and planes
       Definition of linear equation, solution
-
+3.1.1 Introducing a hyperplane
+      Hyperplane
+3.1.2 A solution is where hyperplanes intersect
+      Indeterminate, linearly dependent
+      Almost-parallel hyperplanes
+3.2   Overspecified and underspecified systems
+3.2.1 Overspecified systems
+      Solved numerically and inaccurately
+3.2.2 Underspecified systems
+      Solved symbolically
+3.3   A visual example of an interactive linear solver
+3.3.1 The basic principle of iteration
+      Iteration
+3.3.2 Starting point and exit conditions
+      Tolerance
+3.3.3 Convergence and stability
+      Stability: Not to accumulate error
+3.4   Direct solver
+3.4.1 Turning an iterative solver into a direct one
+TODO  3.4.2 Algorithm complexity
+3.5   Linear equations system as matrix multiplication
+3.5.1 Matrix equations
+3.5.2 What types of matrices we should know about
 
 """
 
