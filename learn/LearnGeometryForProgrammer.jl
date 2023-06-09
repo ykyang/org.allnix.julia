@@ -131,9 +131,58 @@ TODO  3.4.2 Algorithm complexity
 3.5   Linear equations system as matrix multiplication
 3.5.1 Matrix equations
 3.5.2 What types of matrices we should know about
-
+      Identity matrix, diagonal matrix, triangular matrix
+3.5.3 Things we're allowed to do with equations
+      Scale all coefficients, add equations together, swap equations
+3.6   Solving linear systems with Gaussian elimination and LU-decomposition
+3.6.1 An example of Gaussian elimination
+3.6.2 What do "elimination" and "decomposition" mean?
+3.7   Which solver fits my problem best?
+3.7.1 When to use an elimination-based one
+3.7.2 When to use an iterative one
+3.7.3 When to use neighter
+3.8   Practical example: Does a ray hit a triangle?
+3.8.1 The ray-triangle intersection problem
+3.8.2 Forming a system
+      Px + tdx = Ax + ABxu + ACxv
+      Py + tdy = Ay + AByu + ACyv
+      Pz + tdz = Az + ABzu + ACzv
+3.8.3 Making the equations into code
 """
 
+function learn_3_8_3_py()
+      sympy = pyimport("sympy")
+      indent = "    "
+      @info "Listing 3.1 Solving the ray-triangle intersection symbolically"
+      let
+          # Solve for t, u, v
+          # Px + tdx = Ax + ABxu + ACxv
+          # Py + tdy = Ay + AByu + ACyv
+          # Pz + tdz = Az + ABzu + ACzv
+
+          Px, Py, Pz    = sympy.symbols("Px Py Pz")
+          dx, dy, dz    = sympy.symbols("dx, dy, dz")
+          Ax, Ay, Az    = sympy.symbols("Ax, Ay, Az")
+          ABx, ABy, ABz = sympy.symbols("ABx, ABy, ABz")
+          ACx, ACy, ACz = sympy.symbols("ACx, ACy, ACz")
+          t, u, v       = sympy.symbols("t, u, v")
+
+          solution = sympy.solve([
+            Px + t*dx - (Ax + ABx*u + ACx*v),
+            Py + t*dy - (Ay + ABy*u + ACy*v),
+            Pz + t*dz - (Az + ABz*u + ACz*v),
+          ], (t, u, v))
+          @info "$(indent)$(solution)"
+          # {t: (ABx*ACy*Az - ABx*ACy*Pz - ABx*ACz*Ay + ABx*ACz*Py - ABy*ACx*Az + ABy*ACx*Pz + ABy*ACz*Ax - ABy*ACz*Px + ABz*ACx*Ay - ABz*ACx*Py - ABz*ACy*Ax + ABz*ACy*Px)/(ABx*ACy*dz - ABx*ACz*dy - ABy*ACx*dz + ABy*ACz*dx + ABz*ACx*dy - ABz*ACy*dx), 
+          #  u: (ACx*Ay*dz - ACx*Az*dy - ACx*Py*dz + ACx*Pz*dy - ACy*Ax*dz + ACy*Az*dx + ACy*Px*dz - ACy*Pz*dx + ACz*Ax*dy - ACz*Ay*dx - ACz*Px*dy + ACz*Py*dx)            /(ABx*ACy*dz - ABx*ACz*dy - ABy*ACx*dz + ABy*ACz*dx + ABz*ACx*dy - ABz*ACy*dx), 
+          #  v: (-ABx*Ay*dz + ABx*Az*dy + ABx*Py*dz - ABx*Pz*dy + ABy*Ax*dz - ABy*Az*dx - ABy*Px*dz + ABy*Pz*dx - ABz*Ax*dy + ABz*Ay*dx + ABz*Px*dy - ABz*Py*dx)           /(ABx*ACy*dz - ABx*ACz*dy - ABy*ACx*dz + ABy*ACz*dx + ABz*ACx*dy - ABz*ACy*dx)}
+          
+          # divisor: (ABx*ACy*dz - ABx*ACz*dy - ABy*ACx*dz + ABy*ACz*dx + ABz*ACx*dy - ABz*ACy*dx)
+          divisor = sympy.collect(ABx*ACy*dz - ABx*ACz*dy - ABy*ACx*dz + ABy*ACz*dx + ABz*ACx*dy - ABz*ACy*dx, (dx,dy,dz))
+          # divisor = dx*(ABy*ACz - ABz*ACy) + dy*(-ABx*ACz + ABz*ACx) + dz*(ABx*ACy - ABy*ACx)
+          
+      end
+end
 
 end
 
