@@ -144,6 +144,18 @@ TODO  3.4.2 Algorithm complexity
 3.8   Practical example: Does a ray hit a triangle?
 3.8.1 The ray-triangle intersection problem
 3.8.2 Forming a system
+      Line
+          R = P + t d, t >= 0
+
+      Triangle
+          S = A + uAB + vAC
+          u ≥ 0, v ≥ 0, u + v ≤ 1
+      
+      Intersection
+                R = S
+          P + t d = A + uAB + vAC
+
+      Scalar form in 3D
       Px + tdx = Ax + ABxu + ACxv
       Py + tdy = Ay + AByu + ACyv
       Pz + tdz = Az + ABzu + ACzv
@@ -152,8 +164,8 @@ TODO  3.4.2 Algorithm complexity
 
 function learn_3_8_3_py()
       sympy = pyimport("sympy")
-      indent = "    "
       @info "Listing 3.1 Solving the ray-triangle intersection symbolically"
+      indent = "    "
       let
           # Solve for t, u, v
           # Px + tdx = Ax + ABxu + ACxv
@@ -168,22 +180,71 @@ function learn_3_8_3_py()
           t, u, v       = sympy.symbols("t, u, v")
 
           solution = sympy.solve([
-            Px + t*dx - (Ax + ABx*u + ACx*v),
-            Py + t*dy - (Ay + ABy*u + ACy*v),
-            Pz + t*dz - (Az + ABz*u + ACz*v),
+              Px + t*dx - (Ax + ABx*u + ACx*v),
+              Py + t*dy - (Ay + ABy*u + ACy*v),
+              Pz + t*dz - (Az + ABz*u + ACz*v),
           ], (t, u, v))
-          @info "$(indent)$(solution)"
+          #@info "$(indent)$(solution)"
+          @info "$(indent)t = $(solution[t])"
+          @info "$(indent)u = $(solution[u])"
+          @info "$(indent)v = $(solution[v])"
           # {t: (ABx*ACy*Az - ABx*ACy*Pz - ABx*ACz*Ay + ABx*ACz*Py - ABy*ACx*Az + ABy*ACx*Pz + ABy*ACz*Ax - ABy*ACz*Px + ABz*ACx*Ay - ABz*ACx*Py - ABz*ACy*Ax + ABz*ACy*Px)/(ABx*ACy*dz - ABx*ACz*dy - ABy*ACx*dz + ABy*ACz*dx + ABz*ACx*dy - ABz*ACy*dx), 
           #  u: (ACx*Ay*dz - ACx*Az*dy - ACx*Py*dz + ACx*Pz*dy - ACy*Ax*dz + ACy*Az*dx + ACy*Px*dz - ACy*Pz*dx + ACz*Ax*dy - ACz*Ay*dx - ACz*Px*dy + ACz*Py*dx)            /(ABx*ACy*dz - ABx*ACz*dy - ABy*ACx*dz + ABy*ACz*dx + ABz*ACx*dy - ABz*ACy*dx), 
           #  v: (-ABx*Ay*dz + ABx*Az*dy + ABx*Py*dz - ABx*Pz*dy + ABy*Ax*dz - ABy*Az*dx - ABy*Px*dz + ABy*Pz*dx - ABz*Ax*dy + ABz*Ay*dx + ABz*Px*dy - ABz*Py*dx)           /(ABx*ACy*dz - ABx*ACz*dy - ABy*ACx*dz + ABy*ACz*dx + ABz*ACx*dy - ABz*ACy*dx)}
           
-          # divisor: (ABx*ACy*dz - ABx*ACz*dy - ABy*ACx*dz + ABy*ACz*dx + ABz*ACx*dy - ABz*ACy*dx)
-          divisor = sympy.collect(ABx*ACy*dz - ABx*ACz*dy - ABy*ACx*dz + ABy*ACz*dx + ABz*ACx*dy - ABz*ACy*dx, (dx,dy,dz))
-          # divisor = dx*(ABy*ACz - ABz*ACy) + dy*(-ABx*ACz + ABz*ACx) + dz*(ABx*ACy - ABy*ACx)
+          @info "Collect (simplify) terms"
+          @info "$(indent)Simplify divisor"
+          divisor = let 
+            divisor = (ABx*ACy*dz - ABx*ACz*dy - ABy*ACx*dz + ABy*ACz*dx + ABz*ACx*dy - ABz*ACy*dx)
+            @info "$(indent)divisor = $(divisor)"
+            divisor = sympy.collect(divisor, (dx,dy,dz))
+            @info "$(indent)divisor = $divisor" # [ Info: divisor = dx*(ABy*ACz - ABz*ACy) + dy*(-ABx*ACz + ABz*ACx) + dz*(ABx*ACy - ABy*ACx)
+            divisor
+          end
+
+          @info "$(indent)Simplify t"
+          t = let numerator = (ABx*ACy*Az - ABx*ACy*Pz - ABx*ACz*Ay + ABx*ACz*Py - ABy*ACx*Az + ABy*ACx*Pz + ABy*ACz*Ax - ABy*ACz*Px + ABz*ACx*Ay - ABz*ACx*Py - ABz*ACy*Ax + ABz*ACy*Px)
+            denominator = divisor
+            @info "$(indent^2)numerator = $numerator"
+            numerator = sympy.collect(numerator, (ACx, ACy, ACz))
+            @info "$(indent^2)numerator = $numerator"
+
+            numerator/denominator
+          end
+          @info "$(indent)Simplify u"
+          u = let numerator = (ACx*Ay*dz - ACx*Az*dy - ACx*Py*dz + ACx*Pz*dy - ACy*Ax*dz + ACy*Az*dx + ACy*Px*dz - ACy*Pz*dx + ACz*Ax*dy - ACz*Ay*dx - ACz*Px*dy + ACz*Py*dx)
+            denominator = divisor
+            @info "$(indent^2)numerator = $numerator"
+            numerator = sympy.collect(numerator, (dx, dy, dz))
+            @info "$(indent^2)numerator = $numerator"
+
+            numerator/denominator
+          end
+          @info "$(indent)Simplify v"
+          v = let numerator = (-ABx*Ay*dz + ABx*Az*dy + ABx*Py*dz - ABx*Pz*dy + ABy*Ax*dz - ABy*Az*dx - ABy*Px*dz + ABy*Pz*dx - ABz*Ax*dy + ABz*Ay*dx + ABz*Px*dy - ABz*Py*dx)
+            denominator = divisor
+            @info "$(indent^2)numerator = $numerator"
+            numerator = sympy.collect(numerator, (dx, dy, dz))
+            @info "$(indent^2)numerator = $numerator"
+
+            numerator/denominator
+          end
+
+          ## Check intersection with
+          ## if div == 0.:
+          ##     return False
+          ## if t >= 0. and u >= 0. and v >= 0. and (u+v) <= 1.:
+          ##   return True
+          ## return False
           
+          nothing
       end
 end
 
+"""
+4.   Projective geometric transformations
+
+"""
 end
 
 nothing
