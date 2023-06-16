@@ -242,9 +242,185 @@ function learn_3_8_3_py()
 end
 
 """
-4.   Projective geometric transformations
+4.    Projective geometric transformations
+4.1   Some special cases of geometric transformations
+      fi: R -> R, for i in 1:n
+4.1.1 Translation
+      xt = xi + sin(t)
+      yt = yi + cos(t)
+      Parametric transformation
+4.1.2 Scaling
+      xs = axi
+      ys = byi
+      Transformation composition
+      the order of operations matters
+4.1.3 Rotation
+      xr =  cos(t) xi + sin(t) yi
+      yr = -sin(t) xi + cos(t) yi
+4.2   Generalizations
+4.2.1 Linear transformations in Euclidean space
+      xt = a11xi + a12yi
+      yt = a21xi + a22yi
+      Two-point transformation
+      TODO Listing 4.1
+4.2.2 Bundling rotation, scaling, and translation in a single affine transformation
+      xt = a11xi + a12yi + a13
+      yt = a21xi + a22yi + a23
+      TODO Listing 4.2
+4.2.3 Generalizing affine transformations to projective transformations
+      xp = (axi + byi + c)/(gxi + hyi + i)
+      yp = (dxi + eyi + f)/(gxi + hyi + i)
+4.2.4 An alternative to projective transformations
+      Bilinear transformation
+4.3   Projective space and homogeneous coordinates
+4.3.1 Expanding the whole space with homogeneous coordinates
+      IMPORTANT
+      x = xp/wp
+      y = yp/wp
+      xp = wp * x
+      yp = wp * y
+      wp = wp
+4.3.2 Making all the transformations a single matrix multiplication: Why?
+      xp = (axi + byi + cwi)/(gxi + hyi + iwi)
+      yp = (dxi + eyi + fwi)/(gxi + hyi + iwi)
+      wp = 1
 
+      if 0 ≠ (gxi+hyi+iwi), multiply (gxi + hyi + iwi) to equations above
+      xp = axi + byi + cwi
+      yp = dxi + eyi + fwi
+      wp = gxi + hyi + iwi
+
+      In projective coordinate, (xp,yp,wp), 2(xp,yp,wp) are the same point
+      in Euclidean coordinate.
+      
+      xp   a b c   xi
+      yp = d e f * yi
+      wp   g h i   wi
+
+      translation matrix
+      1 0 dx
+      0 1 dy
+      0 0 1
+      rotation matrix
+       cos(r) sin(r)      0
+      -sin(r) cor(r)      0
+            0      0      1
+      scaling matrix
+      sx  0  0
+       0 sy  0
+       0  0  1
+
+
+
+      Composition
+      Parallelization
+          Associativity
+      An idle transformation
+          Identity matrix, E
+      A transformation that puts things back as they were
+          TODO: code
 """
+function learn_4_3_2_sympy()
+    NS = @__MODULE__
+    pyexec("""
+    import sympy as sp
+    a1 = sp.Matrix([[1, 0, -1], [ 0, 1, -1], [0, 0, 1]])
+    a2 = sp.Matrix([[0, 1,  0], [-1, 0,  0], [0, 0, 1]])
+    a3 = sp.Matrix([[1, 0,  1], [ 0, 1,  1], [0, 0, 1]])
+    c = a3 * a2 * a1
+    print('c = ', c) # Matrix([[0, 1, 0], [-1, 0, 2], [0, 0, 1]])
+    #  0, 1, 0
+    # -1, 0, 2
+    #  0, 0, 1
+    
+    p1 = sp.Matrix([0.75, 0.5, 1])
+    p2 = sp.Matrix([1.25, 0.5, 1])
+    p3 = sp.Matrix([1.25, 1.5, 1])
+    p4 = sp.Matrix([0.75, 1.5, 1])
+    print('p1 = ', p1)
+    print('p2 = ', p2)
+    print('p3 = ', p3)
+    print('p4 = ', p4)
+    print()
+    pt1 = c * p1 # Matrix([[0.500000000000000], [1.25000000000000],  [1]])
+    pt2 = c * p2 # Matrix([[0.500000000000000], [0.750000000000000], [1]])
+    pt3 = c * p3 # Matrix([[1.50000000000000],  [0.750000000000000], [1]])
+    pt4 = c * p4 # Matrix([[1.50000000000000],  [1.25000000000000],  [1]])
+    print('pt1 = ', pt1)
+    print('pt2 = ', pt2)
+    print('pt3 = ', pt3)
+    print('pt4 = ', pt4)
+    print()
+    c_inv = c.inv()
+    print('c_inv = ', c_inv) # Matrix([[0, -1, 2], [1, 0, 0], [0, 0, 1]])
+    print()
+    # 0, -1, 2
+    # 1,  0, 0
+    # 0,  0, 1
+    print('p1 = c_inv*pt1 = ', c_inv*pt1) # p1 = c_inv*pt1 =  Matrix([[0.750000000000000], [0.500000000000000], [1]])
+    print('p2 = c_inv*pt2 = ', c_inv*pt2) # p2 = c_inv*pt2 =  Matrix([[1.25000000000000], [0.500000000000000], [1]])
+    print('p3 = c_inv*pt3 = ', c_inv*pt3) # p3 = c_inv*pt3 =  Matrix([[1.25000000000000], [1.50000000000000], [1]])
+    print('p4 = c_inv*pt4 = ', c_inv*pt4) # p4 = c_inv*pt4 =  Matrix([[0.750000000000000], [1.50000000000000], [1]])
+    """, NS)
+    
+    
+    pyexec("""
+    def minor(M, i, j):
+        m = M[:,:]
+        m.col_del(j)
+        m.row_del(i)
+        return m
+    """, NS)
+    
+    pyexec("""
+    print(minor(c, 1, 1)) # Matrix([[0, 0], [0, 1]])
+    """, NS)
+
+    pyexec("""
+    def cofactor(M):
+        C = M[:,:]
+        for i in range(M.shape[0]):
+            for j in range(M.shape[1]):
+                determinant = minor(M,i,j).det()
+                sign = 1 if i+j%2 == 1 else -1
+                C[i,j] = sign*determinant
+        return C
+    """, NS)
+
+    pyexec("""
+    print('cofactor(c).T * pt1 = ', cofactor(c).T * pt1) # cofactor(c).T * pt1 =  Matrix([[-0.750000000000000], [-0.500000000000000], [-1]])
+    print('cofactor(c).T * pt2 = ', cofactor(c).T * pt2) # cofactor(c).T * pt2 =  Matrix([[-1.25000000000000], [-0.500000000000000], [-1]])
+    print('cofactor(c).T * pt3 = ', cofactor(c).T * pt3) # cofactor(c).T * pt3 =  Matrix([[-1.25000000000000], [-1.50000000000000], [-1]])
+    print('cofactor(c).T * pt4 = ', cofactor(c).T * pt4) # cofactor(c).T * pt4 =  Matrix([[-0.750000000000000], [-1.50000000000000], [-1]])
+    """, NS)
 end
 
-nothing
+function learn_4_3_2_numpy()
+      @pyexec """
+      import numpy as np
+      a1 = np.array([[1, 0, -1], [ 0, 1, -1], [0, 0, 1]])
+      a2 = np.array([[0, 1,  0], [-1, 0,  0], [0, 0, 1]])
+      a3 = np.array([[1, 0,  1], [ 0, 1,  1], [0, 0, 1]])
+
+      c = a3 @ a2 @ a1
+      # print(c)
+      # [[ 0  1  0]
+      #  [-1  0  2]
+      #  [ 0  0  1]]
+
+      p1 = np.array([0.75, 0.5, 1])
+      p2 = np.array([1.25, 0.5, 1])
+      p3 = np.array([1.25, 1.5, 1])
+      p4 = np.array([0.75, 1.5, 1])
+
+      print(c @ p1) # [0.5  1.25 1.  ]
+      print(c @ p2) # [0.5  0.75 1.  ]
+      print(c @ p3) # [1.5  0.75 1.  ]
+      print(c @ p4) # [1.5  1.25 1.  ]
+
+      """
+end
+"""
+4.4   
+"""
+end
