@@ -3,7 +3,8 @@ module LearnGeometryForProgrammer
 using Logging
 using PythonCall
 using Symbolics
-
+using LinearAlgebra
+using Test
 
 function learn_1_6_py()
     ## Learn 1.6 using Python
@@ -42,7 +43,6 @@ function learn_1_6_py()
 
     nothing
 end
-
 function learn_1_6()
     ## Learn 1.6 using Julia
     indent = "    "
@@ -69,7 +69,6 @@ function learn_1_6()
 
     end
 end
-
 """
 2.    Terminology and jargon
 2.1.1 Numbers
@@ -161,86 +160,84 @@ TODO  3.4.2 Algorithm complexity
       Pz + tdz = Az + ABzu + ACzv
 3.8.3 Making the equations into code
 """
-
 function learn_3_8_3_py()
-      sympy = pyimport("sympy")
-      @info "Listing 3.1 Solving the ray-triangle intersection symbolically"
-      indent = "    "
-      let
-          # Solve for t, u, v
-          # Px + tdx = Ax + ABxu + ACxv
-          # Py + tdy = Ay + AByu + ACyv
-          # Pz + tdz = Az + ABzu + ACzv
+    sympy = pyimport("sympy")
+    @info "Listing 3.1 Solving the ray-triangle intersection symbolically"
+    indent = "    "
+    let
+        # Solve for t, u, v
+        # Px + tdx = Ax + ABxu + ACxv
+        # Py + tdy = Ay + AByu + ACyv
+        # Pz + tdz = Az + ABzu + ACzv
 
-          Px, Py, Pz    = sympy.symbols("Px Py Pz")
-          dx, dy, dz    = sympy.symbols("dx, dy, dz")
-          Ax, Ay, Az    = sympy.symbols("Ax, Ay, Az")
-          ABx, ABy, ABz = sympy.symbols("ABx, ABy, ABz")
-          ACx, ACy, ACz = sympy.symbols("ACx, ACy, ACz")
-          t, u, v       = sympy.symbols("t, u, v")
+        Px, Py, Pz    = sympy.symbols("Px Py Pz")
+        dx, dy, dz    = sympy.symbols("dx, dy, dz")
+        Ax, Ay, Az    = sympy.symbols("Ax, Ay, Az")
+        ABx, ABy, ABz = sympy.symbols("ABx, ABy, ABz")
+        ACx, ACy, ACz = sympy.symbols("ACx, ACy, ACz")
+        t, u, v       = sympy.symbols("t, u, v")
 
-          solution = sympy.solve([
-              Px + t*dx - (Ax + ABx*u + ACx*v),
-              Py + t*dy - (Ay + ABy*u + ACy*v),
-              Pz + t*dz - (Az + ABz*u + ACz*v),
-          ], (t, u, v))
-          #@info "$(indent)$(solution)"
-          @info "$(indent)t = $(solution[t])"
-          @info "$(indent)u = $(solution[u])"
-          @info "$(indent)v = $(solution[v])"
-          # {t: (ABx*ACy*Az - ABx*ACy*Pz - ABx*ACz*Ay + ABx*ACz*Py - ABy*ACx*Az + ABy*ACx*Pz + ABy*ACz*Ax - ABy*ACz*Px + ABz*ACx*Ay - ABz*ACx*Py - ABz*ACy*Ax + ABz*ACy*Px)/(ABx*ACy*dz - ABx*ACz*dy - ABy*ACx*dz + ABy*ACz*dx + ABz*ACx*dy - ABz*ACy*dx), 
-          #  u: (ACx*Ay*dz - ACx*Az*dy - ACx*Py*dz + ACx*Pz*dy - ACy*Ax*dz + ACy*Az*dx + ACy*Px*dz - ACy*Pz*dx + ACz*Ax*dy - ACz*Ay*dx - ACz*Px*dy + ACz*Py*dx)            /(ABx*ACy*dz - ABx*ACz*dy - ABy*ACx*dz + ABy*ACz*dx + ABz*ACx*dy - ABz*ACy*dx), 
-          #  v: (-ABx*Ay*dz + ABx*Az*dy + ABx*Py*dz - ABx*Pz*dy + ABy*Ax*dz - ABy*Az*dx - ABy*Px*dz + ABy*Pz*dx - ABz*Ax*dy + ABz*Ay*dx + ABz*Px*dy - ABz*Py*dx)           /(ABx*ACy*dz - ABx*ACz*dy - ABy*ACx*dz + ABy*ACz*dx + ABz*ACx*dy - ABz*ACy*dx)}
+        solution = sympy.solve([
+            Px + t*dx - (Ax + ABx*u + ACx*v),
+            Py + t*dy - (Ay + ABy*u + ACy*v),
+            Pz + t*dz - (Az + ABz*u + ACz*v),
+        ], (t, u, v))
+        #@info "$(indent)$(solution)"
+        @info "$(indent)t = $(solution[t])"
+        @info "$(indent)u = $(solution[u])"
+        @info "$(indent)v = $(solution[v])"
+        # {t: (ABx*ACy*Az - ABx*ACy*Pz - ABx*ACz*Ay + ABx*ACz*Py - ABy*ACx*Az + ABy*ACx*Pz + ABy*ACz*Ax - ABy*ACz*Px + ABz*ACx*Ay - ABz*ACx*Py - ABz*ACy*Ax + ABz*ACy*Px)/(ABx*ACy*dz - ABx*ACz*dy - ABy*ACx*dz + ABy*ACz*dx + ABz*ACx*dy - ABz*ACy*dx), 
+        #  u: (ACx*Ay*dz - ACx*Az*dy - ACx*Py*dz + ACx*Pz*dy - ACy*Ax*dz + ACy*Az*dx + ACy*Px*dz - ACy*Pz*dx + ACz*Ax*dy - ACz*Ay*dx - ACz*Px*dy + ACz*Py*dx)            /(ABx*ACy*dz - ABx*ACz*dy - ABy*ACx*dz + ABy*ACz*dx + ABz*ACx*dy - ABz*ACy*dx), 
+        #  v: (-ABx*Ay*dz + ABx*Az*dy + ABx*Py*dz - ABx*Pz*dy + ABy*Ax*dz - ABy*Az*dx - ABy*Px*dz + ABy*Pz*dx - ABz*Ax*dy + ABz*Ay*dx + ABz*Px*dy - ABz*Py*dx)           /(ABx*ACy*dz - ABx*ACz*dy - ABy*ACx*dz + ABy*ACz*dx + ABz*ACx*dy - ABz*ACy*dx)}
           
-          @info "Collect (simplify) terms"
-          @info "$(indent)Simplify divisor"
-          divisor = let 
+        @info "Collect (simplify) terms"
+        @info "$(indent)Simplify divisor"
+        divisor = let 
             divisor = (ABx*ACy*dz - ABx*ACz*dy - ABy*ACx*dz + ABy*ACz*dx + ABz*ACx*dy - ABz*ACy*dx)
             @info "$(indent)divisor = $(divisor)"
             divisor = sympy.collect(divisor, (dx,dy,dz))
             @info "$(indent)divisor = $divisor" # [ Info: divisor = dx*(ABy*ACz - ABz*ACy) + dy*(-ABx*ACz + ABz*ACx) + dz*(ABx*ACy - ABy*ACx)
             divisor
-          end
+        end
 
-          @info "$(indent)Simplify t"
-          t = let numerator = (ABx*ACy*Az - ABx*ACy*Pz - ABx*ACz*Ay + ABx*ACz*Py - ABy*ACx*Az + ABy*ACx*Pz + ABy*ACz*Ax - ABy*ACz*Px + ABz*ACx*Ay - ABz*ACx*Py - ABz*ACy*Ax + ABz*ACy*Px)
-            denominator = divisor
-            @info "$(indent^2)numerator = $numerator"
-            numerator = sympy.collect(numerator, (ACx, ACy, ACz))
-            @info "$(indent^2)numerator = $numerator"
+        @info "$(indent)Simplify t"
+        t = let numerator = (ABx*ACy*Az - ABx*ACy*Pz - ABx*ACz*Ay + ABx*ACz*Py - ABy*ACx*Az + ABy*ACx*Pz + ABy*ACz*Ax - ABy*ACz*Px + ABz*ACx*Ay - ABz*ACx*Py - ABz*ACy*Ax + ABz*ACy*Px)
+          denominator = divisor
+          @info "$(indent^2)numerator = $numerator"
+          numerator = sympy.collect(numerator, (ACx, ACy, ACz))
+          @info "$(indent^2)numerator = $numerator"
 
-            numerator/denominator
-          end
-          @info "$(indent)Simplify u"
-          u = let numerator = (ACx*Ay*dz - ACx*Az*dy - ACx*Py*dz + ACx*Pz*dy - ACy*Ax*dz + ACy*Az*dx + ACy*Px*dz - ACy*Pz*dx + ACz*Ax*dy - ACz*Ay*dx - ACz*Px*dy + ACz*Py*dx)
-            denominator = divisor
-            @info "$(indent^2)numerator = $numerator"
-            numerator = sympy.collect(numerator, (dx, dy, dz))
-            @info "$(indent^2)numerator = $numerator"
-
-            numerator/denominator
-          end
-          @info "$(indent)Simplify v"
-          v = let numerator = (-ABx*Ay*dz + ABx*Az*dy + ABx*Py*dz - ABx*Pz*dy + ABy*Ax*dz - ABy*Az*dx - ABy*Px*dz + ABy*Pz*dx - ABz*Ax*dy + ABz*Ay*dx + ABz*Px*dy - ABz*Py*dx)
+          numerator/denominator
+        end
+        @info "$(indent)Simplify u"
+        u = let numerator = (ACx*Ay*dz - ACx*Az*dy - ACx*Py*dz + ACx*Pz*dy - ACy*Ax*dz + ACy*Az*dx + ACy*Px*dz - ACy*Pz*dx + ACz*Ax*dy - ACz*Ay*dx - ACz*Px*dy + ACz*Py*dx)
             denominator = divisor
             @info "$(indent^2)numerator = $numerator"
             numerator = sympy.collect(numerator, (dx, dy, dz))
             @info "$(indent^2)numerator = $numerator"
 
             numerator/denominator
-          end
+        end
+        @info "$(indent)Simplify v"
+        v = let numerator = (-ABx*Ay*dz + ABx*Az*dy + ABx*Py*dz - ABx*Pz*dy + ABy*Ax*dz - ABy*Az*dx - ABy*Px*dz + ABy*Pz*dx - ABz*Ax*dy + ABz*Ay*dx + ABz*Px*dy - ABz*Py*dx)
+            denominator = divisor
+            @info "$(indent^2)numerator = $numerator"
+            numerator = sympy.collect(numerator, (dx, dy, dz))
+            @info "$(indent^2)numerator = $numerator"
 
-          ## Check intersection with
-          ## if div == 0.:
-          ##     return False
-          ## if t >= 0. and u >= 0. and v >= 0. and (u+v) <= 1.:
-          ##   return True
-          ## return False
+            numerator/denominator
+        end
+
+        ## Check intersection with
+        ## if div == 0.:
+        ##     return False
+        ## if t >= 0. and u >= 0. and v >= 0. and (u+v) <= 1.:
+        ##   return True
+        ## return False
           
-          nothing
-      end
+        nothing
+    end
 end
-
 """
 4.    Projective geometric transformations
 4.1   Some special cases of geometric transformations
@@ -268,8 +265,9 @@ end
       yt = a21xi + a22yi + a23
       TODO Listing 4.2
 4.2.3 Generalizing affine transformations to projective transformations
-      xp = (axi + byi + c)/(gxi + hyi + i)
-      yp = (dxi + eyi + f)/(gxi + hyi + i)
+      To transform (x,y) to (xp,yp)
+      xp = (a*x + b*y + c)/(g*x + h*y + i)
+      yp = (d*x + e*y + f)/(g*x + h*y + i)
 4.2.4 An alternative to projective transformations
       Bilinear transformation
 4.3   Projective space and homogeneous coordinates
@@ -320,6 +318,79 @@ end
       A transformation that puts things back as they were
           TODO: code
 """
+function learn_4_3_2() # Julia version
+    a1 = [1 0 -1;  0 1 -1; 0 0 1;]
+    a2 = [0 1  0; -1 0  0; 0 0 1;]
+    a3 = [1 0  1;  0 1  1; 0 0 1;]
+
+                          #       0  1  0
+    c = a3 * a2 * a1      # c =  -1  0  2
+                          #       0  0  1
+    @test c ==  [0 1 0; -1 0 2; 0 0 1]
+
+    p1 = [0.75, 0.5, 1]; @test size(p1) == (3,)
+    p2 = [1.25, 0.5, 1]
+    p3 = [1.25, 1.5, 1]
+    p4 = [0.75, 1.5, 1]
+    pt1 = c * p1; @test pt1 == [0.50, 1.25, 1.00]
+    pt2 = c * p2; @test pt2 == [0.50, 0.75, 1.00]
+    pt3 = c * p3; @test pt3 == [1.50, 0.75, 1.00]
+    pt4 = c * p4; @test pt4 == [1.50, 1.25, 1.00]
+
+
+                     #         0 -1  2
+    c_inv = inv(c)   # c_inv = 1  0  0
+                     #         0  0  1
+    @test c_inv == [0 -1 2; 1 0 0; 0 0 1]
+    @test p1 == c_inv * pt1
+    @test p2 == c_inv * pt2
+    @test p3 == c_inv * pt3
+    @test p4 == c_inv * pt4
+    
+    ## Use cofactor instead of inverse
+    @test transpose(cofactor(c)) * pt1 == [0.75, 0.5, 1] # p1
+    @test transpose(cofactor(c)) * pt2 == [1.25, 0.5, 1] # p2
+    @test transpose(cofactor(c)) * pt3 == [1.25, 1.5, 1] # p3
+    @test transpose(cofactor(c)) * pt4 == [0.75, 1.5, 1] # p4
+
+end
+function minor(M, i, j)
+    return M[1:end .!= i,1:end .!= j]
+end
+function test_minor()
+                              # 1 2 3
+    A = [1 2 3; 4 5 6; 7 8 9] # 4 5 6
+                              # 7 8 9
+    @test minor(A,1,1) == [5 6; 8 9]
+    @test minor(A,2,2) == [1 3; 7 9]
+    @test minor(A,3,3) == [1 2; 4 5]
+    @test minor(A,2,3) == [1 2; 7 8]
+
+end
+function cofactor(M)
+    ## https://byjus.com/cofactor-formula/
+    C = fill(0.0, size(M)) #similar(M)
+    for i in 1:size(M,1), j in 1:size(M,2)
+      C[i,j] = (-1)^(i+j) * det(minor(M,i,j))
+    end
+
+    return C
+end
+function test_cofactor()
+                              # 1 2 3
+    A = [1 2 3; 4 5 6; 7 8 9] # 4 5 6
+                              # 7 8 9
+    C = cofactor(A)
+    #@show C
+    @test C[1,1] == 45 - 48
+    @test C[2,1] == -(18 - 24)
+    @test C[2,3] == -(8 - 14)
+    @test C ==  [-3.0 6.0000000000000036 -3.0000000000000018; 6.0 -12.0 6.0; -2.9999999999999982 6.0 -3.0]
+    @test round.(C, digits=1) ==  [-3.0    6.0  -3.0;
+                                    6.0  -12.0   6.0;
+                                   -3.0    6.0  -3.0]
+    
+end
 function learn_4_3_2_sympy()
     NS = @__MODULE__
     pyexec("""
@@ -382,7 +453,7 @@ function learn_4_3_2_sympy()
         for i in range(M.shape[0]):
             for j in range(M.shape[1]):
                 determinant = minor(M,i,j).det()
-                sign = 1 if i+j%2 == 1 else -1
+                sign = 1 if (i+j)%2 == 0 else -1
                 C[i,j] = sign*determinant
         return C
     """, NS)
@@ -394,8 +465,7 @@ function learn_4_3_2_sympy()
     print('cofactor(c).T * pt4 = ', cofactor(c).T * pt4) # cofactor(c).T * pt4 =  Matrix([[-0.750000000000000], [-1.50000000000000], [-1]])
     """, NS)
 end
-
-function learn_4_3_2_numpy()
+function learn_4_3_2_numpy() # TODO
       @pyexec """
       import numpy as np
       a1 = np.array([[1, 0, -1], [ 0, 1, -1], [0, 0, 1]])
@@ -421,6 +491,35 @@ function learn_4_3_2_numpy()
       """
 end
 """
-4.4   
+4.4   Practical examples
+4.4.1 Scanning with a phone
+      [
+      xt1 * x1 * g + xt1 * y1 * h + xt1 * i - x1 * a - y1 * b - c,
+      yt1 * x1 * g + yt1 * y1 * h + yt1 * i - x1 * d - y1 * e - f,
+      xt2 * x2 * g + xt2 * y2 * h + xt2 * i - x2 * a - y2 * b - c,
+      yt2 * x2 * g + yt2 * y2 * h + yt2 * i - x2 * d - y2 * e - f,
+      xt3 * x3 * g + xt3 * y3 * h + xt3 * i - x3 * a - y3 * b - c,
+      yt3 * x3 * g + yt3 * y3 * h + yt3 * i - x3 * d - y3 * e - f,
+      xt4 * x4 * g + xt4 * y4 * h + xt4 * i - x4 * a - y4 * b - c,
+      yt4 * x4 * g + yt4 * y4 * h + yt4 * i - x4 * d - y4 * e - f,
+      i - 1
+      ], (a, b, c, d, e, f, g, h, i))
+      
+      TODO: use sympy to simplify above equations
+
+      [
+      xt1 * i - c,
+      yt1 * i - f,
+      xt2 * g + xt2 * i - a - c,
+      yt2 * g + yt2 * i - d - f,
+      xt3 * g + xt3 * h + xt3 * i - a - b - c,
+      yt3 * g + yt3 * h + yt3 * i - d - e - f,
+      xt4 * h + xt4 * i - b - c,
+      yt4 * h + yt4 * i - e - f,
+      i - 1
+      ], (a, b, c, d, e, f, g, h, i))
+4.4.2 Does a point belong to a triangle?
+
 """
+
 end
