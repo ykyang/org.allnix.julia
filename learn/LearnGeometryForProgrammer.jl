@@ -268,6 +268,17 @@ end
       To transform (x,y) to (xp,yp)
       xp = (a*x + b*y + c)/(g*x + h*y + i)
       yp = (d*x + e*y + f)/(g*x + h*y + i)
+      xp*(g*x + h*y + i) - (a*x + b*y + c) = 0
+      yp*(g*x + h*y + i) - (d*x + e*y + f) = 0
+      Projective transformation is 4-point transformation so there are 8 eqn
+      xp1*(g*x1 + h*y1 + i) - (a*x1 + b*y1 + c) = 0
+      yp1*(g*x1 + h*y1 + i) - (d*x1 + e*y1 + f) = 0
+      xp2*(g*x2 + h*y2 + i) - (a*x2 + b*y2 + c) = 0
+      yp2*(g*x2 + h*y2 + i) - (d*x2 + e*y2 + f) = 0
+      xp3*(g*x3 + h*y3 + i) - (a*x3 + b*y3 + c) = 0
+      yp3*(g*x3 + h*y3 + i) - (d*x3 + e*y3 + f) = 0
+      xp4*(g*x4 + h*y4 + i) - (a*x4 + b*y4 + c) = 0
+      yp4*(g*x4 + h*y4 + i) - (d*x4 + e*y4 + f) = 0
 4.2.4 An alternative to projective transformations
       Bilinear transformation
 4.3   Projective space and homogeneous coordinates
@@ -519,7 +530,68 @@ end
       i - 1
       ], (a, b, c, d, e, f, g, h, i))
 4.4.2 Does a point belong to a triangle?
+      Transform triangle (isoparametric element?)
 
+      div = x1*(y2 - y3) + x2*(y3 - y1) + x3*(y1 - y2)
+      a = (-y1 + y3)/div,
+      b = (x1 - x3)/div,
+      c = (-x1*y3 + x3*y1)/div,
+      d = (y1 - y2)/div,
+      e = (-x1 + x2)/div,
+      f = (x1*y2 - x2*y1)/div
+
+      xt = a*xi + b*yi + c
+      yt = d*xi + e*yi + f
+
+      return True if (0 < xt) and (0 < yt) and (0 < xt+yt < 1) else False
+4.5   Exercise
+5     The geometry of calculus
+5.1.1 Derivative at a point
+5.1.2 Derivative as a function
+5.1.3 Rules of differentiation
+5.1.4 Using SymPy to do differentiation
 """
+
+function learn_5_1_4()
+    let # The quick way
+        @variables x
+        Ans = Symbolics.derivative(x^3 + 2x^2 + sin(x), x)
+        @show Ans
+    end
+    let # The quick way
+      @variables x, a, b, c
+      Ans = Symbolics.derivative(a*x^2 + b*x + c, x)
+      @show Ans
+  end
+    let # The long way
+        @variables x
+        Dx = Differential(x)
+        Ans = Dx(x^3 + 2x^2 + sin(x))
+        @show Ans
+        Ans = expand_derivatives(Ans, true)
+        @show Ans
+        Ans = groebner_basis([Ans])
+        @show Ans
+    end
+
+end
+
+
+function learn_5_1_4_sympy()
+    NS = @__MODULE__
+    pyexec("""
+    import sympy as sp
+    x = sp.symbols("x")
+    Ans = sp.diff(x**3 + 2*x**2 + sp.sin(x))
+    print('Ans:{}'.format(Ans))
+    """, NS)
+    pyexec("""
+    import sympy as sp
+    a,b,c,x = sp.symbols("a b c x")
+    Ans = sp.diff(a*x**2 + b*x + c, x)
+    print('Ans:{}'.format(Ans))
+    """, NS)
+
+end
 
 end
