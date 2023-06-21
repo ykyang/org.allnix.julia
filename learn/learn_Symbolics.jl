@@ -1,22 +1,26 @@
 module LearnSymbolics
 
-using Test
 using Symbolics
+using DomainSets
+using Test
 
-@variables x y
-@show typeof(x)
-z = x^2 + y
-Ans = substitute(z, Dict(x=>2,y=>3))
-println(Ans)
-@test Ans == 7
 
-Ans = substitute(z, Dict(y=>3))
-println(Ans)
 
-Ans = Symbolics.solve_for([x+y~0, x-y~2],[x,y])
-println(Ans)
-@test Ans == [1.0, -1.0]
+function learn_basic()
+    @variables x y
+    @show typeof(x)
+    z = x^2 + y
+    Ans = substitute(z, Dict(x=>2,y=>3))
+    println(Ans)
+    @test Ans == 7
 
+    Ans = substitute(z, Dict(y=>3))
+    println(Ans)
+
+    Ans = Symbolics.solve_for([x+y~0, x-y~2],[x,y])
+    println(Ans)
+    @test Ans == [1.0, -1.0]
+end
 
 
 ## https://symbolics.juliasymbolics.org/stable/examples/perturbation/
@@ -43,7 +47,7 @@ function solve_newton(f, x, xᵢ; abstol=1e-8, maxiter=50)
     return xₙ₊₁
 end
 
-let
+function learn_solve_newton()
     @variables x
     f = x^5 + x - 1
     Ans = solve_newton(f, x, 1)
@@ -82,7 +86,7 @@ end
 
 ## Solving the Quintic: x^5 + x = 1
 ## https://symbolics.juliasymbolics.org/stable/examples/perturbation/#Solving-the-Quintic
-let
+function learn_solve_quintic()
     n = 10 # 2
     @variables ε a[1:n] a₀
     # ₀ ε
@@ -112,7 +116,12 @@ let
     @show substitute(y, Dict(ε=>1))
 
 end
-
+function learn_Integral()
+    ## https://github.com/JuliaSymbolics/Symbolics.jl/blob/master/test/integral.jl
+    @variables x
+    f = x^2
+    I = Integral(x in ClosedInterval(-1,1))
+    @show Symbolics.value(I(f(x)))
+end
 end
 
-nothing

@@ -4,6 +4,7 @@ using Logging
 using PythonCall
 using Symbolics
 using LinearAlgebra
+using DomainSets
 using Test
 
 function learn_1_6_py()
@@ -553,16 +554,20 @@ end
 """
 
 function learn_5_1_4()
-    let # The quick way
-        @variables x
-        Ans = Symbolics.derivative(x^3 + 2x^2 + sin(x), x)
-        @show Ans
+    let # The short way
+        @variables x  
+        f = x^3 + 2x^2 + sin(x)
+        @info "f(x) = $f"
+        Ans = Symbolics.derivative(f, x)
+        @info "d(f)/dx = $(Ans)"
     end
-    let # The quick way
+    let # The short way
       @variables x, a, b, c
-      Ans = Symbolics.derivative(a*x^2 + b*x + c, x)
+      f = a*x^2 + b*x + c
+      @info "f(x) = $f"
+      Ans = Symbolics.derivative(f, x)
       @show Ans
-  end
+    end
     let # The long way
         @variables x
         Dx = Differential(x)
@@ -573,7 +578,39 @@ function learn_5_1_4()
         Ans = groebner_basis([Ans])
         @show Ans
     end
+    let # The short way
+        @variables u, v, a, b, c
+        f = a*u^2 + b*u*v^2 + c
+        @info "f(u,v) = $f"
+        dfdu = Symbolics.derivative(f, u)
+        @info "df/du = $dfdu"
+        dfdv = Symbolics.derivative(f, v)
+        @info "df/dv = $(dfdv)"
+        d2fdudv = Symbolics.derivative(dfdu, v)
+        @info "d2f/dudv = $(d2fdudv)"
+    end
+    let # The long way
+        @variables u, v, a, b, c
+        Du = Differential(u)
+        Dv = Differential(v)
+        f = a*u^2 + b*u*v^2 + c
 
+        @info "df/du    = $(expand_derivatives(Du(f), true))"
+        @info "df/dv    = $(expand_derivatives(Dv(f), true))"
+        @info "d2f/dudv = $(expand_derivatives(Dv(Du(f)), true))"
+        @info "d2f/dudv = $(expand_derivatives(f |> Du |> Dv, true))"
+    end
+    let # could not figure how to do this in Symbolics
+      NS = @__MODULE__
+      pyexec("""
+      import sympy as sp
+      x, a, b = sp.symbols("x, a, b")
+      Ans = sp.integrate(2*a*x + b, x)
+      print('Ans:{}'.format(Ans))
+      """, NS)
+    end
+
+    nothing
 end
 
 
@@ -593,5 +630,17 @@ function learn_5_1_4_sympy()
     """, NS)
 
 end
+
+"""
+5.2   Smooth piecewise parametric curves
+5.2.1 Piecewise functions
+      C0, C1 ...
+5.2.2 Smooth parametric curves
+      (f1x(t)', f1y(t)') = c(f2x(t)', f2y(t)'), where c > 0
+5.2.3 Curvature
+      curvature k = 1/R
+5.3
+"""
+
 
 end
