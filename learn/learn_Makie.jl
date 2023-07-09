@@ -1,3 +1,5 @@
+module LearnMakie
+
 # https://github.com/JuliaPlots/Makie.jl
 # http://juliaplots.org/MakieReferenceImages/
 # http://juliaplots.org/MakieReferenceImages/gallery/index.html
@@ -35,6 +37,224 @@ using LinearAlgebra
 import GeometryBasics
 gb = GeometryBasics
 using Colors
+using CircularArrays
+
+using Test
+
+## https://docs.makie.org/stable/documentation
+
+## default color sequence
+# Makie.wong_colors()
+
+## Colormap
+## https://docs.juliaplots.org/latest/generated/colorschemes/
+
+function learn_colormap_1()
+    fig = Figure(); ax = Axis(fig[1,1])
+    x = range(0,pi*5, length=100)
+    y = sin.(x)
+    # plot = lines!(ax, x, y; color=y,
+    #     linewidth=5,
+    #     colormap = cgrad(:tab10, categorical=true)
+    # )
+    plot = scatter!(ax, x, y; 
+        #color=(y .+ 1)./2,
+        color = y,
+        #linewidth=5,
+        markersize = 20,
+        colormap = cgrad(:Accent_3, ([-1, -0.25, 0.25, 1] .+ 1)./2; categorical=true),
+        colorrange = (-0.75, 0.75),
+    )
+    DataInspector(fig)
+    bar = Colorbar(fig[1,2], plot)
+
+    fig
+end
+
+## Basic Tutorial
+## https://docs.makie.org/stable/tutorials/basic-tutorial/#basic_tutorial
+
+## Adding a plot to an axis
+function learn_basic_tutorial_1()
+    ## https://docs.makie.org/stable/tutorials/basic-tutorial/#adding_a_plot_to_an_axis
+    fig = Figure()
+    ax = Axis(fig[1,1])
+    x = range(0, 10, length=100)
+    y = sin.(x)
+    R = lines!(ax, x, y)
+    # @show R; # R = Lines{Tuple{Vector{Point{2, Float32}}}}
+    DataInspector(fig)
+
+    display(fig)
+end
+## Scatter plot
+function learn_basic_tutorial_2()
+    ## https://docs.makie.org/stable/tutorials/basic-tutorial/#scatter_plot
+    fig = Figure()
+    ax = Axis(fig[1,1])
+    x = range(0, 10, length=100)
+    y = sin.(x)
+    R = scatter!(ax, x, y)
+    # @show R # R = Scatter{Tuple{Vector{Point{2, Float32}}}}
+    R = DataInspector(fig)
+    # @show R # R is a DataInspector object
+
+    display(fig)
+end
+## Creating Figure, Axis and plot in one call
+function learn_basic_tutorial_3()
+    ## https://docs.makie.org/stable/tutorials/basic-tutorial/#creating_figure_axis_and_plot_in_one_call
+    x = range(0, 10; length=100)
+    y = sin.(x)
+    # fig, ax, plot = lines(x,y)
+    R = lines(x,y); # @show typeof(R) # typeof(R) = Makie.FigureAxisPlot
+    
+    @test R.figure isa Figure
+    @test R.axis   isa Axis
+    @test R.plot   isa AbstractPlot
+
+    display(R)
+end
+## Passing Figure and Axis styles
+function learn_basic_tutorial_4()
+   ## https://docs.makie.org/stable/tutorials/basic-tutorial/#passing_figure_and_axis_styles
+    x = range(0, 10; length=100)
+    y = sin.(x)
+    R = scatter(x, y;
+        figure = (; resolution=(400,400)),
+        axis = (; title="Scatter plot", xlabel="x label"),
+    )
+end
+## Argument conversions
+function learn_basic_tutorial_5()
+    ## https://docs.makie.org/stable/tutorials/basic-tutorial/#argument_conversions
+    lines(0..10, sin) # 0..10 is a ClosedInterval
+    lines(0:1:10, cos)
+    lines([Point(0,0), Point(5,10), Point(10,5)])
+end
+## Layering multiple plots
+function learn_basic_tutorial_6()
+    ## https://docs.makie.org/stable/tutorials/basic-tutorial/#layering_multiple_plots
+    x = range(0, 10; length=100)
+    fig, ax, l1 = lines(x, sin)
+    l2 = lines!(ax, x, cos)
+    
+    fig # no need to use display() if last statement
+end
+## Attributes
+function learn_basic_tutorial_7()
+    ## https://docs.makie.org/stable/tutorials/basic-tutorial/#attributes
+    # :red or "red"
+    # "#ffccbk"
+    # RGBf(0.5, 0, 0.6) or RGBAf(0.3, 0.8, 0.2, 0.8)
+    # (:red, 0.5) where 0.5 is alpha
+    # See https://juliagraphics.github.io/Colors.jl/stable/
+    x = range(0,10; length=100)
+    fig, ax, l1 = lines(x, sin; color=:tomato)
+    l2 = lines!(ax, x, cos; color=RGBf(0.2,0.7,0.9))
+
+    fig
+end
+## scatter
+function learn_basic_tutorial_7_1()
+    fig = Figure(); ax = Axis(fig[1,1])
+    x = range(0, 10; length=100); y = sin.(x);
+
+    sc1 = scatter!(ax, x, y; color=:coral, markersize=15)
+    sc2 = scatter!(ax, x, cos; color=:dodgerblue, markersize=10)
+    
+    sc1.markersize = 20
+    sc1.color = (:coral, 0.2)
+    sc1.strokewidth = 2 
+    sc1.strokecolor = :coral
+
+    fig
+end
+## Array attributes
+function learn_basic_tutorial_8()
+    ## https://docs.makie.org/stable/tutorials/basic-tutorial/#array_attributes
+    fig = Figure(); ax = Axis(fig[1,1])
+    x = range(0, 10; length=100)
+    plot = scatter!(ax, x, sin; 
+        markersize = range(5, 30; length=100),
+        color      = range(0,1; length=100),
+        colormap   = :thermal,
+    )
+
+    fig
+end
+## colorrange
+function learn_basic_tutorial_8_1()
+    fig = Figure(); ax = Axis(fig[1,1])
+    x = range(0, 10; length=100)
+    plot = scatter!(ax, x, sin; 
+        markersize = range(5, 30; length=100),
+        color      = range(0,1; length=100),
+        colormap   = :thermal,
+        colorrange = (0.33, 0.66)
+    )
+    
+    fig
+end
+## explicit colors
+function learn_basic_tutorial_8_2()
+    fig = Figure(); ax = Axis(fig[1,1])
+    x = range(0, 10; length=100)
+    colors = CircularArray([:crimson, :dodgerblue, :slateblue1, :sienna1, :orchid1])[1:length(x)]
+    plot = scatter!(ax, x, sin; color=colors, markersize=20)
+
+    fig
+end
+## Simple legend
+function learn_basic_tutorial_9()
+    ## https://docs.makie.org/stable/tutorials/basic-tutorial/#simple_legend
+    fig = Figure(); ax = Axis(fig[1,1])
+    x = range(0, 10, length=100)
+    l1 = lines!(ax, x, sin, label="sin", color=:tomato)
+    l2 = lines!(ax, x, cos, label="cos", color=:dodgerblue)
+    axislegend(ax)
+
+    fig
+end
+## Subplots
+function learn_basic_tutorial_10()
+    ## https://docs.makie.org/stable/tutorials/basic-tutorial/#subplots
+    fig = Figure()
+    ax1 = Axis(fig[1,1]); ax2 = Axis(fig[1,2]); ax3 = Axis(fig[2,1:2])
+    x = range(0, 10; length=100)
+    y = sin.(x)
+
+    lines!(ax1, x, y; color=:tomato)
+    lines!(ax2, x, y; color=:dodgerblue)
+    lines!(ax3, x, y; color=:green)
+
+    fig 
+end
+## Legend and Colorbar
+function learn_basic_tutorial_11()
+    ## https://docs.makie.org/stable/tutorials/basic-tutorial/#legend_and_colorbar
+    fig = Figure()
+    colors = CircularArray(Makie.wong_colors())
+    ax1,l1 = lines(fig[1,1], 0..10, sin, color=colors[1])
+    ax2,l2 = lines(fig[2,1], 0..10, cos, color=colors[2])
+    l = Legend(fig[1:2,2], [l1,l2], ["sin", "cos"])
+
+    fig
+end
+## colorbar
+function learn_basic_tutorial_11_1()
+    fig,ax,plot = heatmap(randn(20,20))
+    bar = Colorbar(fig[1,2], plot)
+
+    fig
+end
+
+
+
+
+# Deprecated below
+
+
 
 function learn_basic_lines()
     x = range(0, 10, length=100)
@@ -384,7 +604,7 @@ end
 
 ## Plotting Functions --------------------------------------- Plotting Functions
 #learn_plotting_arrows()
-learn_plotting_arrows_2()
+#learn_plotting_arrows_2()
 
 
 
@@ -399,3 +619,8 @@ learn_plotting_arrows_2()
 #test_mesh()
 
 
+
+
+
+
+end
