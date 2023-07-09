@@ -1,3 +1,3 @@
 @echo off
-add_julia_1.9.1.bat
+add_julia_1.9.2.bat
 
