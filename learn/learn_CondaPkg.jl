@@ -1,6 +1,8 @@
 module MyCondaPkg
 
 """
+julia> ]
+(learn) pkg> add CondaPkg
 julia> using CondaPkg
 julia> ]
 (learn) pkg> conda status
