@@ -4,6 +4,8 @@ module LearnMakie
 # http://juliaplots.org/MakieReferenceImages/
 # http://juliaplots.org/MakieReferenceImages/gallery/index.html
 
+using Dates
+
 # Need to restart Julia in order to switch the backend
 glmakie    = false
 cairomakie = false
@@ -249,6 +251,36 @@ function learn_basic_tutorial_11_1()
     fig
 end
 
+
+
+## DateTime, Date, Time
+# https://discourse.julialang.org/t/date-axis-in-makie/63430
+# https://beautiful.makie.org/dev/examples/generated/2d/lines/line_time/
+function learn_datetime_1()
+    fig = Figure(resolution=(1600,900)); ax = Axis(fig[1,1])
+    y = 1:10
+    dates = DateTime(2023,07,01):Year(1):DateTime(2032,07,01)
+    x = Dates.datetime2epochms.(dates)
+    lines!(ax, x, y)
+
+    # xticks
+    ax.xticks = (x, Dates.format.(dates, dateformat"yyyy-mm-dd"))
+    ax.xticklabelrotation = pi/4
+    ax.xticklabelalign = (:right, :center)
+
+    fig
+end
+
+
+function learn_spine_1()
+    fig = Figure(); ax = Axis(fig[1,1])
+    x = range(0, 10, length=100)
+    l = lines!(ax, x, sin, label="sin", color=:tomato)
+    xlims!(ax, -10, 10)
+    ax.xticks = (-5:1:10, string.(-5:1:10))
+    
+    fig
+end
 
 
 
