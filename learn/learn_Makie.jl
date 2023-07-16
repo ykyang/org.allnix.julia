@@ -291,6 +291,11 @@ function learn_multiaxis_1()
 
     fig
 end
+"""
+    learn_multiaxis_2()
+
+Follow the logic of run_multiaxes()
+"""
 function learn_multiaxis_2()
     ## Follow multiaxes() below
     fig = Figure()
@@ -299,7 +304,7 @@ function learn_multiaxis_2()
     push!(axs, Axis(fig[1,1]))
     push!(twins, axs[1])
     #mainax = 
-    let
+    let # green
         ax = Axis(fig[1,1]); push!(axs, ax); push!(twins, ax)
         x = 90:0.1:91
         plot = scatter!(ax, x, x->rand()*10.0^rand(-2:2))
@@ -318,7 +323,7 @@ function learn_multiaxis_2()
         
     end
 
-    let
+    let # red
         ax = Axis(fig[1,1]); push!(axs, ax); push!(twins, ax)
         x = 84:90
         y = @. 780 + 10*sin(x-2)
@@ -339,7 +344,7 @@ function learn_multiaxis_2()
         setproperty!.(ax, props[:,1], props[:,2])
         ylims!(ax, 765, 795) 
     end
-    let
+    let # blue
         ax = Axis(fig[1,1]); push!(axs, ax)
         x = 84:90
         y = @. 0.6*(x-82) + 0.2*sin(x)
@@ -380,6 +385,187 @@ function learn_multiaxis_2()
     end
     fig
 end
+
+"""
+    learn_multiaxis_3()
+
+Display 4 y-axis and a view are.
+
+1         2         3
+y    y         y    y 
+|    |---------|    | 
+|    | View    |    | 
+|    | Area    |    | 
+|    |---------|    | 
+
+1         2               3
+yax[1]    vax[1]          yax[4]
+          vax[2]=yax[2]
+          vax[3]=yax[3]
+          vax[4]
+
+position : 2 2 2 2
+view axis: 1 2 3 4
+
+position : 1 2 2 3
+y    axis: 1 2 3 4
+"""
+function learn_multiaxis_3()
+    fig = Figure()
+    no_axis = 4
+    vaxs = Vector{Axis}(undef, no_axis) # view axis
+    yaxs = Vector{Axis}(undef, no_axis) # y-axis axis
+    vaxind = 2 # view axis index
+    
+    ## Create all axis
+    for i in 1:no_axis
+        vaxs[i] = Axis(fig[1,vaxind])
+    end
+    #@show vaxs
+
+    for i in 1:no_axis
+        if i in [vaxind,vaxind+1]
+            yaxs[i] = vaxs[i]; continue
+        end
+        if i < vaxind
+            yaxs[i] = Axis(fig[1,i]); continue
+        end
+        if i > vaxind
+            yaxs[i] = Axis(fig[1,i-1]); continue
+        end
+    end
+    #@show yaxs
+    ## Clear axis
+    for ax in vcat(vaxs,yaxs)
+        #hidespines!(ax)
+        #hidedecorations!(ax)
+        props = [
+            :xgridvisible        false
+            :ygridvisible        false
+            :leftspinevisible    false
+            :rightspinevisible   false
+            :topspinevisible     false
+            :bottomspinevisible  false
+            :xticksvisible       false
+            :xticklabelsvisible  false
+            :yticksvisible       false
+            :yticklabelsvisible  false
+        ]
+        setproperty!.(ax, props[:,1], props[:,2])
+    end
+    
+
+    let color = :black, yaxind = 1
+        vax = vaxs[yaxind]
+        yax = yaxs[yaxind]
+        x = 93:0.1:94
+        plot = scatter!(vax, x, rand(Float64,length(x)), color=color)
+        ylims!(vax, 0, 1)
+        ylims!(yax, 0, 1)
+        props = [
+            :leftspinevisible    true
+            :yticksvisible       true
+            :yticklabelsvisible  true
+            :ytickcolor          color
+            :yticklabelcolor     color
+            :leftspinecolor      color
+        ]
+        setproperty!.(yax, props[:,1], props[:,2])
+        colsize!(fig.layout, yaxind, Auto(0))
+    end
+
+    let color = :green, yaxind = 2
+        vax = vaxs[yaxind]
+        yax = yaxs[yaxind]
+        x = 90:0.1:91
+        ylims!(vax, 1e-4, 100)
+        ylims!(yax, 1e-4, 100)
+        vax.yscale = log10
+        plot = scatter!(vax, x, x->rand()*10.0^rand(-2:2), color=color)
+        props = [
+            :leftspinevisible    true
+            :yticksvisible       true
+            :yticklabelsvisible  true
+            :ytickcolor          color
+            :yticklabelcolor     color
+            :leftspinecolor      color
+        ]
+        setproperty!.(yax, props[:,1], props[:,2])
+    end
+    let color = :tomato, yaxind = 3
+        vax = vaxs[yaxind]
+        yax = yaxs[yaxind]
+        x = 84:90
+        y = @. 780 + 10*sin(x-2)
+        low_eb = high_eb = fill(2, length(x))
+        plot = errorbars!(vax, x, y, low_eb, high_eb)
+        plot.whiskerwidth=10
+        plot = scatter!(vax, x, y)
+        plot.marker = :rect
+        plot.markersize = 15
+        plot.color = :tomato
+
+        ylims!(vax, 765, 795)
+        ylims!(yax, 765, 795)
+
+        props = [
+            :yaxisposition       :right
+            :rightspinevisible   true
+            :yticksvisible       true
+            :yticklabelsvisible  true
+            :ytickcolor          color
+            :yticklabelcolor     color
+            :rightspinecolor     color
+        ]
+        setproperty!.(yax, props[:,1], props[:,2])
+    end
+    let color = :dodgerblue, yaxind = 4
+        vax = vaxs[yaxind]
+        yax = yaxs[yaxind]
+        x = 84:90
+        y = @. 0.6*(x-82) + 0.2*sin(x)
+        plot = lines!(vax, x, y, color=color)
+        plot = scatter!(vax, x, y, marker=:circle, markersize=16, color=:dodgerblue)
+        ylims!(vax, 0, 6)
+        ylims!(yax, 0, 6)
+
+        props = [
+            :yaxisposition       :right
+            :rightspinevisible   true
+            :yticksvisible       true
+            :yticklabelsvisible  true
+            :ytickcolor          color
+            :yticklabelcolor     color
+            :rightspinecolor      color
+        ]
+        setproperty!.(yax, props[:,1], props[:,2])
+
+        colsize!(fig.layout, yaxind-1, Auto(0))
+    end
+
+    let ax = vaxs[vaxind]
+        props = [
+            # :leftspinevisible    true
+            # :rightspinevisible   true
+            :bottomspinevisible  true
+            :xticksvisible       true
+            :xticklabelsvisible  true
+        ]
+        setproperty!.(ax, props[:,1], props[:,2])
+    end
+
+    for ax in vaxs
+        xlims!(ax, 96, 82)
+        ax.xgridvisible = false
+        ax.ygridvisible = false
+    end
+    fig
+end
+
+
+
+
+
 function learn_spine_1()
     fig = Figure(); ax = Axis(fig[1,1])
     x = range(0, 10, length=100)
@@ -389,6 +575,13 @@ function learn_spine_1()
     
     fig
 end
+
+
+
+
+
+
+
 
 
 ## https://github.com/MakieOrg/Makie.jl/issues/206
@@ -508,7 +701,13 @@ function multiaxes(n::Int=3, fig::Figure=Figure();
     return append!(ax, ax2)
 end
 
-function test_multiaxes()
+"""
+    run_multiaxes()
+
+Run the multiaxes() function.
+https://github.com/MakieOrg/Makie.jl/issues/206
+"""
+function run_multiaxes()
     fig = Figure(colorsgroundcolor=:white, resolution=(600, 500))
 
     ax = multiaxes(3, fig,
