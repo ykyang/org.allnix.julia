@@ -271,7 +271,115 @@ function learn_datetime_1()
     fig
 end
 
+## Learn multiple axis
 
+function learn_multiaxis_1()
+    ## https://docs.makie.org/stable/examples/blocks/axis/index.html#creating_a_twin_axis
+    fig = Figure()
+    
+    ax1 = Axis(fig[1,1], yticklabelcolor=:dodgerblue)
+    ax2 = Axis(fig[1,1], yticklabelcolor=:tomato, yaxisposition=:right)
+
+    hidespines!(ax2)
+    hidexdecorations!(ax2)
+    
+    lines!(ax1, 0..10, sin, color=:dodgerblue)
+    lines!(ax2, 0..10, x->100*cos(x), color=:tomato)
+
+    linkxaxes!(ax1, ax2)
+    linkyaxes!(ax2, ax2)
+
+    fig
+end
+function learn_multiaxis_2()
+    ## Follow multiaxes() below
+    fig = Figure()
+    
+    axs = []; twins = [];
+    push!(axs, Axis(fig[1,1]))
+    push!(twins, axs[1])
+    #mainax = 
+    let
+        ax = Axis(fig[1,1]); push!(axs, ax); push!(twins, ax)
+        x = 90:0.1:91
+        plot = scatter!(ax, x, x->rand()*10.0^rand(-2:2))
+        plot.marker=:utriangle
+        plot.color = :green
+        plot.markersize=16
+        ax.yscale = log10
+        ax.yminorticksvisible = true
+        ax.yminorticks = [x*10^y for x in 1.0:9, y in -4.0:1][:]
+        ax.yticklabelcolor = :green
+        ax.ytickcolor = :green
+        ax.leftspinecolor = :green
+        ax.rightspinevisible = false
+        setproperty!.(ax, [:leftspinecolor, :ytickcolor], [:green, :green])
+        ylims!(ax, 1e-4, 100)
+        
+    end
+
+    let
+        ax = Axis(fig[1,1]); push!(axs, ax); push!(twins, ax)
+        x = 84:90
+        y = @. 780 + 10*sin(x-2)
+        low_eb = high_eb = fill(2, length(x))
+        plot = errorbars!(ax, x, y, low_eb, high_eb)
+        plot.whiskerwidth=10
+        plot = scatter!(ax, x, y)
+        plot.marker = :rect
+        plot.markersize = 15
+        plot.color = :tomato
+        props = [
+            :yaxisposition    :right
+            :yticklabelcolor  :tomato
+            :ytickcolor       :tomato
+            :rightspinecolor  :tomato
+            :leftspinevisible false
+        ]
+        setproperty!.(ax, props[:,1], props[:,2])
+        ylims!(ax, 765, 795) 
+    end
+    let
+        ax = Axis(fig[1,1]); push!(axs, ax)
+        x = 84:90
+        y = @. 0.6*(x-82) + 0.2*sin(x)
+        plot = lines!(ax, x, y, color=:dodgerblue)
+        plot = scatter!(ax, x, y, marker=:circle, markersize=16, color=:dodgerblue)
+        twin = Axis(fig[1,2]); push!(twins, twin)
+        ax.yticklabelsvisible = false
+        hidespines!(ax)
+        hidedecorations!(twin)
+        hidespines!(twin)
+        twin.rightspinevisible=true
+        twin.rightspinecolor = :dodgerblue
+        twin.yaxisposition = :right
+        twin.ytickcolor = :dodgerblue
+        twin.yticksvisible = true
+        twin.yticklabelsvisible = true
+        twin.yticklabelcolor = :dodgerblue
+        ylims!(ax, 0, 6)
+        ylims!(twin, 0, 6)
+        colsize!(fig.layout, 2, Auto(0))
+    end
+
+    for ax in axs[1:1]
+        ax.leftspinevisible = false
+        ax.rightspinevisible = false
+        ax.yticksvisible = false
+        ax.yticklabelsvisible = false
+    end
+    for ax in axs[2:end]
+        ax.topspinevisible = false
+        ax.bottomspinevisible = false
+    end
+
+    for ax in axs
+        xlims!(ax, 93, 82)
+        ax.xgridvisible = false
+        ax.ygridvisible = false
+    end
+    fig
+end
 function learn_spine_1()
     fig = Figure(); ax = Axis(fig[1,1])
     x = range(0, 10, length=100)
@@ -279,6 +387,168 @@ function learn_spine_1()
     xlims!(ax, -10, 10)
     ax.xticks = (-5:1:10, string.(-5:1:10))
     
+    fig
+end
+
+
+## https://github.com/MakieOrg/Makie.jl/issues/206
+"""
+```
+function multiaxes(n::Int=3, fig::Figure=Figure();
+        ylabels=["Axis \$i" for i in 1:6],
+        positions=[:left, :right, :right, :left, :right, :left],
+        colors=Makie.current_default_theme().palette.color.val,
+        ytickpositions=[:right, :left, :left, :right, :left, :right])
+```
+
+Generates `n` axes for the same figure `f` with defined `ylabels`
+Axes `positions` are either `:left` or `:right`
+Axes `colors` are supplied as a list of valid colors e.g. `[:blue, :red]`
+Positions of y ticks are defined int `ytickpositions` vector
+
+Returns a vector of `n+m` generated axes 
+    Axes `1` to `n` for plotting the graphs, these axes are x-linked together
+    Axes `n+1` to `n+m` for scale bars reference
+
+Axis 1 is the master axis which will be used for xlabels and zooming options
+
+
+# Examples :
+## Generate a new empty figure with 6 axes
+```
+axes = multiaxes(6); fig = axes[1].parent 
+```
+Axis 6 / Axis 4 / Axis 1 [] Axis 2 / Axis 3 / Axis 5
+
+## Generate a 3 axis figure with some plots :
+```
+fig = Figure()
+axes = multiaxes(3, fig)
+lines!(axes[1], 0..10, cos, color = axes[1].ylabelcolor)
+lines!(axes[2], 0..10, sin, color = axes[2].ylabelcolor)
+lines!(axes[3], 0..10, x->2sin(2x), color = axes[3].ylabelcolor)
+fig = axes[1].parent 
+```
+ Axis 1 (-1,1) [ ] Axis 2 (-1,1) / Axis 3 (-2,2)
+"""
+function multiaxes(n::Int=3, fig::Figure=Figure();
+    ylabels=["Axis $i" for i in 1:6],
+    positions=[:left, :right, :right, :left, :right, :left],
+    colors=Makie.current_default_theme().palette.color.val,
+    ytickpositions=[:right, :left, :left, :right, :left, :right],
+    xlabel ="x")
+
+
+    @assert all(x -> x ≥ n,
+        length.([ylabels, positions, colors, ytickpositions])) "arguments lengths should at least match n"
+
+    ax, ax2 = [], []
+
+    # Central position of main axis where all plots are displayed
+    centraln = sum(p == :left for p in positions[1:n])
+
+    # Current position of left and right axes
+    left, right = centraln .+ (1, -1)
+
+
+    for i in 1:n
+        # Update position for axis i
+        if positions[i] == :left
+            left -= 1
+            pos = left
+        else
+            right += 1
+            pos = right
+        end
+
+        c = colors[i]
+
+        a = Axis(fig[1, centraln], yaxisposition=positions[i],
+            ylabel=ylabels[i], xlabel=xlabel,
+            yticklabelcolor=c, ytickcolor=c, ylabelcolor=c)
+
+        if i > 1 # Hide x labels for other axes
+            a.xticklabelsvisible = false
+            a.xlabelvisible = false
+        end
+
+        ca = a
+        if pos != centraln
+            hidedecorations!(a)
+            hidespines!(a)
+
+            a2 = Axis(fig[1, pos], yaxisposition=positions[i],
+                ylabel=ylabels[i],
+                yticklabelcolor=c, ytickcolor=c, ylabelcolor=c)
+            
+            hidexdecorations!(a2)
+
+            colsize!(fig.layout, pos, Auto(0))
+            ca = a2
+
+            linkyaxes!(a, a2)
+            push!(ax2, a2)
+        end
+
+        if positions[i] == :left
+            ca.leftspinecolor = c
+            ca.rightspinevisible = false
+            ca.ytickalign = ytickpositions[i] == :left ? 0 : 1
+        else
+            ca.rightspinecolor = c
+            ca.leftspinevisible = false
+            ca.ytickalign = ytickpositions[i] == :right ? 0 : 1
+        end
+
+        push!(ax, a)
+    end
+
+    linkxaxes!(ax...)
+
+    return append!(ax, ax2)
+end
+
+function test_multiaxes()
+    fig = Figure(colorsgroundcolor=:white, resolution=(600, 500))
+
+    ax = multiaxes(3, fig,
+        ylabels=[L"Deposition Pressure (Torr)$$",
+            L"Annealing Temperature $(^{\circ}$C)",
+            L"$\Delta T_C$ $(^{\circ}$K)"],
+        xlabel=L"Transition Temperature $(^{\circ}$K)",
+        colors=[:green, :red, :blue],
+        ytickpositions=[:left, :left, :left]
+    )
+    x = 90:0.1:91
+    s1 = scatter!(ax[1], x, x -> rand() * 10.0^rand(-2:2),
+                marker=:utriangle, markersize=16, color=ax[1].ylabelcolor)
+    ax[1].yscale = log10
+    ax[1].yminorticksvisible = true
+    ax[1].yminorticks = [x*10^y for x in 1.0:9.0, y in -4.0:1][:]
+    ylims!(ax[1],1e-4, 100)
+
+    x = 84:90
+
+    y = @. 780 + 10sin(x-2)
+    low_eb = high_eb = fill(2, length(x))
+    errorbars!(ax[2], x, y, low_eb, high_eb, whiskerwidth=10, color=:black, linewidth=1)
+    s2 = scatter!(ax[2], x, y, marker=:rect, markersize=16, color=ax[2].ylabelcolor)
+    ylims!(ax[2], 765,795)
+
+    y = @. 0.6(x-82) + 0.2sin(x)
+    lines!(ax[3], x, y, color=ax[3].ylabelcolor)
+    s3 = scatter!(ax[3], x, y, marker=:circle, markersize=16, color=ax[3].ylabelcolor)
+    ylims!(ax[3], 0, 6)
+
+    for i in 1:3
+        xlims!(ax[i], 93, 82)
+        ax[i].xgridvisible = false
+        ax[i].ygridvisible = false
+    end
+
+    axislegend(ax[1], [s1,s2, s3], [L"$$As Grown",L"$$Annealed",L"\Delta T_C"])
+
+    Label(fig[0, :], text=L"Characteristics of Samples Grown Under Different Conditions$$")
     fig
 end
 
