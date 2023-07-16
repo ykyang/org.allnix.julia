@@ -469,6 +469,8 @@ function learn_multiaxis_3()
             :ytickcolor          color
             :yticklabelcolor     color
             :leftspinecolor      color
+            :ylabel              L"Fraction$$"
+            :ylabelcolor         color
         ]
         setproperty!.(yax, props[:,1], props[:,2])
         colsize!(fig.layout, yaxind, Auto(0))
@@ -489,6 +491,8 @@ function learn_multiaxis_3()
             :ytickcolor          color
             :yticklabelcolor     color
             :leftspinecolor      color
+            :ylabel              L"Deposition Pressure (Torr)$$"
+            :ylabelcolor         color
         ]
         setproperty!.(yax, props[:,1], props[:,2])
     end
@@ -516,6 +520,8 @@ function learn_multiaxis_3()
             :ytickcolor          color
             :yticklabelcolor     color
             :rightspinecolor     color
+            :ylabel              L"Annealing Temperature $(^{\circ}$C)"
+            :ylabelcolor         color
         ]
         setproperty!.(yax, props[:,1], props[:,2])
     end
@@ -536,7 +542,9 @@ function learn_multiaxis_3()
             :yticklabelsvisible  true
             :ytickcolor          color
             :yticklabelcolor     color
-            :rightspinecolor      color
+            :rightspinecolor     color
+            :ylabel              L"$\Delta T_C$ $(^{\circ}$K)"
+            :ylabelcolor         color
         ]
         setproperty!.(yax, props[:,1], props[:,2])
 
@@ -550,6 +558,7 @@ function learn_multiaxis_3()
             :bottomspinevisible  true
             :xticksvisible       true
             :xticklabelsvisible  true
+            :xlabel              L"Transition Temperature $(^{\circ}$K)"
         ]
         setproperty!.(ax, props[:,1], props[:,2])
     end
