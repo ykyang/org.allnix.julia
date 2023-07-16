@@ -403,12 +403,6 @@ yax[1]    vax[1]          yax[4]
           vax[2]=yax[2]
           vax[3]=yax[3]
           vax[4]
-
-position : 2 2 2 2
-view axis: 1 2 3 4
-
-position : 1 2 2 3
-y    axis: 1 2 3 4
 """
 function learn_multiaxis_3()
     fig = Figure()
@@ -423,22 +417,19 @@ function learn_multiaxis_3()
     end
     #@show vaxs
 
-    for i in 1:no_axis
-        if i in [vaxind,vaxind+1]
-            yaxs[i] = vaxs[i]; continue
-        end
-        if i < vaxind
-            yaxs[i] = Axis(fig[1,i]); continue
-        end
-        if i > vaxind
-            yaxs[i] = Axis(fig[1,i-1]); continue
-        end
+    ## Create axis for y-axis
+    for i in 1:vaxind-1
+        yaxs[i] = Axis(fig[1,i])
     end
-    #@show yaxs
+    for i in vaxind:vaxind+1
+        yaxs[i] = vaxs[i]
+    end
+    for i in vaxind+2:no_axis
+        yaxs[i] = Axis(fig[1,i-1])
+    end
+    
     ## Clear axis
     for ax in vcat(vaxs,yaxs)
-        #hidespines!(ax)
-        #hidedecorations!(ax)
         props = [
             :xgridvisible        false
             :ygridvisible        false
