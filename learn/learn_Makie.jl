@@ -5,6 +5,7 @@ module LearnMakie
 # http://juliaplots.org/MakieReferenceImages/gallery/index.html
 
 using Dates
+using ColorSchemes
 
 # Need to restart Julia in order to switch the backend
 glmakie    = false
@@ -270,6 +271,155 @@ function learn_datetime_1()
 
     fig
 end
+
+
+
+## Heatmap
+function learn_heatmap_1()
+    ## https://docs.makie.org/stable/examples/plotting_functions/heatmap/#heatmap
+    fig = Figure()
+    ax = Axis(fig[1,1])
+    xs = range(0, 10; length=25)
+    ys = range(0, 15, length=25)
+
+    ## shading=flat in matplotlib
+    zs = [cos(x)*sin(y) for x in xs[1:end-1], y in ys[1:end-1]]
+    ## shading in matplotlib
+    #zs = [cos(x)*sin(y) for x in xs, y in ys]
+
+    hm = heatmap!(ax, xs, ys, zs)
+    Colorbar(fig[:, end+1], hm)
+
+    fig
+end
+function learn_heatmap_2()
+    ## shading=flat
+
+    fig = Figure()
+    ax = Axis(fig[1,1])
+    xs = 0:4
+    ys = 0:3
+    zs = [
+        1  5   9
+        2  6  10
+        3  7  11
+        4  8  12
+    ]
+
+    ## zs = 
+    # +--> y
+    # |   1  5   9
+    # x   2  6  10
+    #     3  7  11
+    #     4  8  12
+    # 
+    # plotted as
+    #     9  10  11  12
+    # y   5   6   7   8
+    # |   1   2   3   4
+    # +--> x
+    hm = heatmap!(ax, xs, ys, zs)
+    Colorbar(fig[:, end+1], hm)
+    
+    fig
+end
+
+function learn_heatmap_3()
+    ## https://docs.makie.org/stable/documentation/colors/
+    colormap = :Accent_8
+    colormap = :Dark2_8
+    ## Transparent
+    colormap = colorscheme_alpha(ColorSchemes.Dark2_8, 0.2;ncolors=8); colorrange=(1,8);
+    colormap = colorscheme_alpha(ColorSchemes.Set3_12, 0.2;ncolors=12); colorrange=(1,12);
+        
+    alpha = 0.1f0
+    colormap = ColorScheme([
+        RGBA{Float32}(0.0f0,       0.44705883f0, 0.69803923f0, alpha),
+        RGBA{Float32}(0.9019608f0, 0.62352943f0, 0.0f0,        alpha),
+        RGBA{Float32}(0.0f0,       0.61960787f0, 0.4509804f0,  alpha),
+        RGBA{Float32}(0.8f0,       0.4745098f0,  0.654902f0,   alpha),
+        RGBA{Float32}(0.3372549f0, 0.7058824f0,  0.9137255f0,  alpha),
+        RGBA{Float32}(0.8352941f0, 0.36862746f0, 0.0f0,        alpha),
+        RGBA{Float32}(0.9411765f0, 0.89411765f0, 0.25882354f0, alpha),]); colorrange=(1,7)
+
+
+
+    fig = Figure(); ax = Axis(fig[1,1])
+    xs = 0:4; ys = 0:3
+    z = NaN
+
+    eles = []
+    let v = 1
+        zs = [
+            v z z
+            v v z
+            v v z
+            z z z
+        ]
+        plot = heatmap!(ax, xs, ys, zs; 
+            #transparency=true,
+            colormap=colormap, colorrange=colorrange)
+
+        for i in 1:10
+            zs = [
+                v z z
+                z z z
+                z z z
+                z z z
+            ]
+            plot = heatmap!(ax, xs, ys, zs; 
+                #transparency=true,
+                colormap=colormap, colorrange=colorrange)
+        end
+        ele = PolyElement(color=Makie.wong_colors()[v], points=Point2f[(0,0), (1,0), (1,1), (0,1)])
+        push!(eles, ele)
+    end
+
+    
+    
+    let v = 4
+        zs = [
+            z z z
+            z v v
+            z v v
+            z z v
+        ]
+        plot = heatmap!(ax, xs, ys, zs;
+            #transparency=true,
+            #alpha=0.01,
+            colormap=colormap,
+            #color=[(:tomato,0.2)],
+            colorrange=colorrange)
+        for i in 1:10
+            zs = [
+                z z z
+                z z z
+                z z z
+                z z v
+            ]
+            plot = heatmap!(ax, xs, ys, zs;
+                #transparency=true,
+                #alpha=0.01,
+                colormap=colormap,
+                #color=[(:tomato,0.2)],
+                colorrange=colorrange)
+        end
+        ele = PolyElement(color=Makie.wong_colors()[v], points=Point2f[(0,0), (1,0), (1,1), (0,1)])
+        push!(eles, ele)
+    end
+
+    Legend(fig[1,2], eles, ["1", "4"])
+    fig
+end
+
+function colorscheme_alpha(cscheme::ColorScheme, alpha::T = 0.5; 
+    ncolors=12) where T<:Real
+    ## https://juliagraphics.github.io/ColorSchemes.jl/stable/basics/#Alpha-transparency
+    return ColorScheme([RGBA(get(cscheme, k), alpha) for k in range(0, 1, length=ncolors)])
+end
+
+
+
 
 ## Learn multiple axis
 
