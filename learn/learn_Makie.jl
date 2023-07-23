@@ -332,7 +332,7 @@ function learn_heatmap_3()
     colormap = colorscheme_alpha(ColorSchemes.Dark2_8, 0.2;ncolors=8); colorrange=(1,8);
     colormap = colorscheme_alpha(ColorSchemes.Set3_12, 0.2;ncolors=12); colorrange=(1,12);
         
-    alpha = 0.1f0
+    alpha = 0.2f0
     colormap = ColorScheme([
         RGBA{Float32}(0.0f0,       0.44705883f0, 0.69803923f0, alpha),
         RGBA{Float32}(0.9019608f0, 0.62352943f0, 0.0f0,        alpha),
@@ -347,7 +347,7 @@ function learn_heatmap_3()
     fig = Figure(); ax = Axis(fig[1,1])
     xs = 0:4; ys = 0:3
     z = NaN
-
+    transparency = false
     eles = []
     let v = 1
         zs = [
@@ -357,10 +357,10 @@ function learn_heatmap_3()
             z z z
         ]
         plot = heatmap!(ax, xs, ys, zs; 
-            #transparency=true,
+            transparency=transparency,
             colormap=colormap, colorrange=colorrange)
-
-        for i in 1:10
+        translate!(plot, 0, 0, -2) # positive closer to eyes
+        for i in 1:1
             zs = [
                 v z z
                 z z z
@@ -368,16 +368,29 @@ function learn_heatmap_3()
                 z z z
             ]
             plot = heatmap!(ax, xs, ys, zs; 
-                #transparency=true,
+                transparency=transparency,
                 colormap=colormap, colorrange=colorrange)
         end
+        color = Makie.wong_colors()[v]
+        poly!(Point2f[(3,0), (3,1)]; strokecolor=Makie.wong_colors()[v], strokewidth=4)
+        poly!(Point2f[(3,1), (3,2)]; strokecolor=Makie.wong_colors()[v], strokewidth=4)
+        poly!(Point2f[(3,2), (2,2)]; strokecolor=Makie.wong_colors()[v], strokewidth=4)
+        poly!(Point2f[(2,2), (1,2)]; strokecolor=Makie.wong_colors()[v], strokewidth=4)
+        poly!(Point2f[(1,2), (1,1)]; strokecolor=Makie.wong_colors()[v], strokewidth=4)
+        lines!(ax, [1,2], [0,0], color=color, linewidth=5)
+        lines!(ax, [2,3], [0,0], color=color, linewidth=5)
+        lines!(ax, [0,1], [0,0], color=color, linewidth=5)
+        lines!(ax, [0,0], [0,1], color=color, linewidth=5)
+        lines!(ax, [0,1], [1,1], color=color, linewidth=5)
+        scatter!(ax, [0.5], [0.5]; color=color, markersize=20, strokecolor=:white, strokewidth=4)
+
         ele = PolyElement(color=Makie.wong_colors()[v], points=Point2f[(0,0), (1,0), (1,1), (0,1)])
         push!(eles, ele)
     end
 
     
     
-    let v = 4
+    let v = 2
         zs = [
             z z z
             z v v
@@ -385,12 +398,13 @@ function learn_heatmap_3()
             z z v
         ]
         plot = heatmap!(ax, xs, ys, zs;
-            #transparency=true,
+            transparency=transparency,
             #alpha=0.01,
             colormap=colormap,
             #color=[(:tomato,0.2)],
             colorrange=colorrange)
-        for i in 1:10
+        translate!(plot, 0, 0, -1) # positive closer to eyes
+        for i in 1:1
             zs = [
                 z z z
                 z z z
@@ -398,17 +412,32 @@ function learn_heatmap_3()
                 z z v
             ]
             plot = heatmap!(ax, xs, ys, zs;
-                #transparency=true,
+                transparency=transparency,
                 #alpha=0.01,
                 colormap=colormap,
                 #color=[(:tomato,0.2)],
                 colorrange=colorrange)
         end
+        color = Makie.wong_colors()[v]
+        lines!(ax, [1,1].+0.05, [1,2]; color=color, linewidth=5)
+        lines!(ax, [1,1], [2,3]; color=color, linewidth=5)
+        lines!(ax, [1,2], [3,3]; color=color, linewidth=5)
+        lines!(ax, [2,3], [3,3]; color=color, linewidth=5)
+        lines!(ax, [1,2], [1,1]; color=color, linewidth=5)
+        lines!(ax, [2,3], [1,1]; color=color, linewidth=5)
+        lines!(ax, [3,3].-0.05, [1,2]; color=color, linewidth=5)
+        lines!(ax, [3,4], [3,3], color=color, linewidth=5)
+        lines!(ax, [4,4], [3,2], color=color, linewidth=5)
+        lines!(ax, [4,3], [2,2], color=color, linewidth=5)
+        scatter!(ax, [3.5], [2.5]; color=color, markersize=20, strokecolor=:white, strokewidth=4)
+
         ele = PolyElement(color=Makie.wong_colors()[v], points=Point2f[(0,0), (1,0), (1,1), (0,1)])
         push!(eles, ele)
     end
-
+    ## https://docs.makie.org/stable/examples/blocks/legend/
     Legend(fig[1,2], eles, ["1", "4"])
+    xlims!(ax, -0.5, 4.5)
+    ylims!(ax, -0.5, 3.5)
     fig
 end
 
