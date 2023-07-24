@@ -49,6 +49,12 @@ using Test
 ## default color sequence
 # Makie.wong_colors()
 
+function colorscheme_alpha(cscheme::ColorScheme, alpha::T = 0.5; 
+    ncolors=12) where T<:Real
+    ## https://juliagraphics.github.io/ColorSchemes.jl/stable/basics/#Alpha-transparency
+    return ColorScheme([RGBA(get(cscheme, k), alpha) for k in range(0, 1, length=ncolors)])
+end
+
 ## Colormap
 ## https://docs.juliaplots.org/latest/generated/colorschemes/
 
@@ -323,15 +329,27 @@ function learn_heatmap_2()
     
     fig
 end
+"""
+    learn_heatmap_3()
 
+Plot transparent heatmap with depth adjustment.
+
+Take away
+```
+aspect = DataAspect()
+ax.yminorticks = IntervalsBetween(2)
+translate!(plot, 0, 0, -2) # positive closer to eyes
+```
+"""
 function learn_heatmap_3()
+    colors = Makie.wong_colors()
     ## https://docs.makie.org/stable/documentation/colors/
     colormap = :Accent_8
     colormap = :Dark2_8
     ## Transparent
     colormap = colorscheme_alpha(ColorSchemes.Dark2_8, 0.2;ncolors=8); colorrange=(1,8);
     colormap = colorscheme_alpha(ColorSchemes.Set3_12, 0.2;ncolors=12); colorrange=(1,12);
-        
+    ## colormap based on wong colors
     alpha = 0.2f0
     colormap = ColorScheme([
         RGBA{Float32}(0.0f0,       0.44705883f0, 0.69803923f0, alpha),
@@ -344,7 +362,7 @@ function learn_heatmap_3()
 
 
 
-    fig = Figure(); ax = Axis(fig[1,1])
+    fig = Figure(); ax = Axis(fig[1,1];aspect=DataAspect()) # aspect=x/y
     xs = 0:4; ys = 0:3
     z = NaN
     transparency = false
@@ -356,8 +374,7 @@ function learn_heatmap_3()
             v v z
             z z z
         ]
-        plot = heatmap!(ax, xs, ys, zs; 
-            transparency=transparency,
+        plot = heatmap!(ax, xs, ys, zs; transparency=transparency,
             colormap=colormap, colorrange=colorrange)
         translate!(plot, 0, 0, -2) # positive closer to eyes
         for i in 1:1
@@ -371,17 +388,40 @@ function learn_heatmap_3()
                 transparency=transparency,
                 colormap=colormap, colorrange=colorrange)
         end
-        color = Makie.wong_colors()[v]
-        poly!(Point2f[(3,0), (3,1)]; strokecolor=Makie.wong_colors()[v], strokewidth=4)
-        poly!(Point2f[(3,1), (3,2)]; strokecolor=Makie.wong_colors()[v], strokewidth=4)
-        poly!(Point2f[(3,2), (2,2)]; strokecolor=Makie.wong_colors()[v], strokewidth=4)
-        poly!(Point2f[(2,2), (1,2)]; strokecolor=Makie.wong_colors()[v], strokewidth=4)
-        poly!(Point2f[(1,2), (1,1)]; strokecolor=Makie.wong_colors()[v], strokewidth=4)
-        lines!(ax, [1,2], [0,0], color=color, linewidth=5)
-        lines!(ax, [2,3], [0,0], color=color, linewidth=5)
-        lines!(ax, [0,1], [0,0], color=color, linewidth=5)
-        lines!(ax, [0,0], [0,1], color=color, linewidth=5)
-        lines!(ax, [0,1], [1,1], color=color, linewidth=5)
+        color = colors[v]
+        X = NaN # Use this to separate lines
+        xy = [
+            3 0
+            3 1
+            X X
+            3 1
+            3 2
+            X X
+            3 2
+            2 2
+            X X
+            2 2
+            1 2
+            X X
+            1 2
+            1 1
+            X X
+            1 0
+            2 0
+            X X
+            2 0
+            3 0
+            X X
+            0 0
+            1 0
+            X X
+            0 0
+            0 1
+            X X
+            0 1
+            1 1
+        ]
+        lines!(ax, xy[:,1], xy[:,2]; color=color, linewidth=5)
         scatter!(ax, [0.5], [0.5]; color=color, markersize=20, strokecolor=:white, strokewidth=4)
 
         ele = PolyElement(color=Makie.wong_colors()[v], points=Point2f[(0,0), (1,0), (1,1), (0,1)])
@@ -397,13 +437,9 @@ function learn_heatmap_3()
             z v v
             z z v
         ]
-        plot = heatmap!(ax, xs, ys, zs;
-            transparency=transparency,
-            #alpha=0.01,
-            colormap=colormap,
-            #color=[(:tomato,0.2)],
-            colorrange=colorrange)
-        translate!(plot, 0, 0, -1) # positive closer to eyes
+        plot = heatmap!(ax, xs, ys, zs; transparency=transparency,
+            colormap=colormap, colorrange=colorrange)
+        translate!(plot, 0, 0, -3) # positive closer to eyes
         for i in 1:1
             zs = [
                 z z z
@@ -411,40 +447,99 @@ function learn_heatmap_3()
                 z z z
                 z z v
             ]
-            plot = heatmap!(ax, xs, ys, zs;
-                transparency=transparency,
-                #alpha=0.01,
-                colormap=colormap,
-                #color=[(:tomato,0.2)],
-                colorrange=colorrange)
+            plot = heatmap!(ax, xs, ys, zs; transparency=transparency,
+                colormap=colormap, colorrange=colorrange)
         end
-        color = Makie.wong_colors()[v]
-        lines!(ax, [1,1].+0.05, [1,2]; color=color, linewidth=5)
-        lines!(ax, [1,1], [2,3]; color=color, linewidth=5)
-        lines!(ax, [1,2], [3,3]; color=color, linewidth=5)
-        lines!(ax, [2,3], [3,3]; color=color, linewidth=5)
-        lines!(ax, [1,2], [1,1]; color=color, linewidth=5)
-        lines!(ax, [2,3], [1,1]; color=color, linewidth=5)
-        lines!(ax, [3,3].-0.05, [1,2]; color=color, linewidth=5)
-        lines!(ax, [3,4], [3,3], color=color, linewidth=5)
-        lines!(ax, [4,4], [3,2], color=color, linewidth=5)
-        lines!(ax, [4,3], [2,2], color=color, linewidth=5)
+        color = colors[v]
+        X = NaN
+        xy = [
+            1.05 1
+            1.05 2
+            X    X
+            1    2
+            1    3
+            X    X
+            1    3
+            2 3
+            X X
+            2 3
+            3 3
+            X X
+            1 1
+            2 1
+            X X
+            2 1
+            3 1
+            X X
+            2.95 1
+            2.95 2
+            X X
+            3 3
+            4 3
+            X X
+            4 3
+            4 2
+            3 2
+            3 2
+        ]
+        lines!(ax, xy[:,1], xy[:,2]; color=color, linewidth=5)
         scatter!(ax, [3.5], [2.5]; color=color, markersize=20, strokecolor=:white, strokewidth=4)
 
         ele = PolyElement(color=Makie.wong_colors()[v], points=Point2f[(0,0), (1,0), (1,1), (0,1)])
         push!(eles, ele)
     end
     ## https://docs.makie.org/stable/examples/blocks/legend/
-    Legend(fig[1,2], eles, ["1", "4"])
+    Legend(fig[1,2], eles, ["1", "2"])
     xlims!(ax, -0.5, 4.5)
     ylims!(ax, -0.5, 3.5)
+    ax.yticks = 0:3
+    ax.yminorticks = IntervalsBetween(2)
+    ax.yminorticksvisible = true
+    ax.xminorticks = IntervalsBetween(2)
+    ax.xminorticksvisible = true
+    
+    ## https://docs.makie.org/stable/tutorials/aspect-tutorial/#aspect_ratio_and_size_control_tutorial
+    colsize!(fig.layout, 1, Aspect(1, 1.0))
     fig
 end
 
-function colorscheme_alpha(cscheme::ColorScheme, alpha::T = 0.5; 
-    ncolors=12) where T<:Real
-    ## https://juliagraphics.github.io/ColorSchemes.jl/stable/basics/#Alpha-transparency
-    return ColorScheme([RGBA(get(cscheme, k), alpha) for k in range(0, 1, length=ncolors)])
+"""
+
+Draw discontinuous lines
+"""
+function learn_lines_1()
+    fig = Figure()
+    ax = Axis(fig[1,1])
+    
+    xy = [ 
+        1 1
+        2 2
+        NaN NaN # discontinuity
+        4 2
+        5 1
+    ] # Matrix{Float64}
+
+    plot = lines!(ax, xy[:,1], xy[:,2])
+    ylims!(0,3)
+
+    fig
+end
+
+"""
+    learn_stairs_1()
+
+Use `:pre` for backward time difference.
+"""
+function learn_stairs_1()
+    fig = Figure(); ax = Axis(fig[1,1])
+    xy = [
+        1 1
+        2 2
+        3 3
+    ]
+    plot = stairs!(ax, xy[:,1], xy[:,2]; step=:pre)
+    xlims!(ax, 0, 4)
+    fig
 end
 
 
