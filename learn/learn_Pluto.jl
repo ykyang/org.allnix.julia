@@ -5,30 +5,26 @@ using Markdown
 using InteractiveUtils
 
 # ╔═╡ 9f03b07c-a561-4355-8920-b096ef3fcfa4
-
 using GLMakie
-
 
 # ╔═╡ 40415ac0-db9f-11eb-3ca4-1d76bfbbc79a
 md"""
 # Learn basic Pluto stuff
 """
 
-# ╔═╡ 2e20d719-0f6e-46d3-89be-c73a56a6e44e
+# ╔═╡ abee8e4c-6aee-49fa-9559-7325b2416ea6
 md"""
-Plotly scatter plot
+## Makie
 """
 
-# ╔═╡ a225f998-b9b4-4113-a1ae-411172479aee
-3+7
-
 # ╔═╡ 8469896e-40b6-4f58-b7af-a0e96718e9f6
-begin
+let
 	fig = Figure()
 	ax = Axis(fig[1,1])
 	x = range(0, 10, length=100)
 	y = sin.(x)
 	plt = lines!(ax, x, y)
+	resize!(fig, 500,300)
 	fig
 end
 
@@ -1649,8 +1645,7 @@ version = "3.5.0+0"
 
 # ╔═╡ Cell order:
 # ╠═40415ac0-db9f-11eb-3ca4-1d76bfbbc79a
-# ╠═2e20d719-0f6e-46d3-89be-c73a56a6e44e
-# ╠═a225f998-b9b4-4113-a1ae-411172479aee
+# ╠═abee8e4c-6aee-49fa-9559-7325b2416ea6
 # ╠═9f03b07c-a561-4355-8920-b096ef3fcfa4
 # ╠═8469896e-40b6-4f58-b7af-a0e96718e9f6
 # ╟─00000000-0000-0000-0000-000000000001
