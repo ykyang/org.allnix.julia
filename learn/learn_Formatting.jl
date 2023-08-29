@@ -19,6 +19,8 @@ function learn()
     @test sprintf1("%d", 1000000)  == "1000000"
     @test sprintf1("%'d", 1000000) == "1,000,000"
 
+    fmt = "x is %s"
+    @test sprintf1(fmt, "a string") == "x is a string"
 
 end
 
