@@ -283,6 +283,13 @@ end
 # ╔═╡ 494df2e2-2f0b-45d8-a2f0-830afffdca15
 md"""
 # 3 Linear Regression
+* linear regression, a very simple approach, supervised learning
+* many fancy methods, generalizations or extensions of linear regression
+* reivew key ideas
+
+address
+
+* Is there
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
