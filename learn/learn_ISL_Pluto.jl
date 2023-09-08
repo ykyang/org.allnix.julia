@@ -203,7 +203,7 @@ md"""
 * impossible to compute Bayes classifier
 * ``N_0``, set of ``K`` points closest to ``x_0``
 
-$\text{Pr}(Y=j | X=x_0) = \frac{1}{K}\sum_{i\in N_0} I(y_i=j) \;\;\;\;(2.12)$
+$\text{Pr}(Y=j | X=x_0) = \frac{1}{K}\sum_{i\in N_0} I(y_i=j) \tag{2.12}$
 
 * classifies to the largest probability from (2.12)
 """
@@ -287,9 +287,112 @@ md"""
 * many fancy methods, generalizations or extensions of linear regression
 * reivew key ideas
 
-address
+address the following questions from the `Advertising` data
 
-* Is there
+1. Is there a relationship between advertising budget and sales?
+2. How strong is the relationship between advertising budget and sales?
+3. Which media are associated with sales?
+4. How large is the association between each medium and sales?
+5. How accurately can we predict future sales?
+6. Is the relationship linear?
+7. Is there **synergy** among the advertising media?
+"""
+
+# ╔═╡ ef3838d1-d0e9-48a6-8d4e-69867d2bbaac
+md"""
+## 3.1 Simple Linear Regression
+
+$Y \approx \beta_0 + \beta_1 X \tag{3.1}$
+
+* ``\approx``, is approximately modeled as
+* regress ``Y`` onto ``X``
+* ``\beta_0``, ``\beta_1``, model coefficients, parameters
+* estimate ``\hat{\beta}_0``, ``\hat{\beta}_1``
+
+$\hat{y} = \hat{\beta}_0 + \hat{\beta}_1 x \tag{3.2}$
+
+where ``\;\hat{\ }\;`` denote estimated, predicted.
+
+"""
+
+# ╔═╡ 9397e89f-b69c-4e06-a858-b88d770aa621
+md"""
+### 3.1.1 Estimating the Coefficients
+
+* least squares criterion
+* ``\hat{y}_i = \hat{\beta}_0 + \hat{\beta}_1x_i``, the prediction of the ``i``th value
+* ``e_i = y_i - \hat{y}_i``, the ``i``th residual
+
+residual sum of squares (RSS)
+
+$\text{RSS} = e_1^2 + e_1^2 + \dotsb + e_n^2 \tag{3.3}$
+
+least squares coefficient estimates
+
+$\begin{equation}
+\begin{split}
+\hat{\beta}_0 &= \bar{y} - \hat{\beta}_1\bar{x} \\
+\hat{\beta}_1 &= \frac{\sum^n_{i=1}(x_i-\bar{x})(y_i-\bar{y})}{\sum^n_{i=1}(x_i-\bar{x})^2}
+\end{split}
+\end{equation}\tag{3.4}$
+
+where ``\bar{y} = \frac{1}{n}\sum^n_{i=1}y_i``, ``\bar{x} = \frac{1}{n}\sum^n_{i=1}x_i``
+"""
+
+# ╔═╡ 0ac70562-eb3a-4084-8ebc-7c6a1f485457
+md"""
+### 3.1.2 Assessing the Accuracy of the Coefficient Estimates
+
+**population regression line**, note there is no ``\;\hat{}\;`` in the coefficients
+
+$Y = \beta_0 + \beta_1 X + \epsilon \tag{3.5}$
+
+* standard statistical approach of using information from a sample to estimate characteristics of a large population
+* **population mean** ``\mu`` of ``Y`` not known
+* estimate ``\mu`` from ``n`` observations of ``Y``
+* a reasonable estimate, ``\hat{\mu} = \bar{y} = \frac{1}{n}\sum^n_{i=1}y_i``, **sample mean**
+* ``\hat{\mu}`` is unbiased
+
+* ``\text{RSE} = \sqrt{\text{RSS}/(n-2)}``
+
+t-statistic
+
+$t = \frac{\hat{\beta}_1-0}{\text{SE}(\hat{\beta}_1)}$
+
+TODO, read again
+"""
+
+# ╔═╡ c08fd759-94fa-4581-ae55-7c79cda7e2ae
+md"""
+### 3.1.3 Assessing the Accuracy of the Model
+
+#### Residual Standard Error
+* the ``\text{RSE}`` is an estimate of the standard deviation of ``\epsilon``
+* roughly speaking, it is the average amount that the response will deviate from the true regression line
+* measured in the units of Y
+
+$RSE=\sqrt{\frac{RSS}{n-2}}=\sqrt{\frac{\sum^n_{i=1}(y_i-\hat{y}_i)^2}{n-2}}  \tag{3.15}$
+
+$RSS = \sum^n_{i=1}(y_i-\hat{y}_i)^2 \tag{3.16}$
+"""
+
+# ╔═╡ d86adf44-7713-46a8-9aa3-5c2097b789bf
+md"""
+#### ``R^2`` Statistic
+* ``RSE`` measured in the units of Y
+* provide an alternative measure of fit
+* form of a proportion
+* always between 0 and 1
+
+$R^2 = \frac{TSS - RSS}{TSS} = 1-\frac{RSS}{TSS} = 1-\frac{\sum(y_i-\hat{y}_i)^2}{\sum{(y_i-\bar{y})^2}}$ 
+
+where ``TSS = \sum{(y_i-\bar{y})^2}``, total sum of squares.
+
+* ``TSS`` measures the total variance in the response ``Y``, the amount of variability
+* ``RSS`` measures the amount of variability that is left unexplained after the regression
+* ``TSS-RSS`` measures the amount of variability in the response that is explained by performing the regression
+* ``R^2`` measures the proportion of variability in Y that can be explained using X
+* ``R^2`` close to 1 indicates that a large proportion of the variability in the response is explained by the regression
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -314,7 +417,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.9.2"
 manifest_format = "2.0"
-project_hash = "0666b582c27b3b2d87a78cd08e6c4450b9b5af59"
+project_hash = "dd0cfc25b4cc5fe534ff96105c2dd7a1268bcc6c"
 
 [[deps.AbstractFFTs]]
 deps = ["LinearAlgebra"]
@@ -721,15 +824,10 @@ version = "0.9.20"
 uuid = "7b1f6079-737a-58dc-b8bc-7a2ca5c1b5ee"
 
 [[deps.FillArrays]]
-deps = ["LinearAlgebra", "Random"]
-git-tree-sha1 = "a20eaa3ad64254c61eeb5f230d9306e937405434"
+deps = ["LinearAlgebra", "Random", "SparseArrays", "Statistics"]
+git-tree-sha1 = "f372472e8672b1d993e93dada09e23139b509f9e"
 uuid = "1a297f60-69ca-5386-bcde-b61e274b549b"
-version = "1.6.1"
-weakdeps = ["SparseArrays", "Statistics"]
-
-    [deps.FillArrays.extensions]
-    FillArraysSparseArraysExt = "SparseArrays"
-    FillArraysStatisticsExt = "Statistics"
+version = "1.5.0"
 
 [[deps.FiniteDiff]]
 deps = ["ArrayInterface", "LinearAlgebra", "Requires", "Setfield", "SparseArrays"]
@@ -1151,9 +1249,9 @@ version = "0.1.12"
 
 [[deps.LogExpFunctions]]
 deps = ["DocStringExtensions", "IrrationalConstants", "LinearAlgebra"]
-git-tree-sha1 = "7d6dd4e9212aebaeed356de34ccf262a3cd415aa"
+git-tree-sha1 = "c3ce8e7420b3a6e071e0fe4745f5d4300e37b13f"
 uuid = "2ab3a3ac-af41-5b50-aa03-7779005ae688"
-version = "0.3.26"
+version = "0.3.24"
 
     [deps.LogExpFunctions.extensions]
     LogExpFunctionsChainRulesCoreExt = "ChainRulesCore"
@@ -1176,9 +1274,9 @@ version = "2023.2.0+0"
 
 [[deps.MacroTools]]
 deps = ["Markdown", "Random"]
-git-tree-sha1 = "9ee1618cbf5240e6d4e0371d6f24065083f60c48"
+git-tree-sha1 = "42324d08725e200c23d4dfb549e0d5d89dede2d2"
 uuid = "1914dd2f-81c6-5fcd-8719-6d5c9610ff09"
-version = "0.5.11"
+version = "0.5.10"
 
 [[deps.Makie]]
 deps = ["Animations", "Base64", "ColorBrewer", "ColorSchemes", "ColorTypes", "Colors", "Contour", "DelaunayTriangulation", "Distributions", "DocStringExtensions", "Downloads", "FFMPEG", "FileIO", "FixedPointNumbers", "Formatting", "FreeType", "FreeTypeAbstraction", "GeometryBasics", "GridLayoutBase", "ImageIO", "InteractiveUtils", "IntervalSets", "Isoband", "KernelDensity", "LaTeXStrings", "LinearAlgebra", "MacroTools", "MakieCore", "Markdown", "Match", "MathTeXEngine", "Observables", "OffsetArrays", "Packing", "PlotUtils", "PolygonOps", "PrecompileTools", "Printf", "REPL", "Random", "RelocatableFolders", "Setfield", "ShaderAbstractions", "Showoff", "SignedDistanceFields", "SparseArrays", "StableHashTraits", "Statistics", "StatsBase", "StatsFuns", "StructArrays", "TriplotBase", "UnicodeFun"]
@@ -1430,20 +1528,18 @@ uuid = "647866c9-e3ac-4575-94e7-e3d426903924"
 version = "0.1.2"
 
 [[deps.Polynomials]]
-deps = ["LinearAlgebra", "RecipesBase", "Setfield"]
-git-tree-sha1 = "af8c8b863adb84abacb9a87822a778a3982901e1"
+deps = ["LinearAlgebra", "RecipesBase"]
+git-tree-sha1 = "3aa2bb4982e575acd7583f01531f241af077b163"
 uuid = "f27b6e38-b328-58d1-80ce-0feddd5e7a45"
-version = "4.0.2"
+version = "3.2.13"
 
     [deps.Polynomials.extensions]
     PolynomialsChainRulesCoreExt = "ChainRulesCore"
-    PolynomialsFFTWExt = "FFTW"
     PolynomialsMakieCoreExt = "MakieCore"
     PolynomialsMutableArithmeticsExt = "MutableArithmetics"
 
     [deps.Polynomials.weakdeps]
     ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-    FFTW = "7a1cc6ca-52ef-59f5-83cd-3a7055c09341"
     MakieCore = "20f20a25-4f0e-4fdf-b5d1-57303727442b"
     MutableArithmetics = "d8a4904e-b15c-11e9-3269-09a3773c0cb0"
 
@@ -1461,9 +1557,9 @@ version = "0.2.4"
 
 [[deps.PrecompileTools]]
 deps = ["Preferences"]
-git-tree-sha1 = "03b4c25b43cb84cee5c90aa9b5ea0a78fd848d2f"
+git-tree-sha1 = "9673d39decc5feece56ef3940e5dafba15ba0f81"
 uuid = "aea7be01-6a6a-4083-8856-8a6e6704d82a"
-version = "1.2.0"
+version = "1.1.2"
 
 [[deps.Preferences]]
 deps = ["TOML"]
@@ -1489,9 +1585,9 @@ uuid = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 
 [[deps.ProgressMeter]]
 deps = ["Distributed", "Printf"]
-git-tree-sha1 = "ae36206463b2395804f2787ffe172f44452b538d"
+git-tree-sha1 = "d7a7aef8f8f2d537104f170139553b14dfe39fe9"
 uuid = "92933f4c-e287-5a05-a399-4b506db050ca"
-version = "1.8.0"
+version = "1.7.2"
 
 [[deps.QOI]]
 deps = ["ColorTypes", "FileIO", "FixedPointNumbers"]
@@ -1652,9 +1748,9 @@ version = "0.3.0"
 
 [[deps.SimplePolynomials]]
 deps = ["Mods", "Multisets", "Polynomials", "Primes"]
-git-tree-sha1 = "d537c31cf9995236166e3e9afc424a5a1c59ff9d"
+git-tree-sha1 = "9f1b1f47279018b35316c62e829af1f3f6725a47"
 uuid = "cc47b68c-3164-5771-a705-2bc0097375a0"
-version = "0.2.14"
+version = "0.2.13"
 
 [[deps.SimpleRandom]]
 deps = ["Distributions", "LinearAlgebra", "Random"]
@@ -1780,12 +1876,6 @@ deps = ["Dates"]
 uuid = "fa267f1f-6049-4f14-aa54-33bafae1ed76"
 version = "1.0.3"
 
-[[deps.TZJData]]
-deps = ["Artifacts"]
-git-tree-sha1 = "d39314cdbaf5b90a047db33858626f8d1cc973e1"
-uuid = "dc5dba14-91b3-4cab-a142-028a31da12f7"
-version = "1.0.0+2023c"
-
 [[deps.TableTraits]]
 deps = ["IteratorInterfaceExtensions"]
 git-tree-sha1 = "c06b2f539df1c6efa794486abfb6ed2022561a39"
@@ -1820,10 +1910,10 @@ uuid = "731e570b-9d59-4bfa-96dc-6df516fadf69"
 version = "0.6.4"
 
 [[deps.TimeZones]]
-deps = ["Artifacts", "Dates", "Downloads", "InlineStrings", "LazyArtifacts", "Mocking", "Printf", "RecipesBase", "Scratch", "TZJData", "Unicode", "p7zip_jll"]
-git-tree-sha1 = "8dfeeb90ba3fda8c69873c961e397b6541bdc4e6"
+deps = ["Dates", "Downloads", "InlineStrings", "LazyArtifacts", "Mocking", "Printf", "RecipesBase", "Scratch", "Unicode"]
+git-tree-sha1 = "5b347464bdac31eccfdbe1504d9484c31645cafc"
 uuid = "f269a46b-ccf7-5d73-abea-4c690281aa53"
-version = "1.12.0"
+version = "1.11.0"
 
 [[deps.TranscodingStreams]]
 deps = ["Random", "Test"]
@@ -2065,6 +2155,11 @@ version = "3.5.0+0"
 # ╠═b9df6055-1096-404c-8789-1b4bb002e9ae
 # ╠═fae9226c-2a56-4f5a-b902-d15e1b7c0498
 # ╠═a14f00cc-6eb9-44d9-a54a-ebe4a589451e
-# ╠═494df2e2-2f0b-45d8-a2f0-830afffdca15
+# ╟─494df2e2-2f0b-45d8-a2f0-830afffdca15
+# ╟─ef3838d1-d0e9-48a6-8d4e-69867d2bbaac
+# ╟─9397e89f-b69c-4e06-a858-b88d770aa621
+# ╟─0ac70562-eb3a-4084-8ebc-7c6a1f485457
+# ╠═c08fd759-94fa-4581-ae55-7c79cda7e2ae
+# ╠═d86adf44-7713-46a8-9aa3-5c2097b789bf
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
