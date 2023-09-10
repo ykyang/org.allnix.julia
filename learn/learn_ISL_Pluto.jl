@@ -384,7 +384,7 @@ md"""
 * form of a proportion
 * always between 0 and 1
 
-$R^2 = \frac{TSS - RSS}{TSS} = 1-\frac{RSS}{TSS} = 1-\frac{\sum(y_i-\hat{y}_i)^2}{\sum{(y_i-\bar{y})^2}}$ 
+$R^2 = \frac{TSS - RSS}{TSS} = 1-\frac{RSS}{TSS} = 1-\frac{\sum(y_i-\hat{y}_i)^2}{\sum{(y_i-\bar{y})^2}} \tag{3.17}$ 
 
 where ``TSS = \sum{(y_i-\bar{y})^2}``, total sum of squares.
 
@@ -393,6 +393,140 @@ where ``TSS = \sum{(y_i-\bar{y})^2}``, total sum of squares.
 * ``TSS-RSS`` measures the amount of variability in the response that is explained by performing the regression
 * ``R^2`` measures the proportion of variability in Y that can be explained using X
 * ``R^2`` close to 1 indicates that a large proportion of the variability in the response is explained by the regression
+* ``R^2`` near 0 indicates that the regression does not explainmuch of the variability in the response
+
+correlation
+
+$Cor(X,Y) = \frac{\sum (x_i-\bar{x})(y_i-\bar{y})}{\sqrt{\sum(x_i-\bar{x})^2}\sqrt{\sum(y_i-\bar{y})^2}}$
+
+* may use ``r=Cor(X,Y)`` instead of ``R^2``
+* linear regression, ``R^2 = r^2``
+"""
+
+# ╔═╡ cb7e7a85-a147-494c-98cf-90a08dd9ea40
+md"""
+## 3.2 Multiple Linear Regression
+
+* often have more than one predictor
+
+p distinct predictors
+
+$Y = \beta_0 + \beta_1X_1 + \beta_2X_2 + \dotsb + \beta_pX_p + \epsilon \tag{3.19}$
+"""
+
+# ╔═╡ f0229344-b513-4b70-9710-ebeba5b56682
+md"""
+### 3.2.1 Estimating the Regression Coefficients
+
+* regression coefficients, ``\beta_0, \beta_1, ..., \beta_p`` are unknown
+* estimates, ``\hat{\beta}_0, \hat{\beta}_1, ..., \hat{\beta}_p``
+
+$\hat{y} = \hat{\beta}_0 + \hat{\beta}_1x_1 + \hat{\beta}_2x_2 +\dotsb + \hat{\beta}_px_p\tag{3.21}$
+
+$\begin{equation}\begin{split}
+RSS &= \sum_{i=1}^n(y_i - \hat{y}_i)^2 \\
+    &= \sum_{i=1}^n(-y_i + \hat{\beta}_0 + \hat{\beta}_1x_1 + \hat{\beta}_2x_2 +\dotsb + \hat{\beta}_px_p)^2
+\end{split}\end{equation}\tag{3.22}$
+
+* most easily represented using matrix algebra
+"""
+
+# ╔═╡ 93ca5f89-3b85-4dd2-9b18-afb7617f9436
+md"""
+### 3.2.2 Some Important Questions
+#### 1: Is there a relationship between the response and predictors?
+* check whether ``\beta_1=0``
+* whether ``\beta_1 = \beta_2 = \dotsb = \beta_p = 0``
+
+null hypothesis,
+
+$H_0: \beta_1 = \beta_2 = \dotsb = \beta_p = 0$
+
+alternative hypothesis,
+
+$H_a: \text{at least one } \beta_j \text{ is non-zero}$
+
+``F\text{-statistic}``
+
+$F = \frac{(TSS-RSS)/p}{RSS/(n-p-1)}\tag{3.23}$
+
+If the linear model assumptions are correct,
+
+$E\{RSS/(n-p-1)\} = \sigma^2$
+
+``H_0`` is true
+
+$E\{(TSS-RSS)/p\} = \sigma^2$
+
+``F\text{-statistic}`` close to 1.
+
+``H_a`` is true,
+
+$E\{(TSS-RSS)/p\} > \sigma^2$
+
+``F\text{-statistic}`` greater than 1.
+"""
+
+# ╔═╡ 5159890c-b047-48d3-849e-096878ab804d
+md"""
+* large ``F\text{-statistic}`` (570) suggests at least one of the advertising media must be related to sales.
+* n is large, ``F\text{-statistic}`` just a little larger than 1 might still provide evidence against ``H_0``
+* a larger ``F\text{-statistic}`` is needed to reject ``H_0`` if n is small
+
+TODO: read again page 77
+
+test subset of ``q`` of the coefficients are zero
+
+$H_0: \beta_{p-q+1} = \beta_{p-q+2} = \dotsb = \beta_p = 0$
+
+that is omit last ``q`` variables.
+
+model that uses all the variables except those last ``q``, ``RSS_0``.
+
+$F = \frac{(RSS_0-RSS)/q}{RSS/(n-p-1)}$
+"""
+
+# ╔═╡ cb468124-b027-4789-9b5d-db6dddf2bb76
+md"""
+#### 2: Deciding on important variables
+* ``1``st step, ``F``-statistic, ``p``-value
+* often the response is associated with a subset of the predictors
+* variable selection
+* quality of a model, Mallow's ``C_p``, Akaike information criterion (AIC), Bayesian information criterion (BIC), adjusted ``R^2``
+
+three classical approaches
+
+* Forward selection, add lowest ``RSS``
+* Backward selection, remove largest ``p``-value
+* Mixed selection
+"""
+
+# ╔═╡ 7ec62be4-5e7c-4294-8afc-bbc526dd31ab
+md"""
+#### 3: Model fit
+* measures of model fit, ``RSE``, ``R^2``
+* ``R^2 = Cor(Y,\hat{Y})^2``
+* ``R^2`` close to 1, explains a large portion of the variance
+* ``R^2`` always increase when more variables are added
+
+$RSE = \sqrt{\frac{1}{n-p-1}RSS}\tag{3.25}$
+
+* synergy between variables
+"""
+
+# ╔═╡ 5138c345-5a2a-4143-816c-e05b493da3b5
+md"""
+#### 4: Predictions
+"""
+
+# ╔═╡ 201cbc1e-04cd-4789-aab1-fcd2968449f2
+md"""
+# Nomenclature
+* ``F\text{-}statistic``, page 76
+* ``R^2``-statistic, ``\frac{TSS-RSS}{TSS}``
+* ``RSE``, ``\sqrt{\frac{1}{n-p-1}RSS}, \sqrt{\frac{1}{n-2}RSS}``, residual standard error, page 69
+* ``RSS``, ``\sum(y_i-\hat{y}_i)^2``, residual sum of squares, page 62
+* ``TSS``, ``\sum(y_i-\bar{y}_i)^2``, total sum of squares, page 70
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
@@ -2142,24 +2276,32 @@ version = "3.5.0+0"
 # ╟─95187a22-cee2-45d2-bd8d-f9dce814f2f7
 # ╟─1e497256-c12a-466a-9fc8-9ca1979aabdf
 # ╟─12a78276-2b64-40d9-802f-cbc151cd270a
-# ╠═96b25a25-732e-415e-b3ff-26897aa3240a
+# ╟─96b25a25-732e-415e-b3ff-26897aa3240a
 # ╠═833a9549-8ebd-4c08-ac22-0f2669cb8e12
 # ╠═8d231e32-a1f4-4419-af54-590e438f10eb
 # ╠═612c7e84-6ba8-4874-b87a-dba3aed62315
 # ╠═3563ee55-f8f7-4017-87b7-5bf9c2c54ca1
-# ╠═d48b5622-6b25-4ab9-8344-b8ae344ebdb8
+# ╟─d48b5622-6b25-4ab9-8344-b8ae344ebdb8
 # ╠═bfecee48-480c-45a9-a587-4a4bea5e7442
 # ╠═8bf2c0b0-35cc-4398-8289-492e654a371d
 # ╠═2b0d2a9b-41c2-47f7-a1d1-a8ae2a5e8da1
-# ╠═132e0b5e-19a4-431a-a303-747c0e45d0c4
-# ╠═b9df6055-1096-404c-8789-1b4bb002e9ae
-# ╠═fae9226c-2a56-4f5a-b902-d15e1b7c0498
-# ╠═a14f00cc-6eb9-44d9-a54a-ebe4a589451e
+# ╟─132e0b5e-19a4-431a-a303-747c0e45d0c4
+# ╟─b9df6055-1096-404c-8789-1b4bb002e9ae
+# ╟─fae9226c-2a56-4f5a-b902-d15e1b7c0498
+# ╟─a14f00cc-6eb9-44d9-a54a-ebe4a589451e
 # ╟─494df2e2-2f0b-45d8-a2f0-830afffdca15
 # ╟─ef3838d1-d0e9-48a6-8d4e-69867d2bbaac
-# ╟─9397e89f-b69c-4e06-a858-b88d770aa621
+# ╠═9397e89f-b69c-4e06-a858-b88d770aa621
 # ╟─0ac70562-eb3a-4084-8ebc-7c6a1f485457
-# ╠═c08fd759-94fa-4581-ae55-7c79cda7e2ae
-# ╠═d86adf44-7713-46a8-9aa3-5c2097b789bf
+# ╟─c08fd759-94fa-4581-ae55-7c79cda7e2ae
+# ╟─d86adf44-7713-46a8-9aa3-5c2097b789bf
+# ╟─cb7e7a85-a147-494c-98cf-90a08dd9ea40
+# ╠═f0229344-b513-4b70-9710-ebeba5b56682
+# ╟─93ca5f89-3b85-4dd2-9b18-afb7617f9436
+# ╟─5159890c-b047-48d3-849e-096878ab804d
+# ╟─cb468124-b027-4789-9b5d-db6dddf2bb76
+# ╠═7ec62be4-5e7c-4294-8afc-bbc526dd31ab
+# ╠═5138c345-5a2a-4143-816c-e05b493da3b5
+# ╠═201cbc1e-04cd-4789-aab1-fcd2968449f2
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
