@@ -4,6 +4,14 @@ module LearnLogging
 using Logging
 using LoggingExtras
 using Dates
+
+## Customer ConsoleLogger
+import Base.CoreLogging:
+    closed_stream, 
+    handle_message, shouldlog, min_enabled_level, catch_exceptions
+include("ConsoleLogger.jl")
+
+
 """
     learn_ActiveFilteredLogger()
 
@@ -152,12 +160,16 @@ function learn_FormatLogger()
         #     file = "C:\\Users\\ykyan\\work\\org.allnix.julia\\learn\\learn_LoggingExtras.jl", 
         #     line = 128, kwargs = Base.Iterators.Pairs{Union{}, Union{}, Tuple{}, NamedTuple{(), Tuple{}}}()
         # )
-        println(io, "$(log._module) | [$(log.level)] $(log.message)")
+        print(io, "$(log._module) | [")
+        printstyled(io, "$(log.level)"; color=Logging.default_logcolor(log.level))
+        println(io, "] $(log.message)")
+        #println(io, "$(log._module) | [$(log.level)] $(log.message)")
     end
 
     with_logger(logger) do
         @info "Info-1"
         @warn "Warn-1"
+        @error "Error-1"
     end
 end
 
