@@ -1,9 +1,17 @@
+module LearnLogging
 # https://github.com/oxinabox/LoggingExtras.jl
 
 using Logging
 using LoggingExtras
 using Dates
+"""
+    learn_ActiveFilteredLogger()
 
+Run with
+```julia
+include("learn_Logging.jl"); LearnLogging.learn_ActiveFilteredLogger();
+```
+"""
 function learn_ActiveFilteredLogger()
     filtered_logger = ActiveFilteredLogger(
         function(log_args)
@@ -104,7 +112,14 @@ function learn_TransformerLogger()
         @info "Not like this one, that is is short"
     end
 end
+"""
+    learn_FileLogger()
 
+Run with
+```julia
+include("learn_Logging.jl"); LearnLogging.learn_FileLogger();
+```
+"""
 function learn_FileLogger()
     demux_logger = TeeLogger(
         MinLevelLogger(FileLogger("info.log"), Logging.Info),
@@ -119,6 +134,14 @@ function learn_FileLogger()
     end
 end
 
+"""
+    learn_FormatLogger()
+
+Run with
+```julia
+include("learn_Logging.jl"); LearnLogging.learn_FormatLogger();
+```
+"""
 function learn_FormatLogger()
     logger = FormatLogger() do io, log
         # @show log
@@ -185,7 +208,7 @@ function learn_console_logger()
     # Restore
     global_logger(default_logger)
 end
-
+Logging.default_metafmt
 # SimpleLogger prints the line number.
 function learn_simple_logger()
     # Save a copy
@@ -200,15 +223,16 @@ function learn_simple_logger()
     global_logger(default_logger)
 end
 
-#learn_ActiveFilteredLogger()
-#learn_EarlyFilteredLogger()
-#learn_MinLevelLogger()
-#learn_TransformerLogger()
-#learn_FileLogger()
-#learn_FormatLogger()
-#learn_timestamp()
-#my_logging()
-#learn_console_logger()
-learn_simple_logger()
+# LearnLogging.learn_ActiveFilteredLogger()
+# LearnLogging.learn_EarlyFilteredLogger()
+# LearnLogging.learn_MinLevelLogger()
+# LearnLogging.learn_TransformerLogger()
+# LearnLogging.learn_FileLogger()
+# LearnLogging.learn_FormatLogger()
+# LearnLogging.learn_timestamp()
+# LearnLogging.my_logging()
+# LearnLogging.learn_console_logger()
+# LearnLogging.learn_simple_logger()
 
-nothing
+#nothing
+end
