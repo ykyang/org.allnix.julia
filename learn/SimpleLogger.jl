@@ -36,18 +36,32 @@ function handle_message(logger::SimpleLogger, level::LogLevel, message, _module,
         stream = stderr
     end
     iob = IOContext(buf, stream)
-    levelstr = level == Warn ? "Warning" : string(level)
+
+    ## MOD
+    #levelstr = level == Warn ? "Warning" : string(level)
+    levelstr = string(level)
+
     msglines = eachsplit(chomp(convert(String, string(message))::String), '\n')
     msg1, rest = Iterators.peel(msglines)
-    println(iob, "┌ ", levelstr, ": ", msg1)
+    ## MOD
+    #println(iob, "┌ ", levelstr, ": ", msg1)
+    println(iob, "[", lpad(levelstr, 5, " "), "] ", msg1)
+
+    i = 2
     for msg in rest
-        println(iob, "│ ", msg)
+        #println(iob, "│ ", msg)
+        println(iob, "[", lpad(i, 5, " "), "] ", msg)
+        i += 1
     end
     for (key, val) in kwargs
         key === :maxlog && continue
-        println(iob, "│   ", key, " = ", val)
+        #println(iob, "│   ", key, " = ", val)
+        println(iob, "[", lpad(i, 5, " "), "] ", key, " = ", val)
+        i += 1
     end
-    println(iob, "└ @ ", _module, " ", filepath, ":", line)
+    ## MOD: not printing
+    #println(iob, "└ @ ", _module, " ", filepath, ":", line)
+
     write(stream, take!(buf))
     nothing
 end

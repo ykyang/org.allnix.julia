@@ -301,14 +301,24 @@ SimpleLogger prints the line number.
 function learn_MySimpleLogger()
     # Save a copy
     default_logger = global_logger()
-    @info "Default global logger"
+    @info "Default global logger\nLine 2\nLine 3"
 
     logger = LearnLogging.SimpleLogger(stdout, Logging.Debug)
     global_logger(logger)
     @info "MySimpleLogger"
+    
+    @debug "Line 1\nLine 2\nLine 3\nLine 4"
+    @info "Line 1\nLine 2\nLine 3\nLine 4"
+    @warn "Line 1\nLine 2\nLine 3\nLine 4"
+    @error "Line 1\nLine 2\nLine 3\nLine 4"
+
+    x = 1; y = 2;
+    @info "Test kwargs" x y 
 
     # Restore
     global_logger(default_logger)
+
+    nothing
 end
 
 
