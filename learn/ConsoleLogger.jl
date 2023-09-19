@@ -68,18 +68,23 @@ end
 function default_metafmt(level::LogLevel, _module, group, id, file, line)
     @nospecialize
     color = default_logcolor(level)
-    prefix = string(level == Warn ? "Warning" : string(level), ':')
+
+    ## MOD: Fix width at 5 spaces with padding on the left
+    #prefix = string(level == Warn ? "Warning" : string(level), ':')
+    prefix = lpad(level, 5, " ")*"]"
+
+    ## MOD: Do not print module, file, line number
     suffix::String = ""
-    Info <= level < Warn && return color, prefix, suffix
-    _module !== nothing && (suffix *= string(_module)::String)
-    if file !== nothing
-        _module !== nothing && (suffix *= " ")
-        suffix *= contractuser(file)::String
-        if line !== nothing
-            suffix *= ":$(isa(line, UnitRange) ? "$(first(line))-$(last(line))" : line)"
-        end
-    end
-    !isempty(suffix) && (suffix = "@ " * suffix)
+    # Info <= level < Warn && return color, prefix, suffix
+    # _module !== nothing && (suffix *= string(_module)::String)
+    # if file !== nothing
+    #     _module !== nothing && (suffix *= " ")
+    #     suffix *= contractuser(file)::String
+    #     if line !== nothing
+    #         suffix *= ":$(isa(line, UnitRange) ? "$(first(line))-$(last(line))" : line)"
+    #     end
+    # end
+    # !isempty(suffix) && (suffix = "@ " * suffix)
     return color, prefix, suffix
 end
 
@@ -159,15 +164,19 @@ function handle_message(logger::ConsoleLogger, level::LogLevel, message, _module
         nonpadwidth = 2 + length(suffix)
     end
     for (i, (indent, msg)) in enumerate(msglines)
-        boxstr = length(msglines) == 1 ? "[ " :
-                 i == 1                ? "┌ " :
-                 i < length(msglines)  ? "│ " :
-                                         "└ "
+        # boxstr = length(msglines) == 1 ? "[ " :
+        #          i == 1                ? "┌ " :
+        #          i < length(msglines)  ? "│ " :
+        #                                  "└ "
+        boxstr = "["
         printstyled(iob, boxstr, bold=true, color=color)
         if i == 1 && !isempty(prefix)
             printstyled(iob, prefix, " ", bold=true, color=color)
+            print(iob, " "^indent, msg)
+        else
+            printstyled(iob, lpad(i, 5, " "), "] "; bold=true, color=color)
+            print(iob, msg)
         end
-        print(iob, " "^indent, msg)
         if i == length(msglines) && !isempty(suffix)
             npad = max(0, justify_width - nonpadwidth) + minsuffixpad
             print(iob, " "^npad)

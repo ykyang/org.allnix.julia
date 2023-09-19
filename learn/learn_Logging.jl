@@ -216,11 +216,20 @@ function learn_console_logger()
     cout_logger = ConsoleLogger(stdout, Logging.Info) 
     global_logger(cout_logger)
     @info "cout_logger"
+    @error "cout_logger"
 
+    @info "long long long long long long long long long long long long long long long long long long long long long long long long"
+
+    @debug "Line 1\nLine 2\nLine 3\nLine 4"
+    @info "Line 1\nLine 2\nLine 3\nLine 4"
+    @warn "Line 1\nLine 2\nLine 3\nLine 4"
+    @error "Line 1\nLine 2\nLine 3\nLine 4"
     # Restore
     global_logger(default_logger)
+
+    nothing
 end
-Logging.default_metafmt
+
 # SimpleLogger prints the line number.
 function learn_simple_logger()
     # Save a copy
@@ -235,16 +244,16 @@ function learn_simple_logger()
     global_logger(default_logger)
 end
 
-# LearnLogging.learn_ActiveFilteredLogger()
-# LearnLogging.learn_EarlyFilteredLogger()
-# LearnLogging.learn_MinLevelLogger()
-# LearnLogging.learn_TransformerLogger()
-# LearnLogging.learn_FileLogger()
-# LearnLogging.learn_FormatLogger()
-# LearnLogging.learn_timestamp()
-# LearnLogging.my_logging()
-# LearnLogging.learn_console_logger()
-# LearnLogging.learn_simple_logger()
+# include("learn_Logging.jl"); LearnLogging.learn_ActiveFilteredLogger()
+# include("learn_Logging.jl"); LearnLogging.learn_EarlyFilteredLogger()
+# include("learn_Logging.jl"); LearnLogging.learn_MinLevelLogger()
+# include("learn_Logging.jl"); LearnLogging.learn_TransformerLogger()
+# include("learn_Logging.jl"); LearnLogging.learn_FileLogger()
+# include("learn_Logging.jl"); LearnLogging.learn_FormatLogger()
+# include("learn_Logging.jl"); LearnLogging.learn_timestamp()
+# include("learn_Logging.jl"); LearnLogging.my_logging()
+# include("learn_Logging.jl"); LearnLogging.learn_console_logger()
+# include("learn_Logging.jl"); LearnLogging.learn_simple_logger()
 
 #nothing
 end
