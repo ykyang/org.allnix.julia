@@ -9,9 +9,9 @@ using Dates
 import Base.CoreLogging:
     closed_stream, 
     handle_message, shouldlog, min_enabled_level, catch_exceptions
-include("ConsoleLogger.jl")
-include("SimpleLogger.jl")
-include("FileLogger.jl")
+include("MyConsoleLogger.jl")
+include("MySimpleLogger.jl")
+include("MyFileLogger.jl")
 
 """
     learn_ActiveFilteredLogger()
@@ -145,8 +145,8 @@ end
 
 function learn_MyFileLogger()
     demux_logger = TeeLogger(
-        MinLevelLogger(FileLogger("info.log"), Logging.Info),
-        MinLevelLogger(FileLogger("warn.log"), Logging.Warn),
+        MinLevelLogger(MyFileLogger("info.log"), Logging.Info),
+        MinLevelLogger(MyFileLogger("warn.log"), Logging.Warn),
     )
 
     with_logger(demux_logger) do
@@ -270,7 +270,7 @@ function learn_MyConsoleLogger()
     default_logger = global_logger()
     @info "Default global logger"
 
-    cout_logger = LearnLogging.ConsoleLogger(stdout, Logging.Debug) 
+    cout_logger = MyConsoleLogger(stdout, Logging.Debug) 
     global_logger(cout_logger)
     @debug "cout_logger"
     @info  "cout_logger"
@@ -321,7 +321,7 @@ function learn_MySimpleLogger()
     default_logger = global_logger()
     @info "Default global logger\nLine 2\nLine 3"
 
-    logger = LearnLogging.SimpleLogger(stdout, Logging.Debug)
+    logger = MySimpleLogger(stdout, Logging.Debug)
     global_logger(logger)
     @info "MySimpleLogger"
     

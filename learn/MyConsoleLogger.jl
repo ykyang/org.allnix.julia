@@ -2,7 +2,7 @@
 ## julia-1.9.2/share/julia/stdlib/v1.9/Logging/src/ConsoleLogger.jl
 
 """
-    ConsoleLogger([stream,] min_level=Info; meta_formatter=default_metafmt,
+    MyConsoleLogger([stream,] min_level=Info; meta_formatter=default_metafmt,
                   show_limited=true, right_justify=0)
 
 Logger with formatting optimized for readability in a text console, for example
@@ -23,7 +23,7 @@ Message formatting can be controlled by setting keyword arguments:
 * `right_justify` is the integer column which log metadata is right justified
   at. The default is zero (metadata goes on its own line).
 """
-struct ConsoleLogger <: AbstractLogger
+struct MyConsoleLogger <: AbstractLogger
     stream::IO
     min_level::LogLevel
     meta_formatter
@@ -31,24 +31,24 @@ struct ConsoleLogger <: AbstractLogger
     right_justify::Int
     message_limits::Dict{Any,Int}
 end
-function ConsoleLogger(stream::IO, min_level=Info;
+function MyConsoleLogger(stream::IO, min_level=Info;
                        meta_formatter=default_metafmt, show_limited=true,
                        right_justify=0)
-    ConsoleLogger(stream, min_level, meta_formatter,
+    MyConsoleLogger(stream, min_level, meta_formatter,
                   show_limited, right_justify, Dict{Any,Int}())
 end
-function ConsoleLogger(min_level=Info;
+function MyConsoleLogger(min_level=Info;
                        meta_formatter=default_metafmt, show_limited=true,
                        right_justify=0)
-    ConsoleLogger(closed_stream, min_level, meta_formatter,
+    MyConsoleLogger(closed_stream, min_level, meta_formatter,
                   show_limited, right_justify, Dict{Any,Int}())
 end
 
 
-shouldlog(logger::ConsoleLogger, level, _module, group, id) =
+shouldlog(logger::MyConsoleLogger, level, _module, group, id) =
     get(logger.message_limits, id, 1) > 0
 
-min_enabled_level(logger::ConsoleLogger) = logger.min_level
+min_enabled_level(logger::MyConsoleLogger) = logger.min_level
 
 # Formatting of values in key value pairs
 showvalue(io, msg) = show(io, "text/plain", msg)
@@ -109,7 +109,7 @@ function termlength(str)
     return N
 end
 
-function handle_message(logger::ConsoleLogger, level::LogLevel, message, _module, group, id,
+function handle_message(logger::MyConsoleLogger, level::LogLevel, message, _module, group, id,
                         filepath, line; kwargs...)
     @nospecialize
     hasmaxlog = haskey(kwargs, :maxlog) ? 1 : 0
