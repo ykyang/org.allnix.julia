@@ -11,6 +11,7 @@ import Base.CoreLogging:
     handle_message, shouldlog, min_enabled_level, catch_exceptions
 include("ConsoleLogger.jl")
 include("SimpleLogger.jl")
+include("FileLogger.jl")
 
 """
     learn_ActiveFilteredLogger()
@@ -130,15 +131,32 @@ include("learn_Logging.jl"); LearnLogging.learn_FileLogger();
 """
 function learn_FileLogger()
     demux_logger = TeeLogger(
+        MinLevelLogger(LoggingExtras.FileLogger("info.log"), Logging.Info),
+        MinLevelLogger(LoggingExtras.FileLogger("warn.log"), Logging.Warn),
+    )
+
+    with_logger(demux_logger) do
+        @debug "LoggingExtras.FileLogger"
+        @warn  "LoggingExtras.FileLogger"
+        @info  "LoggingExtras.FileLogger"
+        @error "LoggingExtras.FileLogger"
+    end
+end
+
+function learn_MyFileLogger()
+    demux_logger = TeeLogger(
         MinLevelLogger(FileLogger("info.log"), Logging.Info),
         MinLevelLogger(FileLogger("warn.log"), Logging.Warn),
     )
 
     with_logger(demux_logger) do
-        @warn "Warn-1"
-        @info "Info-1"
-        @error "Error-1"
-        @debug "Debug-1"
+        @debug "My FileLogger"
+        @warn  "My FileLogger"
+        @info  "My FileLogger"
+        @error "My FileLogger"
+        
+        @warn  "Line 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7"
+        @error "Line 1\nLine 2\nLine 3\nLine 4\nLine 5\nLine 6\nLine 7"
     end
 end
 
@@ -327,6 +345,7 @@ end
 # include("learn_Logging.jl"); LearnLogging.learn_MinLevelLogger()
 # include("learn_Logging.jl"); LearnLogging.learn_TransformerLogger()
 # include("learn_Logging.jl"); LearnLogging.learn_FileLogger()
+# include("learn_Logging.jl"); LearnLogging.learn_MyFileLogger()
 # include("learn_Logging.jl"); LearnLogging.learn_FormatLogger()
 # include("learn_Logging.jl"); LearnLogging.learn_timestamp()
 # include("learn_Logging.jl"); LearnLogging.my_logging()
