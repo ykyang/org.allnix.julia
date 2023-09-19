@@ -1,5 +1,5 @@
 ## Copy from 
-## C:\Users\Yi-Kun.Yang\local\julia-1.9.2\share\julia\stdlib\v1.9\Logging\src\ConsoleLogger.jl
+## julia-1.9.2/share/julia/stdlib/v1.9/Logging/src/ConsoleLogger.jl
 
 """
     ConsoleLogger([stream,] min_level=Info; meta_formatter=default_metafmt,
@@ -171,7 +171,7 @@ function handle_message(logger::ConsoleLogger, level::LogLevel, message, _module
         boxstr = "["
         printstyled(iob, boxstr, bold=true, color=color)
         if i == 1 && !isempty(prefix)
-            printstyled(iob, prefix, " ", bold=true, color=color)
+            printstyled(iob, prefix, " "; bold=true, color=color)
             print(iob, " "^indent, msg)
         else
             printstyled(iob, lpad(i, 5, " "), "] "; bold=true, color=color)

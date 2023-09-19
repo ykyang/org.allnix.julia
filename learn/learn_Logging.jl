@@ -10,7 +10,7 @@ import Base.CoreLogging:
     closed_stream, 
     handle_message, shouldlog, min_enabled_level, catch_exceptions
 include("ConsoleLogger.jl")
-
+include("SimpleLogger.jl")
 
 """
     learn_ActiveFilteredLogger()
@@ -207,15 +207,20 @@ function my_logging()
     @warn "Console and file"
 end
 
-# Simple, clean logging with color coded "Info"
-function learn_console_logger()
+"""
+
+Simple, clean logging with color coded "Info"
+"""
+function learn_ConsoleLogger()
     # Save a copy
     default_logger = global_logger()
     @info "Default global logger"
 
-    cout_logger = ConsoleLogger(stdout, Logging.Info) 
+    cout_logger = Logging.ConsoleLogger(stdout, Logging.Debug) 
     global_logger(cout_logger)
-    @info "cout_logger"
+    @debug "cout_logger"
+    @info  "cout_logger"
+    @warn  "cout_logger"
     @error "cout_logger"
 
     @info "long long long long long long long long long long long long long long long long long long long long long long long long"
@@ -224,25 +229,88 @@ function learn_console_logger()
     @info "Line 1\nLine 2\nLine 3\nLine 4"
     @warn "Line 1\nLine 2\nLine 3\nLine 4"
     @error "Line 1\nLine 2\nLine 3\nLine 4"
+
+    x = 1; y = 2;
+    @info "Test kwargs" x y 
+
     # Restore
     global_logger(default_logger)
 
     nothing
 end
 
-# SimpleLogger prints the line number.
-function learn_simple_logger()
+"""
+    learn_MyConsoleLogger()
+
+`LearnLogging.ConsoleLogger`, a modification to `Logging.ConsoleLogger`.
+Make the beginning a lines aligned, and with a number.  This is used to display
+the progress of data processing and plotting where indentation of the tasks is
+important.
+"""
+function learn_MyConsoleLogger()
     # Save a copy
     default_logger = global_logger()
     @info "Default global logger"
 
-    logger = SimpleLogger(stdout, Logging.Info)
+    cout_logger = LearnLogging.ConsoleLogger(stdout, Logging.Debug) 
+    global_logger(cout_logger)
+    @debug "cout_logger"
+    @info  "cout_logger"
+    @warn  "cout_logger"
+    @error "cout_logger"
+
+    @info "long long long long long long long long long long long long long long long long long long long long long long long long"
+
+    @debug "Line 1\nLine 2\nLine 3\nLine 4"
+    @info "Line 1\nLine 2\nLine 3\nLine 4"
+    @warn "Line 1\nLine 2\nLine 3\nLine 4"
+    @error "Line 1\nLine 2\nLine 3\nLine 4"
+    
+    x = 1; y = 2;
+    @info "Test kwargs" x y 
+
+    # Restore
+    global_logger(default_logger)
+
+    nothing
+end
+
+"""
+    learn_SimpleLogger()
+
+SimpleLogger prints the line number.
+"""
+function learn_SimpleLogger()
+    # Save a copy
+    default_logger = global_logger()
+    @info "Default global logger"
+
+    logger = SimpleLogger(stdout, Logging.Debug)
     global_logger(logger)
     @info "SimpleLogger"
 
     # Restore
     global_logger(default_logger)
 end
+
+"""
+    learn_MySimpleLogger()
+
+SimpleLogger prints the line number.
+"""
+function learn_MySimpleLogger()
+    # Save a copy
+    default_logger = global_logger()
+    @info "Default global logger"
+
+    logger = LearnLogging.SimpleLogger(stdout, Logging.Debug)
+    global_logger(logger)
+    @info "MySimpleLogger"
+
+    # Restore
+    global_logger(default_logger)
+end
+
 
 # include("learn_Logging.jl"); LearnLogging.learn_ActiveFilteredLogger()
 # include("learn_Logging.jl"); LearnLogging.learn_EarlyFilteredLogger()
@@ -252,8 +320,11 @@ end
 # include("learn_Logging.jl"); LearnLogging.learn_FormatLogger()
 # include("learn_Logging.jl"); LearnLogging.learn_timestamp()
 # include("learn_Logging.jl"); LearnLogging.my_logging()
-# include("learn_Logging.jl"); LearnLogging.learn_console_logger()
-# include("learn_Logging.jl"); LearnLogging.learn_simple_logger()
+# include("learn_Logging.jl"); LearnLogging.learn_ConsoleLogger()
+# include("learn_Logging.jl"); LearnLogging.learn_MyConsoleLogger()
+# include("learn_Logging.jl"); LearnLogging.learn_SimpleLogger()
+# include("learn_Logging.jl"); LearnLogging.learn_MySimpleLogger()
 
 #nothing
 end
+
