@@ -46,17 +46,25 @@ function handle_message(logger::MySimpleLogger, level::LogLevel, message, _modul
     ## MOD
     #println(iob, "┌ ", levelstr, ": ", msg1)
     println(iob, "[", lpad(levelstr, 5, " "), "] ", msg1)
+    first_line_indent = 0
+    for i = 1:length(msg1)
+        if msg1[i] == ' '    
+            first_line_indent = i
+        else
+            break
+        end
+    end
 
     i = 2
     for msg in rest
         #println(iob, "│ ", msg)
-        println(iob, "[", lpad(i, 5, " "), "] ", msg)
+        println(iob, "[", lpad(i, 5, " "), "] ", " "^first_line_indent, msg)
         i += 1
     end
     for (key, val) in kwargs
         key === :maxlog && continue
         #println(iob, "│   ", key, " = ", val)
-        println(iob, "[", lpad(i, 5, " "), "] ", key, " = ", val)
+        println(iob, "[", lpad(i, 5, " "), "] ", " "^(2+first_line_indent), key, " = ", val)
         i += 1
     end
     ## MOD: not printing
