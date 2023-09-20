@@ -287,6 +287,25 @@ function learn_MyConsoleLogger()
     x = 1; y = 2;
     @info "Test kwargs" x y 
 
+    # [ Info]     Line 1
+    # [    2]     Line 2
+    # [    3]       x = 1
+    # [    4]       y = 2    
+    @info """
+        Line 1
+    Line 2
+    """ x y
+
+    # [ Info] Line 1
+    # [    2]   x = 1
+    # [    3]   y = 2
+    @info "Line 1" x y
+    
+    # [ Info]     Line 1
+    # [    2]       x = 1
+    # [    3]       y = 2
+    @info "    Line 1" x y
+    
     # Restore
     global_logger(default_logger)
 
@@ -332,6 +351,9 @@ function learn_MySimpleLogger()
 
     x = 1; y = 2;
     @info "Test kwargs" x y 
+
+
+
 
     # Restore
     global_logger(default_logger)

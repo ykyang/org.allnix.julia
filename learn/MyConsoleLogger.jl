@@ -123,6 +123,18 @@ function handle_message(logger::MyConsoleLogger, level::LogLevel, message, _modu
     # Generate a text representation of the message and all key value pairs,
     # split into lines.
     msglines = [(indent=0, msg=l) for l in split(chomp(convert(String, string(message))::String), '\n')]
+    ## Find the indent of the first line, will add that to 2nd line and beyond
+    first_line_indent = 0
+    if !isempty(msglines)
+        line = msglines[1].msg
+        for i = 1:length(line)
+            if line[i] == ' '    
+                first_line_indent = i
+            else
+                break
+            end
+        end
+    end
     stream::IO = logger.stream
     if !(isopen(stream)::Bool)
         stream = stderr
@@ -174,7 +186,7 @@ function handle_message(logger::MyConsoleLogger, level::LogLevel, message, _modu
             printstyled(iob, prefix, " "; bold=true, color=color)
             print(iob, " "^indent, msg)
         else
-            printstyled(iob, lpad(i, 5, " "), "] "; bold=true, color=color)
+            printstyled(iob, lpad(i, 5, " "), "] ", " "^(indent+first_line_indent); bold=true, color=color)
             print(iob, msg)
         end
         if i == length(msglines) && !isempty(suffix)
