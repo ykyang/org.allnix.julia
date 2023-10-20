@@ -39,7 +39,8 @@ function handle_message(logger::MySimpleLogger, level::LogLevel, message, _modul
 
     ## MOD
     #levelstr = level == Warn ? "Warning" : string(level)
-    levelstr = string(level)
+    #levelstr = string(level)
+    levelstr = string(level == Inf1 ? "Inf1" : string(level))
 
     msglines = eachsplit(chomp(convert(String, string(message))::String), '\n')
     msg1, rest = Iterators.peel(msglines)

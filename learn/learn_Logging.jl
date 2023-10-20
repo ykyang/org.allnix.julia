@@ -8,7 +8,9 @@ using Dates
 ## Customer ConsoleLogger
 import Base.CoreLogging:
     closed_stream, 
-    handle_message, shouldlog, min_enabled_level, catch_exceptions
+    handle_message, shouldlog, min_enabled_level, catch_exceptions,
+    _min_enabled_level, current_logger_for_env
+include("MyLogging.jl")
 include("MyConsoleLogger.jl")
 include("MySimpleLogger.jl")
 include("MyFileLogger.jl")
@@ -312,6 +314,39 @@ function learn_MyConsoleLogger()
     nothing
 end
 
+function learn_Inf1()
+    @info "Default global logger"; default_logger = global_logger()
+
+    @warn "Switching to MyConsoleLogger(stdout, Logging.Debug)"
+    global_logger(MyConsoleLogger(stdout, Logging.Debug))
+    @info "This is info"
+    @debug "Debug"
+    @inf1 "This is inf1"
+
+    @warn "Switching to MyConsoleLogger(stdout, Inf1)"
+    global_logger(MyConsoleLogger(stdout, Inf1))
+    @info "This is info"
+    @debug "Debug"
+    @inf1 "This is inf1"
+
+    @warn "Switching to MyConsoleLogger(stdout, Logging.Info)"
+    global_logger(MyConsoleLogger(stdout, Logging.Info))
+    @info "This is info"
+    @debug "Debug"
+    @inf1 "This is inf1"
+
+    @warn "Switching to MySimpleLogger(stdout, Inf1)"
+    global_logger(MySimpleLogger(stdout, Inf1))
+    @info "This is info"
+    @debug "Debug"
+    @inf1 "This is inf1"
+
+    # Restore
+    global_logger(default_logger)
+
+    nothing
+end
+
 """
     learn_SimpleLogger()
 
@@ -379,6 +414,8 @@ function learn_MySimpleLogger()
 end
 
 
+
+
 # include("learn_Logging.jl"); LearnLogging.learn_ActiveFilteredLogger()
 # include("learn_Logging.jl"); LearnLogging.learn_EarlyFilteredLogger()
 # include("learn_Logging.jl"); LearnLogging.learn_MinLevelLogger()
@@ -390,9 +427,12 @@ end
 # include("learn_Logging.jl"); LearnLogging.my_logging()
 # include("learn_Logging.jl"); LearnLogging.learn_ConsoleLogger()
 # include("learn_Logging.jl"); LearnLogging.learn_MyConsoleLogger()
+# include("learn_Logging.jl"); LearnLogging.learn_Inf1()
 # include("learn_Logging.jl"); LearnLogging.learn_SimpleLogger()
 # include("learn_Logging.jl"); LearnLogging.learn_MySimpleLogger()
 
 #nothing
+
+export Inf1
 end
 
