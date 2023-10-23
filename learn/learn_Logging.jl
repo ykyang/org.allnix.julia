@@ -4,6 +4,7 @@ module LearnLogging
 using Logging
 using LoggingExtras
 using Dates
+using Formatting
 
 ## Customer ConsoleLogger
 import Base.CoreLogging:
@@ -319,6 +320,7 @@ function learn_Inf1()
 
     @warn "Switching to MyConsoleLogger(stdout, Logging.Debug)"
     global_logger(MyConsoleLogger(stdout, Logging.Debug))
+    @logmsg LogLevel(1) "Level 1"
     @info "info"
     @inf1 "inf1"
     @inf2 "inf2"
@@ -327,6 +329,7 @@ function learn_Inf1()
 
     @warn "Switching to MyConsoleLogger(stdout, Inf3)"
     global_logger(MyConsoleLogger(stdout, Inf3))
+    @logmsg LogLevel(1) "Level 1"
     @info "info"
     @inf1 "inf1"
     @inf2 "inf2"
@@ -335,6 +338,7 @@ function learn_Inf1()
 
     @warn "Switching to MyConsoleLogger(stdout, Inf2)"
     global_logger(MyConsoleLogger(stdout, Inf2))
+    @logmsg LogLevel(1) "Level 1"
     @info "info"
     @inf1 "inf1"
     @inf2 "inf2"
@@ -343,6 +347,7 @@ function learn_Inf1()
 
     @warn "Switching to MyConsoleLogger(stdout, Inf1)"
     global_logger(MyConsoleLogger(stdout, Inf1))
+    @logmsg LogLevel(1) "Level 1"
     @info "info"
     @inf1 "inf1"
     @inf2 "inf2"
@@ -351,6 +356,7 @@ function learn_Inf1()
 
     @warn "Switching to MyConsoleLogger(stdout, Info)"
     global_logger(MyConsoleLogger(stdout, Info))
+    @logmsg LogLevel(1) "Level 1"
     @info "info"
     @inf1 "inf1"
     @inf2 "inf2"
@@ -360,6 +366,7 @@ function learn_Inf1()
 
     @warn "Switching to MySimpleLogger(stdout, Debug)"
     global_logger(MySimpleLogger(stdout, Debug))
+    @logmsg LogLevel(1) "Level 1"
     @info "info"
     @inf1 "inf1"
     @inf2 "inf2"
@@ -368,6 +375,7 @@ function learn_Inf1()
 
     @warn "Switching to MySimpleLogger(stdout, Inf3)"
     global_logger(MySimpleLogger(stdout, Inf3))
+    @logmsg LogLevel(1) "Level 1"
     @info "info"
     @inf1 "inf1"
     @inf2 "inf2"
@@ -376,6 +384,7 @@ function learn_Inf1()
 
     @warn "Switching to MySimpleLogger(stdout, Inf2)"
     global_logger(MySimpleLogger(stdout, Inf2))
+    @logmsg LogLevel(1) "Level 1"
     @info "info"
     @inf1 "inf1"
     @inf2 "inf2"
@@ -385,6 +394,7 @@ function learn_Inf1()
 
     @warn "Switching to MySimpleLogger(stdout, Inf1)"
     global_logger(MySimpleLogger(stdout, Inf1))
+    @logmsg LogLevel(1) "Level 1"
     @info "info"
     @inf1 "inf1"
     @inf2 "inf2"
@@ -393,6 +403,7 @@ function learn_Inf1()
 
     @warn "Switching to MySimpleLogger(stdout, Info)"
     global_logger(MySimpleLogger(stdout, Info))
+    @logmsg LogLevel(1) "Level 1"
     @info "info"
     @inf1 "inf1"
     @inf2 "inf2"

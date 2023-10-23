@@ -1,4 +1,4 @@
-import Base: show
+
 
 """
     Inf1
@@ -12,16 +12,35 @@ macro inf2(exs...) Base.CoreLogging.logmsg_code((Base.CoreLogging.@_sourceinfo).
 const Inf3 = LogLevel(-3)
 macro inf3(exs...) Base.CoreLogging.logmsg_code((Base.CoreLogging.@_sourceinfo)..., :Inf3, exs...) end
 
-function show(io::IO, level::LogLevel)
+# import Base: show
+# function show(io::IO, level::LogLevel)
+#     if     level == BelowMinLevel  print(io, "BelowMinLevel")
+#     elseif level == Debug          print(io, "Debug")
+#     # elseif level == Inf3           print(io, "Inf3")
+#     # elseif level == Inf2           print(io, "Inf2")
+#     # elseif level == Inf1           print(io, "Inf1")
+#     elseif level == Info           print(io, "Info")
+#     elseif level == Warn           print(io, "Warn")
+#     elseif level == Error          print(io, "Error")
+#     elseif level == AboveMaxLevel  print(io, "AboveMaxLevel")
+#     #else                           print(io, "LogLevel($(level.level))")
+#     else                           print(io, "L$(sprintf1("%+d",level.level))")
+#     end
+# end
+
+import Base: print
+# Called by string()
+function print(io::IO, level::LogLevel)
     if     level == BelowMinLevel  print(io, "BelowMinLevel")
     elseif level == Debug          print(io, "Debug")
-    elseif level == Inf3           print(io, "Inf3")
-    elseif level == Inf2           print(io, "Inf2")
-    elseif level == Inf1           print(io, "Inf1")
+    # elseif level == Inf3           print(io, "Inf3")
+    # elseif level == Inf2           print(io, "Inf2")
+    # elseif level == Inf1           print(io, "Inf1")
     elseif level == Info           print(io, "Info")
     elseif level == Warn           print(io, "Warn")
     elseif level == Error          print(io, "Error")
     elseif level == AboveMaxLevel  print(io, "AboveMaxLevel")
-    else                           print(io, "LogLevel($(level.level))")
+    #else                           print(io, "LogLevel($(level.level))")
+    else                           print(io, "L$(sprintf1("%+d",level.level))")
     end
 end
