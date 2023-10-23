@@ -319,27 +319,85 @@ function learn_Inf1()
 
     @warn "Switching to MyConsoleLogger(stdout, Logging.Debug)"
     global_logger(MyConsoleLogger(stdout, Logging.Debug))
-    @info "This is info"
+    @info "info"
+    @inf1 "inf1"
+    @inf2 "inf2"
+    @inf3 "inf3"
     @debug "Debug"
-    @inf1 "This is inf1"
+
+    @warn "Switching to MyConsoleLogger(stdout, Inf3)"
+    global_logger(MyConsoleLogger(stdout, Inf3))
+    @info "info"
+    @inf1 "inf1"
+    @inf2 "inf2"
+    @inf3 "inf3"
+    @debug "Debug"
+
+    @warn "Switching to MyConsoleLogger(stdout, Inf2)"
+    global_logger(MyConsoleLogger(stdout, Inf2))
+    @info "info"
+    @inf1 "inf1"
+    @inf2 "inf2"
+    @inf3 "inf3"
+    @debug "Debug"
 
     @warn "Switching to MyConsoleLogger(stdout, Inf1)"
     global_logger(MyConsoleLogger(stdout, Inf1))
-    @info "This is info"
+    @info "info"
+    @inf1 "inf1"
+    @inf2 "inf2"
+    @inf3 "inf3"
     @debug "Debug"
-    @inf1 "This is inf1"
 
-    @warn "Switching to MyConsoleLogger(stdout, Logging.Info)"
-    global_logger(MyConsoleLogger(stdout, Logging.Info))
-    @info "This is info"
+    @warn "Switching to MyConsoleLogger(stdout, Info)"
+    global_logger(MyConsoleLogger(stdout, Info))
+    @info "info"
+    @inf1 "inf1"
+    @inf2 "inf2"
+    @inf3 "inf3"
     @debug "Debug"
-    @inf1 "This is inf1"
+
+
+    @warn "Switching to MySimpleLogger(stdout, Debug)"
+    global_logger(MySimpleLogger(stdout, Debug))
+    @info "info"
+    @inf1 "inf1"
+    @inf2 "inf2"
+    @inf3 "inf3"
+    @debug "Debug"
+
+    @warn "Switching to MySimpleLogger(stdout, Inf3)"
+    global_logger(MySimpleLogger(stdout, Inf3))
+    @info "info"
+    @inf1 "inf1"
+    @inf2 "inf2"
+    @inf3 "inf3"
+    @debug "Debug"
+
+    @warn "Switching to MySimpleLogger(stdout, Inf2)"
+    global_logger(MySimpleLogger(stdout, Inf2))
+    @info "info"
+    @inf1 "inf1"
+    @inf2 "inf2"
+    @inf3 "inf3"
+    @debug "Debug"
+
 
     @warn "Switching to MySimpleLogger(stdout, Inf1)"
     global_logger(MySimpleLogger(stdout, Inf1))
-    @info "This is info"
+    @info "info"
+    @inf1 "inf1"
+    @inf2 "inf2"
+    @inf3 "inf3"
     @debug "Debug"
-    @inf1 "This is inf1"
+
+    @warn "Switching to MySimpleLogger(stdout, Info)"
+    global_logger(MySimpleLogger(stdout, Info))
+    @info "info"
+    @inf1 "inf1"
+    @inf2 "inf2"
+    @inf3 "inf3"
+    @debug "Debug"
 
     # Restore
     global_logger(default_logger)

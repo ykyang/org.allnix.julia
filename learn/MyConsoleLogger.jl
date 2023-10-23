@@ -70,7 +70,8 @@ function default_metafmt(level::LogLevel, _module, group, id, file, line)
 
     ## MOD: Fix width at 5 spaces with padding on the left
     #prefix = string(level == Warn ? "Warning" : string(level), ':')
-    prefix = string(level == Inf1 ? "Inf1" : string(level))
+    prefix = string(level)
+    #prefix = string(level == Inf1 ? "Inf1" : string(level))
     prefix = lpad(prefix, 5, " ")*"]"
 
     ## MOD: Do not print module, file, line number
