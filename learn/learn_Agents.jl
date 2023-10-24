@@ -94,7 +94,7 @@ model = MyAgents.initialize()
 step!(model, MyAgents.agent_step!)
 step!(model, MyAgents.agent_step!,3)
 
-using InteractiveDynamics
+#using InteractiveDynamics
 using CairoMakie
 #using GLMakie
 
@@ -102,13 +102,15 @@ using CairoMakie
 
 groupcolor(a) = a.group == 1 ? :blue : :orange
 groupmarker(a) = a.group == 1 ? :circle : :rect
-figure, _ = abm_plot(model; ac = groupcolor, am = groupmarker, as = 10)
+#figure, _ = abm_plot(model; ac = groupcolor, am = groupmarker, as = 10)
+figure, _ = abmplot(model; ac = groupcolor, am = groupmarker, as = 10)
 
 # https://makie.juliaplots.org/stable/tutorials/basic-tutorial/
 #Makie.inline!(true)
 display(figure) # Only works in IDE
 save("schelling.png", figure)
-abm_video(
+#abm_video(
+abmvideo(
     "schelling.mp4", model, MyAgents.agent_step!,
     ac = groupcolor, am = groupmarker, as = 10,
     framerate = 1, frames = 20,
