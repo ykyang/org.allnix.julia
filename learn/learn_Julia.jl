@@ -415,6 +415,21 @@ function learn_Pair()
     end
 end
 
+struct Point{T}
+    x::T
+    y::T
+end
+
+
+function learn_struct_1()
+    p = Point{Int}(1,2)
+    @test Point{Float64} <: Point
+    #@show p
+    Number 
+
+    nothing
+end
+
 ## Learn metaprogramming
 for op in (:set_xlim, :set_ylim)
     eval(quote

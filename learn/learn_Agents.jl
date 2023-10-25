@@ -2,10 +2,17 @@
 # https://juliadynamics.github.io/Agents.jl/stable/examples/schelling/
 #
 
-module MyAgents # Do this so struct can be reloaded
+module LearnAgents # Do this so struct can be reloaded
 
 using Agents
 using Random
+#using InteractiveDynamics
+using CairoMakie
+using Test
+import InteractiveUtils: supertypes
+#using GLMakie
+
+#GLMakie.activate!()
 
 # mutable struct SchellingAgent <: AbstractAgent
 #     id::Int
@@ -86,37 +93,106 @@ end
 # )
 # @show schelling2
 
+function learn_Schelling()
+    model = initialize()
+    step!(model, agent_step!)
+    step!(model, agent_step!,3)
+
+
+
+    groupcolor(a) = a.group == 1 ? :blue : :orange
+    groupmarker(a) = a.group == 1 ? :circle : :rect
+    #figure, _ = abm_plot(model; ac = groupcolor, am = groupmarker, as = 10)
+    figure, _ = abmplot(model; ac = groupcolor, am = groupmarker, as = 10)
+
+    # https://makie.juliaplots.org/stable/tutorials/basic-tutorial/
+    #Makie.inline!(true)
+    display(figure) # Only works in IDE
+    save("schelling.png", figure)
+    #abm_video(
+    abmvideo(
+        "schelling.mp4", model, agent_step!,
+        ac = groupcolor, am = groupmarker, as = 10,
+        framerate = 1, frames = 20,
+        title = "Schelling's segregation model"
+    )
+
+    # Collecting data during time evolution
+    adata = [:pos, :mood, :group]
 end
 
-using Agents
+@agent Person{T} GridAgent{2} begin
+    age::Int
+    moneyz::T
+end
 
-model = MyAgents.initialize()
-step!(model, MyAgents.agent_step!)
-step!(model, MyAgents.agent_step!,3)
+@agent Baker{T} Person{Int} begin
+    ## https://juliadynamics.github.io/Agents.jl/stable/tutorial/#.-The-agent-type(s)-1
+    ## The example in the doc is wrong.  It is explained further down in the doc.
+    breadz_per_day::T
+end
 
-#using InteractiveDynamics
-using CairoMakie
-#using GLMakie
+abstract type Human <: AbstractAgent end
 
-#GLMakie.activate!()
+@agent Worker GridAgent{2} Human begin
+    age::Int
+    moneyz::Float64
+end
 
-groupcolor(a) = a.group == 1 ? :blue : :orange
-groupmarker(a) = a.group == 1 ? :circle : :rect
-#figure, _ = abm_plot(model; ac = groupcolor, am = groupmarker, as = 10)
-figure, _ = abmplot(model; ac = groupcolor, am = groupmarker, as = 10)
+@agent Fisher Worker Human begin
+    fish_per_day::Float64
+end
 
-# https://makie.juliaplots.org/stable/tutorials/basic-tutorial/
-#Makie.inline!(true)
-display(figure) # Only works in IDE
-save("schelling.png", figure)
-#abm_video(
-abmvideo(
-    "schelling.mp4", model, MyAgents.agent_step!,
-    ac = groupcolor, am = groupmarker, as = 10,
-    framerate = 1, frames = 20,
-    title = "Schelling's segregation model"
-)
+@agent CommonTraits GridAgent{2} begin # the doc has typo here
+    age::Int
+end
 
-# Collecting data during time evolution
-adata = [:pos, :mood, :group]
-nothing
+@agent Bird CommonTraits begin
+    height::Float64
+end
+
+@agent Rabbit CommonTraits begin
+    underground::Bool
+end
+
+Animal = Union{Bird, Rabbit}
+
+function print(x::Animal)
+    println("Animal: $x")
+end
+function print(x::Bird) # Specialized version
+    println("Bird: $x")
+end
+
+function learn_agent_type()
+    ## https://juliadynamics.github.io/Agents.jl/stable/tutorial/#.-The-agent-type(s)-1
+    @test Person <: AbstractAgent
+    person = Person{Int}(1,(1,1),0,1_000_000)
+    @test Baker <: AbstractAgent
+    baker = Baker{Int}(1,(1,1),0,1_000_000, 100)
+    #@show supertypes(Baker)
+
+    @test Human  <: AbstractAgent
+    @test Worker <: Human
+    @test Fisher <: Human
+    #@show supertypes(Fisher)
+
+    ## Create a common type for multiple dispatch
+    bird = Bird(2, (0,0), 5, 1)
+    print(bird)
+    rabbit = Rabbit(3, (0,0), 1, false)
+    print(rabbit)
+    nothing
+end
+
+run = true
+run = false
+if run
+    LearnAgents.learn_agent_type();
+    LearnAgents.learn_Schelling();
+end
+end
+
+
+
+
