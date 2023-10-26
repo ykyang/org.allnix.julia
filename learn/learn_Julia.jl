@@ -430,6 +430,18 @@ function learn_struct_1()
     nothing
 end
 
+function printab(; a, b)
+    println(a, ", ", b)
+end
+
+function learn_keyword_argument()
+    a = 1; b = 2;
+    printab(;a=a,b=b) 
+    printab(;a,b)     # This works?
+    printab(;a=a,b)   # What about this?
+    printab(;a,b=b)   # What about this?
+end
+
 ## Learn metaprogramming
 for op in (:set_xlim, :set_ylim)
     eval(quote
