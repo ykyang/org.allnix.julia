@@ -4,7 +4,12 @@ module LearnJulia
 using Test
 import Serialization
 
-# Learn operator overloading
+## Use Julia generated document, @doc Node, to doc the struct.
+"""
+    Node
+
+$(replace(string(@doc Node), "No documentation found.\n\n"=>""))
+"""
 mutable struct Node
     id::Int64
 
