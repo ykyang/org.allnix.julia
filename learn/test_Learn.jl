@@ -5,10 +5,6 @@ module TestLearn
 using Test
 using ..Learn
 
-
-# macro isdefined(s::Symbol)
-#     return Expr(:escape, Expr(:isdefined, s))
-# end
 function test_log()
     ## indent, tab not defined
     @test (@isdefined indent) == false
@@ -17,10 +13,11 @@ function test_log()
     @test (@log 3 "Hello World!")    == "Hello World!"
 
     ## tab not defined
-    indent = "--" # tab not defined
-    @test (@isdefined tab) == false
-    @test (@log   "Hello World!")    == "--Hello World!"
-    @test (@log 3 "Hello World!")    == "--Hello World!"
+    let indent = "--" # tab not defined
+        @test (@isdefined tab) == false
+        @test (@log   "Hello World!")    == "--Hello World!"
+        @test (@log 3 "Hello World!")    == "--Hello World!"
+    end
     
     ## indent, tab defined
     indent = "--"; tab = "+"
@@ -33,8 +30,12 @@ function test_log()
     @test (@log 3 "Hello World!")     == "--Hello World!"
     
     ## overwrite with inline tab
-    indent="--"; tab = 10; 
+    indent="--"; tab = "-"; 
     @test (@log "+" 3 "Hello World!") == "--+++Hello World!"
+
+    ## overwrite with inline indent, tab
+    indent="--"; tab = "-"; 
+    @test (@log "+++" "-" 2 "Hello World!") == "+++--Hello World!"
 
     nothing
 end

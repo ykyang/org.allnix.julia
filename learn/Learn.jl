@@ -36,10 +36,31 @@ macro log(n, msg)
         string(s1, s2^$n, $msg)
     end)
 end
+"""
+    @log tab n msg
+
+Construct a `String` with `string(s1, \$tab^\$n, \$msg)`.
+If variable `indent` is defined then `s1 = indent` otherwise
+`s1 = ""`.
+
+This is used for constructing indented log message.
+"""
 macro log(tab, n, msg)
     esc(quote
         local s1 = (@isdefined indent) && isa(indent,AbstractString) ? indent : ""
         string(s1, $tab^$n, $msg)
+    end)
+end
+"""
+    @log indent tab n msg
+
+Construct a `String` with `string(\$indent, \$tab^\$n, \$msg)`.
+
+This is used for constructing indented log message.
+"""
+macro log(indent, tab, n, msg)
+    esc(quote
+        string($indent, $tab^$n, $msg)
     end)
 end
 
