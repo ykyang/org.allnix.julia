@@ -11,31 +11,39 @@ import Serialization
 $(replace(string(@doc Node), "No documentation found.\n\n"=>""))
 """
 mutable struct Node
-    id::Int64
+    id::Int
 
-    Node() = ( # incomplete initialization
-        me = new();
-        me
-    )
-    Node(id) = (
-        me = new();
-        me.id = id;
-        me
-    )
+    Node(id) = (me = new(); me.id = id; me) # Inner constructor
 end
+
+Node() = Node(0) # Outer constructor
+
 # https://discourse.julialang.org/t/proper-way-to-overload-operators/19872
 
 # One can use function name or symbol to implement operator overloading
 
-Base.:(<)(x::Node, y::Node) = x.id < y.id # Base.isless(x::Node, y::Node) = x.id < y.id
+#Base.:(<)(x::Node, y::Node) = x.id < y.id # Base.isless(x::Node, y::Node) = x.id < y.id
 function Base.:(==)(x::Node,y::Node) 
     return x.id == y.id
 end
 # used by sort()
-Base.isless(x::Node, y::Node) = error("Unsupported operation")
+#Base.isless(x::Node, y::Node) = error("Unsupported operation")
+Base.isless(x::Node, y::Node) = x.id < y.id
 
 # isequal => ===
-#Base.isequal(x::Node, y::Node) = x.id == y.id
+#Base.isequal(x::Node, y::Node) = error("Unsupported operation")
+
+## required by Set
+function Base.hash(n::Node, h::UInt)
+    return hash(n.id, h)
+end
+
+struct OrderedPair
+    x::Real
+    y::Real
+    # Inner constructor
+    OrderedPair(x,y) = x > y ? error("out of order") : new(x,y)
+end
 
 
 
@@ -467,7 +475,7 @@ end
 #learn_exception()
 #learn_123()
 
-
-end # module MyJulia
+export Node
+end # module
 
 nothing
