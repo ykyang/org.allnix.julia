@@ -56,13 +56,26 @@ function test_Node()
 end
 
 function test_OrderedPair()
+    @test_throws MethodError    OrderedPair()    
+    @test_throws ErrorException OrderedPair(2,1)
     
+    x = OrderedPair(1,2)
+    @test x.x <= x.y
+    x = OrderedPair(1,1)
+    @test x.x <= x.y
+    @test_throws ErrorException x.x = 2
+
+    @test OrderedPair(1,2) == OrderedPair(1,2)
+    @test OrderedPair(3)   == OrderedPair(3,3)
+
+
 end
 
 function testset_base()
     @testset "Base" begin
         #MyJulia.learn_Node()
         test_Node()
+        test_OrderedPair()
     end
 
     nothing

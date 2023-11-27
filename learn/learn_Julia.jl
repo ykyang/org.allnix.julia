@@ -45,8 +45,11 @@ struct OrderedPair
     OrderedPair(x,y) = x > y ? error("out of order") : new(x,y)
 end
 
+OrderedPair(x) = OrderedPair(x,x)
 
-
+function Base.:(==)(x::OrderedPair,y::OrderedPair) 
+    return x.x == y.x && x.y == y.y
+end
 
 function learn_Node()
     @test Node(7) == Node(7)
@@ -475,7 +478,7 @@ end
 #learn_exception()
 #learn_123()
 
-export Node
+export Node, OrderedPair
 end # module
 
 nothing
