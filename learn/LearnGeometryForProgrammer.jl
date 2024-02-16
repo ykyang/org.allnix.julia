@@ -244,12 +244,16 @@ end
 4.1   Some special cases of geometric transformations
       fi: R -> R, for i in 1:n
 4.1.1 Translation
+      2D translation
+      xt = xi + dx
+      yt = yi + dy
+
+      Parametric transformation
       xt = xi + sin(t)
       yt = yi + cos(t)
-      Parametric transformation
 4.1.2 Scaling
-      xs = axi
-      ys = byi
+      xs = a*xi
+      ys = b*yi
       Transformation composition
       the order of operations matters
 4.1.3 Rotation
@@ -257,8 +261,8 @@ end
       yr = -sin(t) xi + cos(t) yi
 4.2   Generalizations
 4.2.1 Linear transformations in Euclidean space
-      xt = a11xi + a12yi
-      yt = a21xi + a22yi
+      xt = a11*xi + a12*yi
+      yt = a21*xi + a22*yi
       Two-point transformation
       TODO Listing 4.1
 4.2.2 Bundling rotation, scaling, and translation in a single affine transformation
@@ -280,16 +284,21 @@ end
       yp3*(g*x3 + h*y3 + i) - (d*x3 + e*y3 + f) = 0
       xp4*(g*x4 + h*y4 + i) - (a*x4 + b*y4 + c) = 0
       yp4*(g*x4 + h*y4 + i) - (d*x4 + e*y4 + f) = 0
+      no single solution, a continuum of solutions
 4.2.4 An alternative to projective transformations
       Bilinear transformation
 4.3   Projective space and homogeneous coordinates
 4.3.1 Expanding the whole space with homogeneous coordinates
+      Expand (x,y) to (x,y,w) where w is projective space, written as (xp,yp,wp)
       IMPORTANT
       x = xp/wp
       y = yp/wp
+      Above conversion is not one-to-one.
       xp = wp * x
       yp = wp * y
       wp = wp
+      (1,0) == (1,0,1) == (2,0,2) == (13,0,13) ...
+      Usually keep wp = 1
 4.3.2 Making all the transformations a single matrix multiplication: Why?
       xp = (axi + byi + cwi)/(gxi + hyi + iwi)
       yp = (dxi + eyi + fwi)/(gxi + hyi + iwi)
@@ -311,17 +320,22 @@ end
       1 0 dx
       0 1 dy
       0 0 1
+4.3.2
       rotation matrix
        cos(r) sin(r)      0
       -sin(r) cor(r)      0
             0      0      1
+      
       scaling matrix
       sx  0  0
        0 sy  0
        0  0  1
 
-
-
+      generic affine transformation
+      a b c
+      d e f
+      0 0 1
+4.3.2
       Composition
       Parallelization
           Associativity
@@ -360,10 +374,11 @@ function learn_4_3_2() # Julia version
     @test p4 == c_inv * pt4
     
     ## Use cofactor instead of inverse
-    @test transpose(cofactor(c)) * pt1 == [0.75, 0.5, 1] # p1
-    @test transpose(cofactor(c)) * pt2 == [1.25, 0.5, 1] # p2
-    @test transpose(cofactor(c)) * pt3 == [1.25, 1.5, 1] # p3
-    @test transpose(cofactor(c)) * pt4 == [0.75, 1.5, 1] # p4
+    c_inv = transpose(cofactor(c))
+    @test c_inv * pt1 == [0.75, 0.5, 1] # p1
+    @test c_inv * pt2 == [1.25, 0.5, 1] # p2
+    @test c_inv * pt3 == [1.25, 1.5, 1] # p3
+    @test c_inv * pt4 == [0.75, 1.5, 1] # p4
 
 end
 function minor(M, i, j)
